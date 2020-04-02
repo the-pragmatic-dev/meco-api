@@ -51,7 +51,7 @@ git clone https://github.com/the-pragmatic-dev/meco-api.git
 cd meco-api/
 ```
 
-Default properties found in `src/main/resources/application.yml` will need to be updated. Either set these through environment variables or pass them to the application at runtime:
+Default properties found in `src/main/resources/application.yml` will need to be updated. You must ignore local updates to `application.yml` to protect your secret keys by assuming it is unchanged. Mark the file as so: `git update-index --assume-unchanged src/main/resources/application.yml`. Either set environment variables using the `export` command or pass them to the application at runtime:
 
 ```bash
 # set environment properties and run service
