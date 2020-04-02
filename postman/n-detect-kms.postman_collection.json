@@ -1,0 +1,244 @@
+{
+	"info": {
+		"_postman_id": "0e869b18-8f3c-4159-a221-2df1989802e2",
+		"name": "n-detect-kms",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Account Signin",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"admin@email.com\",\n\t\"password\": \"password\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/accounts/signin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Account Signup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"steve@email.com\",\n\t\"password\": \"password\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/accounts/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"accounts",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List All Api Keys",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1NzY3NzIxNzAsImV4cCI6MTU3Njc3NTc3MH0.NWcF4AIZMupDrdjQe59QkHiiUNMHF7vsmYMwpaxyblc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/api-keys",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api-keys"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List All Activity",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1NzY3NzIxNzAsImV4cCI6MTU3Njc3NTc3MH0.NWcF4AIZMupDrdjQe59QkHiiUNMHF7vsmYMwpaxyblc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/activities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Api Key",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1NzY3NzIxNzAsImV4cCI6MTU3Njc3NTc3MH0.NWcF4AIZMupDrdjQe59QkHiiUNMHF7vsmYMwpaxyblc"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"test key\",\n  \"scope\": {\n    \"image\": true,\n    \"gif\": false,\n    \"video\": true\n  },\n  \"accessPolicies\": [{\n  \t\"address\":\"198.24.10.0/16\"\n  },\n  {\n  \t\"address\":\"81.17.12.0/24\"\n  }]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api-keys",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api-keys"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Api Key",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1NzY3NzIxNzAsImV4cCI6MTU3Njc3NTc3MH0.NWcF4AIZMupDrdjQe59QkHiiUNMHF7vsmYMwpaxyblc"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"updated test key\",\n  \"scope\": {\n    \"image\": false,\n    \"gif\": false,\n    \"video\": false\n  },\n  \"accessPolicies\": [{\n  \t\"address\":\"19.19.19.0/8\"\n  },\n  {\n  \t\"address\":\"11.11.11.0/8\"\n  }]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api-keys/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api-keys",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Api Key",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1NzY3NzIxNzAsImV4cCI6MTU3Njc3NTc3MH0.NWcF4AIZMupDrdjQe59QkHiiUNMHF7vsmYMwpaxyblc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/api-keys/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api-keys",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "505d2a51-d41a-4a92-873f-0404b8256849",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "4e956c43-7317-473a-a2b2-9367ce2c0ac4",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
