@@ -1,0 +1,71 @@
+server:
+   port: ${PORT:8080}
+
+spring:
+    jackson:
+        serialization:
+            write-dates-as-timestamps: false
+    thymeleaf:
+        cache: false
+    output:
+        ansi:
+            enabled: always
+    data:
+        web:
+            pageable:
+                default-page-size: 8
+                max-page-size: 8
+    datasource:
+        url: ${DATASOURCE_URL:jdbc:postgresql://host:port/database}
+        username: ${DATASOURCE_USERNAME:username}
+        password: ${DATASOURCE_PASSWORD:password}
+    jpa:
+        show-sql: ${JPA_SHOW_SQL:true}
+        hibernate:
+            ddl-auto: validate
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                jdbc:
+                    time_zone: ${TIMEZONE:UTC}
+                    lob:
+                        non_contextual_creation: true
+    flyway:
+        clean-on-validation-error: ${FLYWAY_CLEAN_ON_VALIDATION_ERROR:true}
+
+security:
+    jwt:
+        token:
+            secret-key: ${JWT_SECRET_KEY:secret_key}
+            expire-length: ${JWT_EXPIRE_LENGTH:3600000} # 60 minutes duration by default: 60 minutes * 60 seconds * 1000 miliseconds
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: info, health, flyway, metrics
+
+info:
+    app:
+        version: 
+            name: alpha
+            major: 0
+            minor: 1
+            patch: 0
+
+stripe:
+    secret-key: ${STRIPE_SECRET_KEY:secret_key}
+
+mailgun:
+    domain: ${MAILGUN_DOMAIN:domain}
+    secret-key: ${MAILGUN_SECRET_KEY:secret_key}
+    from:
+        name: ${MAILGUN_FROM_NAME:name}
+        email: ${MAILGUN_FROM_EMAIL:email}
+
+kms:
+    api-key-limit: ${API_KEY_LIMIT:10}
+
+logging:
+    file:
+        path: ${LOGS_DIR:logs}
