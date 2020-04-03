@@ -1,9 +1,12 @@
 language: java
 jdk:
   - openjdk13
+os:
+  - linux
+dist: xenial
 addons:
 sonarcloud:
-  organization: "the-pragmatic-dev"
+  organization: the-pragmatic-dev
   token:
     secure: $SONAR_TOKEN
 script:
