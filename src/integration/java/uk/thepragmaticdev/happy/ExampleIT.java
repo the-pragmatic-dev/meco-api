@@ -1,13 +1,13 @@
-package uk.thepragmaticdev;
+package uk.thepragmaticdev.happy;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-class ApplicationTests {
+public class ExampleIT {
 
   @Test
-  void contextLoads() {
+  public void contextLoads() {
     assertTrue(true);
   }
 

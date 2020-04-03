@@ -15,7 +15,7 @@
 
 # MECO API
 
-JSON API for account, billing & key management services. Aimed to moderate explict content online.
+JSON API for account, billing & key management services. Aimed to moderate explicit content online.
 
 ## Getting Started
 
@@ -41,7 +41,7 @@ Make sure you have installed all of the following prerequisites on your developm
 * A [PostgreSQL](https://www.postgresql.org/) database for storing account, billing and key data.
 * A [Stripe](https://stripe.com/gb) account with access to your [secret key](https://stripe.com/docs/keys) for processing payments.
 * A [Mailgun](https://www.mailgun.com/) account with access to your [secret key](https://help.mailgun.com/hc/en-us/articles/203380100-Where-Can-I-Find-My-API-Key-and-SMTP-Credentials-) for sending emails.
-* Optional: An API testing tool such as [Postman](https://www.postman.com/) for exploritory API testing.
+* Optional: An API testing tool such as [Postman](https://www.postman.com/) for exploratory API testing.
 
 The recommended way to get the MECO API is to use Git to directly clone the repository:
 
@@ -87,7 +87,7 @@ From the cloned workspace compile the project which will also run all unit tests
 ./mvnw install
 ```
 
-output from a successful build is below.
+the output from a successful build is below.
 
 ```bash
 [INFO] ------------------------------------------------------------------------
@@ -100,19 +100,35 @@ output from a successful build is below.
 
 ## Running the tests
 
-Explain how to run the tests.
+Maven profiles exist for running either the unit tests or integration tests, `unit` and `integration` respectively. The `unit` profile is active by default.
 
 ### Unit tests
 
-Explain unit tests.
+You can run unit tests by running the following command at the command prompt:
 
-### API integration tests
+```bash
+./mvnw clean test
+```
 
-Explain integration tests.
+### Integration tests
+
+You can run integration tests by running the following command at the command prompt:
+
+```bash
+./mvnw clean verify -P integration
+```
+
+### Sonar report
+
+Sonar properties are defined in `pom.xml`. Test reports are pushed to [SonarCloud](https://sonarcloud.io/dashboard?id=the-pragmatic-dev_meco-api) using the following command on our [Travis CI](https://travis-ci.com/github/the-pragmatic-dev/meco-api) build server:
+
+```bash
+./mvnw sonar:sonar
+```
 
 ### Coding style guide
 
-Explain what Checkstyle is and Google style.
+The Maven [Checkstyle](https://github.com/checkstyle/checkstyle) plugin will check for violations before compiling. Code that does not adhere to the [Google Java Style Guide](https://checkstyle.sourceforge.io/styleguides/google-java-style-20180523/javaguide.html#s1-introduction) as defined in `checkstyle.google.xml` will cause the build to fail.
 
 ## Deployment
 
