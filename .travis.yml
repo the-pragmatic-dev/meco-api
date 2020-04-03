@@ -4,11 +4,26 @@ jdk:
 os:
   - linux
 dist: xenial
+
 addons:
 sonarcloud:
   organization: the-pragmatic-dev
   token:
     secure: $SONAR_TOKEN
-script:
-  # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
-  - mvn clean verify sonar:sonar
+
+stages:
+  - compile
+  - unit tests
+  - integration tests
+  - deploy
+
+jobs:
+  include:
+    - stage: compile
+      script: ./mvnw clean compile # compilation and checkstyle errors
+    - stage: unit tests
+      script: ./mvnw clean verify sonar:sonar # run unit tests and push results to sonarcloud
+    - stage: integration tests
+      script: ./mvnw clean verify -P integration # run integration tests
+    - stage: deploy
+      script: echo TODO # TODO
