@@ -6,3 +6,5 @@ target/
 .vscode/
 .DS_Store
 logs/
+.terraform/
+*.tfstate.backup

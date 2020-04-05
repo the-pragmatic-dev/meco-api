@@ -70,6 +70,7 @@ export DATASOURCE_PASSWORD=password
   --spring.datasource.password={password}, \
   --spring.jpa.show-sql=false, \
   --spring.flyway.clean-on-validation-error=false, \
+  --spring.flyway.locations=classpath:/db/migration,classpath:/db/data/prod, \
   --security.jwt.token.secret-key={key}, \
   --security.jwt.token.expire-length=300000, \
   --stripe.secret-key={key}, \
@@ -132,7 +133,52 @@ The Maven [Checkstyle](https://github.com/checkstyle/checkstyle) plugin will che
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system.
+Terraform is used for provisioning infrastructure through code. We use it to create a our DigitalOcean environment.
+
+### Prerequisites
+
+1. Install [Terraform CLI](https://www.terraform.io/downloads.html) (version >= 0.12) and add it to your `PATH`.
+2. Generate SSH keys and add to Digital Ocean. On the menu `Account > API > Add SSH key` . After you’ve added, it will show you a fingerprint that you will need to run the terraform command.
+3. Generate a DigitalOcean API token. Menu `Manage > API > Generate New Token`.
+
+### Terraform
+
+Terraform files are located under the `terraform` directory. In order to run them, you need to pass the variables as params (or Terraform will ask one by one). You can configure env vars as follows:
+
+```bash
+export DO_TOKEN=xxx
+export SSH_FINGERPRINT=xxx
+```
+
+Also we need to call `init` to download the provider plugins:
+
+```bash
+terraform init
+```
+
+And then finally apply it:
+
+```bash
+terraform apply \
+  -var "do_token=$DO_TOKEN" \
+  -var "pub_key=$HOME/.ssh/id_rsa.pub" \
+  -var "pvt_key=$HOME/.ssh/id_rsa" \
+  -var "ssh_fingerprint=$SSH_FINGERPRINT"
+```
+
+It first shows the plan that is about to be executed. If the plan looks ok, type `yes` (or use `--auto-aprove`). The environment will then be built.
+
+For development purposes you can destroy the newly created environment by running `destroy`:
+
+```bash
+terraform destroy \
+  -var "do_token=$DO_TOKEN" \
+  -var "pub_key=$HOME/.ssh/id_rsa.pub" \
+  -var "pvt_key=$HOME/.ssh/id_rsa" \
+  -var "ssh_fingerprint=$SSH_FINGERPRINT"
+```
+
+### API documentation
 
 Once the service is running, the API documentation will be available [here](http://localhost:8080/swagger-ui/index.html?url=/v3/api-docs&validatorUrl=).
 
