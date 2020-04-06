@@ -14,3 +14,7 @@ variable "do_image" {
 variable "do_size" {
   default = "s-1vcpu-1gb"
 }
+
+variable "domain" {
+  default = "meco.dev"
+}

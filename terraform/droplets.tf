@@ -1,4 +1,4 @@
-resource "digitalocean_droplet" "api-01" {
+resource "digitalocean_droplet" "api-droplet" {
   image              = var.do_image
   name               = "api-01"
   region             = var.do_region
