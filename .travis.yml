@@ -19,7 +19,9 @@ addons:
     token:
       secure: $SONAR_TOKEN
 
+install: mvn dependency:resolve
 before_script:
+  - psql --version
   - psql -c 'create database travis_ci_test;' -U postgres
 
 stages:
