@@ -3,13 +3,17 @@ jdk:
   - openjdk13
 os:
   - linux
-dist: xenial
+dist: bionic
 
 services:
     - postgresql
 
 addons:
   postgresql: "11"
+  apt:
+    packages:
+    - postgresql-11
+    - postgresql-client-11
   sonarcloud:
     organization: the-pragmatic-dev
     token:
