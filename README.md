@@ -15,7 +15,7 @@
 
 # MECO API
 
-JSON API for account, billing & key management services. Aimed to moderate explicit content online.
+JSON API for account, billing & key management services. Aimed to moderate explicit content online :underage:.
 
 ## Getting Started
 
