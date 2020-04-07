@@ -229,10 +229,10 @@ Actuator endpoints are enabled by default to monitor and interact with the runni
 
 ## Documentation
 
-* [Account service](README.md) - Management of a users account.
-* [Billing service](README.md) - Management of account subscriptions.
-* [Email service](README.md) - Management of account email triggers.
-* [Key management service](README.md) - Management of creating, updating and deleting API keys.
+* [Account service](src/main/java/uk/thepragmaticdev/account/README.md) - Management of a users account.
+* [Billing service](src/main/java/uk/thepragmaticdev/billing/README.md) - Management of account subscriptions.
+* [Email service](src/main/java/uk/thepragmaticdev/email/README.md) - Management of account email triggers.
+* [Key management service](src/main/java/uk/thepragmaticdev/kms/README.md) - Management of creating, updating and deleting API keys.
 
 ## Contributing
 
@@ -254,4 +254,5 @@ MECO API is licensed under the Apache License, Version 2.0. See [LICENSE](LICENS
 
 ## Acknowledgments
 
-* []
+* **Hugo Firth** - *Tech consultant* - [GitHub](https://github.com/hugofirth)
+
