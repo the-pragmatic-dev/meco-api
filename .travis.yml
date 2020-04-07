@@ -6,24 +6,31 @@ os:
 dist: xenial
 
 addons:
+postgresql: "11"
+  apt:
+    packages:
+    - postgresql-11
+    - postgresql-client-11
 sonarcloud:
   organization: the-pragmatic-dev
   token:
     secure: $SONAR_TOKEN
 
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+
 stages:
-  - compile
-  - unit tests
-  - integration tests
+  - test
+  - provision
   - deploy
 
 jobs:
   include:
-    - stage: compile
-      script: ./mvnw clean compile # compilation and checkstyle errors
-    - stage: unit tests
-      script: ./mvnw clean verify sonar:sonar # run unit tests and push results to sonarcloud
-    - stage: integration tests
-      script: ./mvnw clean verify -P integration # run integration tests
+    - stage: test
+    - script: ./mvnw clean compile # compilation and checkstyle errors
+    - script: ./mvnw clean verify sonar:sonar # run unit tests and push results to sonarcloud
+    - script: ./mvnw clean verify -P integration # run integration tests
+    - stage: provision
+    - script: echo TODO # TODO: run terraform
     - stage: deploy
-      script: echo TODO # TODO
+      script: echo TODO # TODO: deploy to digitalocean
