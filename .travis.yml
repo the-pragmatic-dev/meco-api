@@ -10,10 +10,6 @@ services:
 
 addons:
   postgresql: "11"
-  apt:
-    packages:
-    - postgresql-11
-    - postgresql-client-11
   sonarcloud:
     organization: the-pragmatic-dev
     token:
