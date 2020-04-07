@@ -16,10 +16,9 @@ addons:
     - postgresql-client-11
   sonarcloud:
     organization: the-pragmatic-dev
-    token:
-      secure: $SONAR_TOKEN
+    token: $SONAR_TOKEN
 
-install: mvn dependency:resolve
+install: ./mvnw dependency:resolve
 before_script:
   - psql --version
   - psql -c 'create database travis_ci_test;' -U postgres
