@@ -26,6 +26,7 @@
   <properties>
     <commons.lang.version>3.9</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
+    <flyway.test.version>6.1.0</flyway.test.version>
     <gson.version>2.8.1</gson.version>
     <jacoco.version>0.8.5</jacoco.version>
     <java.version>13</java.version>
@@ -40,7 +41,7 @@
     <maven.surefire.plugin.version>3.0.0-M1</maven.surefire.plugin.version>
     <opencsv.version>5.1</opencsv.version>
     <podam.version>7.2.3.RELEASE</podam.version>
-    <rest.assured.version>4.3.0</rest.assured.version>
+    <rest.assured.version>3.3.0</rest.assured.version>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>the-pragmatic-dev</sonar.organization>
     <sonar.projectKey>the-pragmatic-dev_meco-api</sonar.projectKey>
@@ -71,7 +72,7 @@
   </profiles>
 
   <dependencies>
-    <!-- Spring Boot Dependencies -->
+    <!-- spring boot dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -88,7 +89,7 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
-    <!-- Database Dependencies -->
+    <!-- database dependencies -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
@@ -98,37 +99,37 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
     </dependency>
-    <!-- Stripe Payments -->
+    <!-- stripe payments -->
     <dependency>
       <groupId>com.stripe</groupId>
       <artifactId>stripe-java</artifactId>
       <version>${stripe.version}</version>
     </dependency>
-    <!-- Mailgun Emailing -->
+    <!-- mailgun emailing -->
     <dependency>
       <groupId>net.sargue</groupId>
       <artifactId>mailgun</artifactId>
       <version>${mailgun.version}</version>
     </dependency>
-    <!-- API Documentation -->
+    <!-- api documentation -->
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-ui</artifactId>
       <version>${springdoc.version}</version>
     </dependency>
-    <!-- Project Lombok -->
+    <!-- project lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
     </dependency>
-    <!-- JWT Security -->
+    <!-- jwt security -->
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt</artifactId>
       <version>${jwt.version}</version>
     </dependency>
-    <!-- JSON Dependencies -->
+    <!-- json dependencies -->
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-parameter-names</artifactId>
@@ -156,7 +157,7 @@
       <artifactId>gson</artifactId>
       <version>${gson.version}</version>
     </dependency>
-    <!-- Apache Commons Dependencies -->
+    <!-- apache commons dependencies -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
@@ -167,13 +168,13 @@
       <artifactId>commons-net</artifactId>
       <version>${commons.net.version}</version>
     </dependency>
-    <!-- OpenCSV -->
+    <!-- opencsv -->
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>${opencsv.version}</version>
     </dependency>
-    <!-- Testing Dependencies -->
+    <!-- testing dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -183,6 +184,10 @@
           <groupId>org.junit.vintage</groupId>
           <artifactId>junit-vintage-engine</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.vaadin.external.google</groupId>
+          <artifactId>android-json</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -191,8 +196,20 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.flywaydb.flyway-test-extensions</groupId>
+      <artifactId>flyway-spring5-test</artifactId>
+      <version>${flyway.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
+      <version>${rest.assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured-all</artifactId>
       <version>${rest.assured.version}</version>
       <scope>test</scope>
     </dependency>

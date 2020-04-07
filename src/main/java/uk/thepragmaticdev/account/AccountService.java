@@ -88,8 +88,8 @@ public class AccountService {
   public Account update(String username, @Valid Account account) {
     Account authenticatedAccount = findAuthenticatedAccount(username);
     updateFullName(authenticatedAccount, account.getFullName());
-    updateEmailSubscriptionEnabled(authenticatedAccount, account.getEmailSubscriptionEnabled());
-    updateBillingAlertEnabled(authenticatedAccount, account.getBillingAlertEnabled());
+    updateEmailSubscriptionEnabled(authenticatedAccount, account.isEmailSubscriptionEnabled());
+    updateBillingAlertEnabled(authenticatedAccount, account.isBillingAlertEnabled());
     return accountRepository.save(authenticatedAccount);
   }
 
@@ -102,14 +102,14 @@ public class AccountService {
   }
 
   private void updateBillingAlertEnabled(Account authenticatedAccount, boolean billingAlertEnabled) {
-    if (authenticatedAccount.getBillingAlertEnabled() != billingAlertEnabled) {
+    if (authenticatedAccount.isBillingAlertEnabled() != billingAlertEnabled) {
       securityLogService.billingAlertEnabled(authenticatedAccount.getId(), billingAlertEnabled);
       authenticatedAccount.setBillingAlertEnabled(billingAlertEnabled);
     }
   }
 
   private void updateEmailSubscriptionEnabled(Account authenticatedAccount, boolean emailSubscriptionEnabled) {
-    if (authenticatedAccount.getEmailSubscriptionEnabled() != emailSubscriptionEnabled) {
+    if (authenticatedAccount.isEmailSubscriptionEnabled() != emailSubscriptionEnabled) {
       securityLogService.emailSubscriptionEnabled(authenticatedAccount.getId(), emailSubscriptionEnabled);
       authenticatedAccount.setEmailSubscriptionEnabled(emailSubscriptionEnabled);
     }
