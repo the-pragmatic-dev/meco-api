@@ -6,15 +6,15 @@ os:
 dist: xenial
 
 addons:
-postgresql: "11"
+  postgresql: "11"
   apt:
     packages:
     - postgresql-11
     - postgresql-client-11
-sonarcloud:
-  organization: the-pragmatic-dev
-  token:
-    secure: $SONAR_TOKEN
+  sonarcloud:
+    organization: the-pragmatic-dev
+    token:
+      secure: $SONAR_TOKEN
 
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
