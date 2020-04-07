@@ -16,9 +16,9 @@ spring:
                 default-page-size: 8
                 max-page-size: 8
     datasource:
-        url: ${DATASOURCE_URL:jdbc:postgresql://host:port/database}
-        username: ${DATASOURCE_USERNAME:username}
-        password: ${DATASOURCE_PASSWORD:password}
+        url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/travis_ci_test}
+        username: ${DATASOURCE_USERNAME:postgres}
+        password: ${DATASOURCE_PASSWORD:}
     jpa:
         show-sql: ${JPA_SHOW_SQL:true}
         hibernate:
@@ -31,6 +31,7 @@ spring:
                     lob:
                         non_contextual_creation: true
     flyway:
+        locations: ${FLYWAY_LOCATIONS:classpath:/db/migration,classpath:/db/data/dev}
         clean-on-validation-error: ${FLYWAY_CLEAN_ON_VALIDATION_ERROR:true}
 
 security:
