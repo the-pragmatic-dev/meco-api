@@ -2,8 +2,6 @@
 
 :+1::tada: Please check back later, we will populate this soon! :tada::+1:
 
-Testing Discord webhook
-
 ## Issues
 
 *
