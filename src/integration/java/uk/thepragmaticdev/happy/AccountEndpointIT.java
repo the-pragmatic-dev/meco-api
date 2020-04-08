@@ -38,6 +38,24 @@ public class AccountEndpointIT extends IntegrationData {
   public void initEach() {
   }
 
+  // @endpoint:signin
+
+  @Test
+  public String shouldSignin() {
+    return String.format("Bearer %s", 
+      given()
+        .contentType(JSON)
+        .body(account())
+      .when()
+        .post(ACCOUNTS_ENDPOINT + "signin")
+      .then()
+          .body(not(emptyString()))
+          .statusCode(200)
+      .extract().body().asString());
+  }
+
+  // @endpoint:signup
+
   @Test
   public void shouldCreateAccount() {
     Account account = account();
@@ -53,10 +71,12 @@ public class AccountEndpointIT extends IntegrationData {
         .statusCode(201);
   }
 
+  // @endpoint:me
+
   @Test
   public void shouldReturnAuthenticatedAccount() {
     given()
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me")
     .then()
@@ -72,13 +92,15 @@ public class AccountEndpointIT extends IntegrationData {
         .statusCode(200);
   }
 
+  // @endpoint:update
+
   @Test
   public void shouldUpdateOnlyMutableAccountFields() {
     Account account = dirtyAccount();
 
     given()
       .contentType(JSON)
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
       .body(account)
     .when()
       .put(ACCOUNTS_ENDPOINT + "me")
@@ -91,11 +113,12 @@ public class AccountEndpointIT extends IntegrationData {
         .statusCode(200);
   }
 
+  // @endpoint:billing-logs
+
   @Test
   public void shouldReturnLatestBillingLogs() {
     given()
-      .header(HttpHeaders.AUTHORIZATION, signin())
-      .log().ifValidationFails()
+      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
     .then()
@@ -116,11 +139,27 @@ public class AccountEndpointIT extends IntegrationData {
         .statusCode(200);
   }
 
+  // @endpoint:billing-logs-download
+
+  @Test
+  public void shouldDownloadBillingLogs() throws IOException {
+    given()
+      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
+    .when()
+      .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
+    .then()
+        .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, is(HttpHeaders.CONTENT_DISPOSITION))
+        .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
+        .body(is(csv("data/billing.log.csv")))
+        .statusCode(200);
+  }
+
+  // @endpoint:security-logs
+
   @Test
   public void shouldReturnLatestSecurityLogs() {
     given()
-      .header(HttpHeaders.AUTHORIZATION, signin())
-      .log().ifValidationFails()
+      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs")
     .then()
@@ -141,25 +180,12 @@ public class AccountEndpointIT extends IntegrationData {
         .statusCode(200);
   }
 
-  @Test
-  public void shouldDownloadBillingLogs() throws IOException {
-    given()
-      .header(HttpHeaders.AUTHORIZATION, signin())
-      .log().ifValidationFails()
-    .when()
-      .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
-    .then()
-        .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, is(HttpHeaders.CONTENT_DISPOSITION))
-        .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
-        .body(is(csv("data/billing.log.csv")))
-        .statusCode(200);
-  }
+  // @endpoint:security-logs-download
 
   @Test
   public void shouldDownloadSecurityLogs() throws IOException {
     given()
-      .header(HttpHeaders.AUTHORIZATION, signin())
-      .log().ifValidationFails()
+      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")
     .then()
@@ -167,19 +193,6 @@ public class AccountEndpointIT extends IntegrationData {
         .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
         .body(is(csv("data/security.log.csv")))
         .statusCode(200);
-  }
-
-  private String signin() {
-    return String.format("Bearer %s", 
-      given()
-        .contentType(JSON)
-        .body(account())
-      .when()
-        .post(ACCOUNTS_ENDPOINT + "signin")
-      .then()
-          .body(not(emptyString()))
-          .statusCode(200)
-      .extract().body().asString());
   }
 
   private String csv(String file) throws IOException {

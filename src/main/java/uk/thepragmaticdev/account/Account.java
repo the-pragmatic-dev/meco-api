@@ -45,7 +45,7 @@ public class Account implements Model {
   @Email(message = "Username is not a valid email.")
   private String username;
 
-  @Size(min = 8, message = "Minimum password length: 8 characters")
+  @Size(min = 8, message = "Minimum password length: 8 characters.")
   @JsonProperty(access = Access.WRITE_ONLY)
   private String password;
 

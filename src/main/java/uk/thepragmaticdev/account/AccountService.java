@@ -69,6 +69,41 @@ public class AccountService {
   }
 
   /**
+   * Authorize an account.
+   * 
+   * @param username The username of an account attemping to sign in
+   * @param password The password of an account attemping to sign in
+   * @return An authentication token
+   */
+  public String signin(String username, String password) {
+    try {
+      authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+      return jwtTokenProvider.createToken(username, findAuthenticatedAccount(username).getRoles());
+    } catch (AuthenticationException e) {
+      throw new ApiException(AccountCode.INVALID_CREDENTIALS);
+    }
+  }
+
+  /**
+   * Create a new account.
+   * 
+   * @param account The new account to be created
+   * @return A newly created account
+   */
+  public String signup(Account account) {
+    if (!accountRepository.existsByUsername(account.getUsername())) {
+      account.setPassword(passwordEncoder.encode(account.getPassword()));
+      account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
+      account.setCreatedDate(OffsetDateTime.now());
+      accountRepository.save(account);
+      securityLogService.created(account.getId());
+      return jwtTokenProvider.createToken(account.getUsername(), account.getRoles());
+    } else {
+      throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
+    }
+  }
+
+  /**
    * Find the currently authenticated account.
    * 
    * @param username The authenticated account username
@@ -114,41 +149,6 @@ public class AccountService {
     if (authenticatedAccount.isEmailSubscriptionEnabled() != emailSubscriptionEnabled) {
       securityLogService.emailSubscriptionEnabled(authenticatedAccount.getId(), emailSubscriptionEnabled);
       authenticatedAccount.setEmailSubscriptionEnabled(emailSubscriptionEnabled);
-    }
-  }
-
-  /**
-   * Authorize an account.
-   * 
-   * @param username The username of an account attemping to sign in
-   * @param password The password of an account attemping to sign in
-   * @return An authentication token
-   */
-  public String signin(String username, String password) {
-    try {
-      authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-      return jwtTokenProvider.createToken(username, findAuthenticatedAccount(username).getRoles());
-    } catch (AuthenticationException e) {
-      throw new ApiException(AccountCode.INVALID_CREDENTIALS);
-    }
-  }
-
-  /**
-   * Create a new account.
-   * 
-   * @param account The new account to be created
-   * @return A newly created account
-   */
-  public String signup(Account account) {
-    if (!accountRepository.existsByUsername(account.getUsername())) {
-      account.setPassword(passwordEncoder.encode(account.getPassword()));
-      account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
-      account.setCreatedDate(OffsetDateTime.now());
-      accountRepository.save(account);
-      securityLogService.created(account.getId());
-      return jwtTokenProvider.createToken(account.getUsername(), account.getRoles());
-    } else {
-      throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
     }
   }
 
