@@ -28,12 +28,12 @@ import uk.thepragmaticdev.account.Account;
 public class AccountEndpointIT extends IntegrationData {
   // @formatter:off
 
+  /**
+   * Called before each integration test to reset database to default state.
+   */
   @BeforeEach
   @FlywayTest
-  public void initEach() throws Exception {
-    new TextOf(
-        new ResourceOf("data/billing.log.csv")
-    ).asString();
+  public void initEach() {
   }
 
   @Test
