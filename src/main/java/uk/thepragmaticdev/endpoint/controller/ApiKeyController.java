@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.api.controller;
+package uk.thepragmaticdev.endpoint.controller;
 
 import com.monitorjbl.json.JsonResult;
 import com.monitorjbl.json.JsonView;

@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.api.controller;
+package uk.thepragmaticdev.endpoint.controller;
 
 import com.stripe.model.Coupon;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import uk.thepragmaticdev.api.Response;
 import uk.thepragmaticdev.billing.BillingService;
+import uk.thepragmaticdev.endpoint.Response;
 
 @RestController
 @RequestMapping("/billing")

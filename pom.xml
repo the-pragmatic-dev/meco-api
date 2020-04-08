@@ -24,6 +24,7 @@
   </parent>
 
   <properties>
+    <cactoos.version>0.44</cactoos.version>
     <commons.lang.version>3.9</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
     <flyway.test.version>6.1.0</flyway.test.version>
@@ -211,6 +212,12 @@
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured-all</artifactId>
       <version>${rest.assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.cactoos</groupId>
+      <artifactId>cactoos</artifactId>
+      <version>${cactoos.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

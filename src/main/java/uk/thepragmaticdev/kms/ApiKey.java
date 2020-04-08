@@ -22,7 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.thepragmaticdev.account.Account;
-import uk.thepragmaticdev.api.Model;
+import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.kms.validation.Ipv4Cidr;
 
 @Data

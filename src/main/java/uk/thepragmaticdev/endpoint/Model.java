@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.api;
+package uk.thepragmaticdev.endpoint;
 
 /**
  * Marker interface for gathering metrics on models.

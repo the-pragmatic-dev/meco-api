@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.api.controller;
+package uk.thepragmaticdev.endpoint.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.Principal;
@@ -39,6 +39,29 @@ public class AccountController {
   /**
    * TODO tested.
    * 
+   * @param account TODO
+   * @return
+   */
+  @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
+  public String signin(@Valid @RequestBody Account account) {
+    return accountService.signin(account.getUsername(), account.getPassword());
+  }
+
+  /**
+   * TODO tested.
+   * 
+   * @param account TODO
+   * @return
+   */
+  @ResponseStatus(value = HttpStatus.CREATED)
+  @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
+  public String signup(@Valid @RequestBody Account account) {
+    return accountService.signup(account);
+  }
+
+  /**
+   * TODO tested.
+   * 
    * @param principal TODO
    * @return
    */
@@ -61,29 +84,6 @@ public class AccountController {
 
   /**
    * TODO tested.
-   * 
-   * @param account TODO
-   * @return
-   */
-  @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public String signin(@Valid @RequestBody Account account) {
-    return accountService.signin(account.getUsername(), account.getPassword());
-  }
-
-  /**
-   * TODO tested.
-   * 
-   * @param account TODO
-   * @return
-   */
-  @ResponseStatus(value = HttpStatus.CREATED)
-  @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public String signup(@Valid @RequestBody Account account) {
-    return accountService.signup(account);
-  }
-
-  /**
-   * TODO.
    * 
    * @param pageable  TODO
    * @param principal TODO
@@ -109,7 +109,7 @@ public class AccountController {
   }
 
   /**
-   * TODO.
+   * TODO tested.
    * 
    * @param pageable  TODO
    * @param principal TODO

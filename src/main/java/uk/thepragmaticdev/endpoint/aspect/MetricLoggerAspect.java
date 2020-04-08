@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.api.aspect;
+package uk.thepragmaticdev.endpoint.aspect;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
-import uk.thepragmaticdev.api.Model;
+import uk.thepragmaticdev.endpoint.Model;
 
 @Aspect
 @Component

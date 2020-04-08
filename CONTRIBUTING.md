@@ -4,11 +4,11 @@
 
 ## Issues
 
-* 
+*
 
 ## Version control
 
-* 
+*
 
 ## Pull requests
 

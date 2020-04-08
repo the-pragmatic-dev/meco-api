@@ -12,7 +12,7 @@ import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.thepragmaticdev.api.Model;
+import uk.thepragmaticdev.endpoint.Model;
 
 @Data
 @NoArgsConstructor
@@ -27,6 +27,7 @@ public class SecurityLog implements Model {
   @CsvIgnore
   private Long id;
 
+  @JsonIgnore
   @CsvIgnore
   private Long accountId;
 

@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.api.controller.advice;
+package uk.thepragmaticdev.endpoint.controller.advice;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;

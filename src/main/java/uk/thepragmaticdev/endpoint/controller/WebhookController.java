@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.api.controller;
+package uk.thepragmaticdev.endpoint.controller;
 
 import com.stripe.model.Event;
 import io.swagger.v3.oas.annotations.tags.Tag;

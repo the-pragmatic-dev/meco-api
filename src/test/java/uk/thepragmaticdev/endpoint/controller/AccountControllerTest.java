@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.api.controller;
+package uk.thepragmaticdev.endpoint.controller;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
