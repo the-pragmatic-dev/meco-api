@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "webhooks")
 public class WebhookController {
 
-  public WebhookController() {
-  }
-
   @PostMapping
   public String handleWebhookEvent(Event event) {
     // TODO: Handle Stripe webhooks.

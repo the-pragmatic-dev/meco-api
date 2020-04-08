@@ -1,7 +1,6 @@
 package uk.thepragmaticdev.config;
 
 import com.monitorjbl.json.JsonViewSupportFactoryBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -9,11 +8,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 @Configuration
 public class JsonConfig {
 
-  @Autowired
-  private MappingJackson2HttpMessageConverter converter;
-
   @Bean
-  public JsonViewSupportFactoryBean views() {
+  public JsonViewSupportFactoryBean views(MappingJackson2HttpMessageConverter converter) {
     return new JsonViewSupportFactoryBean(converter.getObjectMapper());
   }
 }

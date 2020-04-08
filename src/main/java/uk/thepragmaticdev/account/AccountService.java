@@ -1,6 +1,7 @@
 package uk.thepragmaticdev.account;
 
 import com.opencsv.CSVWriter;
+import com.opencsv.ICSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -172,7 +173,7 @@ public class AccountService {
     Account authenticatedAccount = findAuthenticatedAccount(username);
     try {
       StatefulBeanToCsv<BillingLog> writer = new StatefulBeanToCsvBuilder<BillingLog>(response.getWriter())
-          .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER).withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+          .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
       writer.write(billingLogService.findAllByAccountId(authenticatedAccount.getId()));
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
@@ -204,7 +205,7 @@ public class AccountService {
     Account authenticatedAccount = findAuthenticatedAccount(username);
     try {
       StatefulBeanToCsv<SecurityLog> writer = new StatefulBeanToCsvBuilder<SecurityLog>(response.getWriter())
-          .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER).withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+          .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
       writer.write(securityLogService.findAllByAccountId(authenticatedAccount.getId()));
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
