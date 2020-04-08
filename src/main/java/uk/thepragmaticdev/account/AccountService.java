@@ -1,6 +1,5 @@
 package uk.thepragmaticdev.account;
 
-import com.opencsv.CSVWriter;
 import com.opencsv.ICSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
@@ -43,14 +42,15 @@ public class AccountService {
   private AuthenticationManager authenticationManager;
 
   /**
-   * TODO.
+   * Service for creating, authorizing and updating accounts. Billing and security
+   * logs related to an authorised account may also be downloaded.
    * 
-   * @param accountRepository     TODO
-   * @param billingLogService     TODO
-   * @param securityLogService    TODO
-   * @param passwordEncoder       TODO
-   * @param jwtTokenProvider      TODO
-   * @param authenticationManager TODO
+   * @param accountRepository     The data access repository for accounts
+   * @param billingLogService     The service for accessing billing logs
+   * @param securityLogService    The service for accessing security logs
+   * @param passwordEncoder       The service for encoding passwords
+   * @param jwtTokenProvider      The provider for creating, validating tokens
+   * @param authenticationManager The manager for authentication providers
    */
   @Autowired
   public AccountService(//
@@ -69,10 +69,10 @@ public class AccountService {
   }
 
   /**
-   * TODO.
+   * Find the currently authenticated account.
    * 
-   * @param username TODO
-   * @return
+   * @param username The authenticated account username
+   * @return The authenticated account
    */
   public Account findAuthenticatedAccount(String username) {
     return accountRepository.findByUsername(username)
@@ -80,11 +80,12 @@ public class AccountService {
   }
 
   /**
-   * TODO.
+   * Update all mutable fields of an authenticated account if a change is
+   * detected.
    * 
-   * @param username TODO
-   * @param account  TODO
-   * @return
+   * @param username The authenticated account username
+   * @param account  An account with the desired values
+   * @return The updated account
    */
   public Account update(String username, @Valid Account account) {
     Account authenticatedAccount = findAuthenticatedAccount(username);
@@ -117,11 +118,11 @@ public class AccountService {
   }
 
   /**
-   * TODO.
+   * Authorize an account.
    * 
-   * @param username TODO
-   * @param password TODO
-   * @return
+   * @param username The username of an account attemping to sign in
+   * @param password The password of an account attemping to sign in
+   * @return An authentication token
    */
   public String signin(String username, String password) {
     try {
@@ -133,10 +134,10 @@ public class AccountService {
   }
 
   /**
-   * TODO.
+   * Create a new account.
    * 
-   * @param account TODO
-   * @return
+   * @param account The new account to be created
+   * @return A newly created account
    */
   public String signup(Account account) {
     if (!accountRepository.existsByUsername(account.getUsername())) {
@@ -152,11 +153,11 @@ public class AccountService {
   }
 
   /**
-   * TODO.
+   * Find the latest billing logs for the account.
    * 
-   * @param pageable TODO
-   * @param username TODO
-   * @return
+   * @param pageable The pagination information
+   * @param username The authenticated account username
+   * @return A page of the latest billing logs
    */
   public Page<BillingLog> billingLogs(Pageable pageable, String username) {
     Account authenticatedAccount = findAuthenticatedAccount(username);
@@ -164,10 +165,10 @@ public class AccountService {
   }
 
   /**
-   * TODO.
+   * Download the latest billing logs for the account as a CSV file.
    * 
-   * @param response TODO
-   * @param username TODO
+   * @param response The servlet response
+   * @param username The authenticated account username
    */
   public void downloadBillingLogs(HttpServletResponse response, String username) {
     Account authenticatedAccount = findAuthenticatedAccount(username);
@@ -184,11 +185,11 @@ public class AccountService {
   }
 
   /**
-   * TODO.
+   * Find the latest security logs for the account.
    * 
-   * @param pageable TODO
-   * @param username TODO
-   * @return
+   * @param pageable The pagination information
+   * @param username The authenticated account username
+   * @return A page of the latest security logs
    */
   public Page<SecurityLog> securityLogs(Pageable pageable, String username) {
     Account authenticatedAccount = findAuthenticatedAccount(username);
@@ -196,10 +197,10 @@ public class AccountService {
   }
 
   /**
-   * TODO.
+   * Download the latest security logs for the account as a CSV file.
    * 
-   * @param response TODO
-   * @param username TODO
+   * @param response The servlet response
+   * @param username The authenticated account username
    */
   public void downloadSecurityLogs(HttpServletResponse response, String username) {
     Account authenticatedAccount = findAuthenticatedAccount(username);

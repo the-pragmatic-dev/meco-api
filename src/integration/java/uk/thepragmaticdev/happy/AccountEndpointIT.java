@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import java.io.IOException;
@@ -59,11 +60,15 @@ public class AccountEndpointIT extends IntegrationData {
     .when()
       .get(ACCOUNTS_ENDPOINT + "me")
     .then()
+        .body("id", is(nullValue()))
         .body("username", is("admin@email.com"))
+        .body("password", is(nullValue()))
         .body("fullName", is("Stephen Cathcart"))
         .body("emailSubscriptionEnabled", is(true))
         .body("billingAlertEnabled", is(false))
         .body("createdDate", is("2020-02-25T10:30:44.232Z"))
+        .body("roles", is(nullValue()))
+        .body("apiKeys", is(nullValue()))
         .statusCode(200);
   }
 

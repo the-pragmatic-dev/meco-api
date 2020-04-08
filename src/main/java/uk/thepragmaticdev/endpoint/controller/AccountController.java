@@ -38,10 +38,10 @@ public class AccountController {
   }
 
   /**
-   * Authorize account.
+   * Authorize an account.
    * 
    * @param account The account attempting to sign
-   * @return A generated JWT
+   * @return An authentication token
    */
   @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
   public String signin(@Valid @RequestBody Account account) {
@@ -61,7 +61,7 @@ public class AccountController {
   }
 
   /**
-   * Finds the currently authenticated account.
+   * Find the currently authenticated account.
    * 
    * @param principal The currently authenticated principal user
    * @return The authenticated account
@@ -72,10 +72,10 @@ public class AccountController {
   }
 
   /**
-   * Updates all mutable fields of the account.
+   * Update all mutable fields of an authenticated account.
    * 
    * @param principal The currently authenticated principal user
-   * @param account   The account to be updated
+   * @param account   An account with the desired values
    * @return The updated account
    */
   @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -84,7 +84,7 @@ public class AccountController {
   }
 
   /**
-   * Finds the latest billing logs for the account.
+   * Find the latest billing logs for the account.
    * 
    * @param pageable  The pagination information
    * @param principal The currently authenticated principal user
@@ -96,7 +96,7 @@ public class AccountController {
   }
 
   /**
-   * Downloads the latest billing logs for the account as a CSV file.
+   * Download the latest billing logs for the account as a CSV file.
    * 
    * @param response  The servlet response
    * @param principal The currently authenticated principal user
@@ -110,7 +110,7 @@ public class AccountController {
   }
 
   /**
-   * Finds the latest security logs for the account.
+   * Find the latest security logs for the account.
    * 
    * @param pageable  The pagination information
    * @param principal The currently authenticated principal user
@@ -122,7 +122,7 @@ public class AccountController {
   }
 
   /**
-   * Downloads the latest security logs for the account as a CSV file.
+   * Download the latest security logs for the account as a CSV file.
    * 
    * @param response  The servlet response
    * @param principal The currently authenticated principal user
