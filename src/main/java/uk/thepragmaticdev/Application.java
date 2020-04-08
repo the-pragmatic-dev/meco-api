@@ -9,9 +9,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class Application {
 
   /**
-   * TODO.
+   * Launches the application.
    * 
-   * @param args TODO
+   * @param args application startup arguments
    */
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);

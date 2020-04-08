@@ -1,6 +1,7 @@
 package uk.thepragmaticdev.endpoint.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -37,10 +38,10 @@ public class AccountController {
   }
 
   /**
-   * TODO tested.
+   * Authorize account.
    * 
-   * @param account TODO
-   * @return
+   * @param account The account attempting to sign
+   * @return A generated JWT
    */
   @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
   public String signin(@Valid @RequestBody Account account) {
@@ -48,10 +49,10 @@ public class AccountController {
   }
 
   /**
-   * TODO tested.
+   * Create a new account.
    * 
-   * @param account TODO
-   * @return
+   * @param account The new account to be created
+   * @return A newly created account
    */
   @ResponseStatus(value = HttpStatus.CREATED)
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -60,10 +61,10 @@ public class AccountController {
   }
 
   /**
-   * TODO tested.
+   * Finds the currently authenticated account.
    * 
-   * @param principal TODO
-   * @return
+   * @param principal The currently authenticated principal user
+   * @return The authenticated account
    */
   @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
   public Account findAuthenticatedAccount(Principal principal) {
@@ -71,11 +72,11 @@ public class AccountController {
   }
 
   /**
-   * TODO tested.
+   * Updates all mutable fields of the account.
    * 
-   * @param principal TODO
-   * @param account   TODO
-   * @return
+   * @param principal The currently authenticated principal user
+   * @param account   The account to be updated
+   * @return The updated account
    */
   @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public Account update(Principal principal, @Valid @RequestBody Account account) {
@@ -83,11 +84,11 @@ public class AccountController {
   }
 
   /**
-   * TODO tested.
+   * Finds the latest billing logs for the account.
    * 
-   * @param pageable  TODO
-   * @param principal TODO
-   * @return
+   * @param pageable  The pagination information
+   * @param principal The currently authenticated principal user
+   * @return A page of the latest billing logs
    */
   @GetMapping(value = "/me/billing/logs", produces = MediaType.APPLICATION_JSON_VALUE)
   public Page<BillingLog> billingLogs(Pageable pageable, Principal principal) {
@@ -95,25 +96,25 @@ public class AccountController {
   }
 
   /**
-   * TODO.
+   * Downloads the latest billing logs for the account as a CSV file.
    * 
-   * @param response  TODO
-   * @param principal TODO
+   * @param response  The servlet response
+   * @param principal The currently authenticated principal user
    */
   @GetMapping(value = "/me/billing/logs/download")
   public void downloadBillingLogs(HttpServletResponse response, Principal principal) {
-    response.setCharacterEncoding("UTF-8");
-    response.setHeader("Access-Control-Expose-Headers", HttpHeaders.CONTENT_DISPOSITION);
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
     response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "billing.csv" + "\"");
     accountService.downloadBillingLogs(response, principal.getName());
   }
 
   /**
-   * TODO tested.
+   * Finds the latest security logs for the account.
    * 
-   * @param pageable  TODO
-   * @param principal TODO
-   * @return
+   * @param pageable  The pagination information
+   * @param principal The currently authenticated principal user
+   * @return A page of the latest security logs
    */
   @GetMapping(value = "/me/security/logs", produces = MediaType.APPLICATION_JSON_VALUE)
   public Page<SecurityLog> securityLogs(Pageable pageable, Principal principal) {
@@ -121,15 +122,15 @@ public class AccountController {
   }
 
   /**
-   * TODO.
+   * Downloads the latest security logs for the account as a CSV file.
    * 
-   * @param response  TODO
-   * @param principal TODO
+   * @param response  The servlet response
+   * @param principal The currently authenticated principal user
    */
   @GetMapping(value = "/me/security/logs/download")
   public void downloadSecurityLogs(HttpServletResponse response, Principal principal) {
-    response.setCharacterEncoding("UTF-8");
-    response.setHeader("Access-Control-Expose-Headers", HttpHeaders.CONTENT_DISPOSITION);
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
     response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "security.csv" + "\"");
     accountService.downloadSecurityLogs(response, principal.getName());
   }

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationData;
@@ -54,7 +55,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnAuthenticatedAccount() {
     given()
-      .header(AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me")
     .then()
@@ -72,7 +73,7 @@ public class AccountEndpointIT extends IntegrationData {
 
     given()
       .contentType(JSON)
-      .header(AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
       .body(account)
     .when()
       .put(ACCOUNTS_ENDPOINT + "me")
@@ -88,7 +89,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnLatestBillingLogs() {
     given()
-      .header(AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
       .log().ifValidationFails()
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
@@ -113,7 +114,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnLatestSecurityLogs() {
     given()
-      .header(AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
       .log().ifValidationFails()
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs")
@@ -138,13 +139,13 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldDownloadBillingLogs() throws IOException {
     given()
-      .header(AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
       .log().ifValidationFails()
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
     .then()
-        .header(ACCESS_CONTROL_EXPOSE_HEADERS, is("Content-Disposition"))
-        .header(CONTENT_DISPOSITION, startsWith("attachment; filename="))
+        .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, is(HttpHeaders.CONTENT_DISPOSITION))
+        .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
         .body(is(csv("data/billing.log.csv")))
         .statusCode(200);
   }
@@ -152,13 +153,13 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldDownloadSecurityLogs() throws IOException {
     given()
-      .header(AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
       .log().ifValidationFails()
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")
     .then()
-        .header(ACCESS_CONTROL_EXPOSE_HEADERS, is("Content-Disposition"))
-        .header(CONTENT_DISPOSITION, startsWith("attachment; filename="))
+        .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, is(HttpHeaders.CONTENT_DISPOSITION))
+        .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
         .body(is(csv("data/security.log.csv")))
         .statusCode(200);
   }

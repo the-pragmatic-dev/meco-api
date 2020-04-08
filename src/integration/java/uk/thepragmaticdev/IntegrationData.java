@@ -22,9 +22,6 @@ public abstract class IntegrationData {
   @Autowired
   private ObjectMapper objectMapper;
 
-  protected static final String AUTHORIZATION = "Authorization";
-  protected static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
-  protected static final String CONTENT_DISPOSITION = "Content-Disposition";
   protected static final String ACCOUNTS_ENDPOINT = "http://localhost:8080/accounts/";
 
   /**
