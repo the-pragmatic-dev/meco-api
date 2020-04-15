@@ -10,4 +10,6 @@ public interface ApiKeyLogRepository extends JpaRepository<ApiKeyLog, Long> {
   List<ApiKeyLog> findAllByApiKeyIdOrderByInstantDesc(Long apiKeyId);
 
   Page<ApiKeyLog> findAllByApiKeyIdOrderByInstantDesc(Pageable pageable, Long apiKeyId);
+
+  void deleteAllByApiKeyId(Long apiKeyId);
 }

@@ -22,8 +22,6 @@ import uk.thepragmaticdev.account.Account;
 public class AccountEndpointIT extends IntegrationData {
   // @formatter:off
 
-  private static final String INVALID_TOKEN = "Bearer invalidToken";
-
   /**
    * Called before each integration test to reset database to default state.
    */

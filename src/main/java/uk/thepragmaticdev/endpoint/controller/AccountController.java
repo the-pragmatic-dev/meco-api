@@ -96,7 +96,7 @@ public class AccountController {
   }
 
   /**
-   * Download the latest billing logs for the account as a CSV file.
+   * Download all billing logs for the account as a CSV file.
    * 
    * @param response  The servlet response
    * @param principal The currently authenticated principal user
@@ -122,7 +122,7 @@ public class AccountController {
   }
 
   /**
-   * Download the latest security logs for the account as a CSV file.
+   * Download all security logs for the account as a CSV file.
    * 
    * @param response  The servlet response
    * @param principal The currently authenticated principal user

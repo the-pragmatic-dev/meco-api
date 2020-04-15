@@ -84,10 +84,9 @@ public class ApiKeyLogService {
    * TODO.
    * 
    * @param apiKeyId TODO
-   * @return
    */
-  public ApiKeyLog deleted(Long apiKeyId) {
-    return log(apiKeyId, "key.deleted");
+  public void delete(Long apiKeyId) {
+    apiKeyLogRepository.deleteAllByApiKeyId(apiKeyId);
   }
 
   private ApiKeyLog log(Long apiKeyId, String action) {

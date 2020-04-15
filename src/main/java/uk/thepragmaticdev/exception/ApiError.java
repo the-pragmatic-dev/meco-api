@@ -16,6 +16,7 @@ import org.springframework.validation.FieldError;
 @JsonInclude(Include.NON_NULL)
 public class ApiError {
 
+  /** Mask value for password fields. */
   private static final String PROTECTED_VALUE = "[PROTECTED]";
 
   private final HttpStatus status;
@@ -23,9 +24,10 @@ public class ApiError {
   private List<ApiSubError> subErrors;
 
   /**
-   * TODO.
+   * Iterates through all field errors and adds each error to a sub list. If a
+   * password is rejected then the value is masked for security purposes.
    * 
-   * @param fieldErrors TODO
+   * @param fieldErrors The list of reasons for rejecting a specific field value
    */
   public void addValidationErrors(List<FieldError> fieldErrors) {
     if (subErrors == null) {

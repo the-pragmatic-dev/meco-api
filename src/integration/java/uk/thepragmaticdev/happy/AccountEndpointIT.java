@@ -10,9 +10,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import java.io.IOException;
-import org.cactoos.io.ResourceOf;
-import org.cactoos.text.FormattedText;
-import org.cactoos.text.TextOf;
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,16 +39,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public String shouldSignin() {
-    return String.format("Bearer %s", 
-      given()
-        .contentType(JSON)
-        .body(account())
-      .when()
-        .post(ACCOUNTS_ENDPOINT + "signin")
-      .then()
-          .body(not(emptyString()))
-          .statusCode(200)
-      .extract().body().asString());
+    return signin();
   }
 
   // @endpoint:signup
@@ -76,7 +64,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnAuthenticatedAccount() {
     given()
-      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me")
     .then()
@@ -100,15 +88,15 @@ public class AccountEndpointIT extends IntegrationData {
 
     given()
       .contentType(JSON)
-      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
       .body(account)
     .when()
       .put(ACCOUNTS_ENDPOINT + "me")
     .then()
         .body("username", is("admin@email.com"))
         .body("fullName", is(account.getFullName()))
-        .body("emailSubscriptionEnabled", is(account.isEmailSubscriptionEnabled()))
-        .body("billingAlertEnabled", is(account.isBillingAlertEnabled()))
+        .body("emailSubscriptionEnabled", is(account.getEmailSubscriptionEnabled()))
+        .body("billingAlertEnabled", is(account.getBillingAlertEnabled()))
         .body("createdDate", is("2020-02-25T10:30:44.232Z"))
         .statusCode(200);
   }
@@ -118,7 +106,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnLatestBillingLogs() {
     given()
-      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
     .then()
@@ -144,7 +132,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldDownloadBillingLogs() throws IOException {
     given()
-      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
     .then()
@@ -159,7 +147,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnLatestSecurityLogs() {
     given()
-      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs")
     .then()
@@ -185,7 +173,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldDownloadSecurityLogs() throws IOException {
     given()
-      .header(HttpHeaders.AUTHORIZATION, shouldSignin())
+      .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")
     .then()
@@ -193,12 +181,6 @@ public class AccountEndpointIT extends IntegrationData {
         .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
         .body(is(csv("data/security.log.csv")))
         .statusCode(200);
-  }
-
-  private String csv(String file) throws IOException {
-    return new FormattedText(new TextOf(
-        new ResourceOf(file)
-    )).asString();
   }
 
   // @formatter:on

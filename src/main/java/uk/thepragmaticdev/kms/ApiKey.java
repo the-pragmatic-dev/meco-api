@@ -3,8 +3,9 @@ package uk.thepragmaticdev.kms;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.OffsetDateTime;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -55,10 +56,12 @@ public class ApiKey implements Model {
   private OffsetDateTime modifiedDate;
 
   @NotNull
-  private Boolean enabled;
+  @Column(columnDefinition = "boolean not null")
+  private boolean enabled;
 
   @NotNull
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnoreProperties({ "apiKey" })
   @JoinColumn(name = "scope_id", referencedColumnName = "id")
   private Scope scope;
 
@@ -66,7 +69,7 @@ public class ApiKey implements Model {
   @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
   @JsonIgnoreProperties({ "apiKey" })
   @JoinColumn(name = "api_key_id", referencedColumnName = "id")
-  private Collection<AccessPolicy> accessPolicies;
+  private List<AccessPolicy> accessPolicies;
 
   @ManyToOne
   @JsonIgnore

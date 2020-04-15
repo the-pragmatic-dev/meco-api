@@ -81,6 +81,7 @@ public class ApiKeyService {
     if (apiKeyRepository.countByAccountId(authenticatedAccount.getId()) < apiKeyLimit) {
       apiKey.setId(null);
       apiKey.setAccount(authenticatedAccount);
+      apiKey.setName(apiKey.getName());
       apiKey.setPrefix(generatePrefix());
       apiKey.setKey(apiKey.getPrefix().concat(".").concat(generateApiKey()));
       apiKey.setHash(encodeApiKey(apiKey.getKey()));
@@ -145,8 +146,8 @@ public class ApiKeyService {
     Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
     ApiKey persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
+    apiKeyLogService.delete(persistedApiKey.getId());
     apiKeyRepository.delete(persistedApiKey);
-    apiKeyLogService.deleted(persistedApiKey.getId());
   }
 
   /**

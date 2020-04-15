@@ -23,11 +23,13 @@ public class MetricLoggerAspect {
   private static final Logger logger = LoggerFactory.getLogger(MetricLoggerAspect.class);
 
   /**
-   * TODO.
+   * Advice that surrounds the join point of a methods invocation. This performs
+   * custom logging of controller metrics between the endpoints invocation.
    * 
-   * @param joinPoint TODO
-   * @return TODO
-   * @throws Throwable TODO
+   * @param joinPoint The point during the execution of a method
+   * @return The value of join point
+   * @throws Throwable If the invoked proceed throws anything
+   * 
    */
   @Around("within(@org.springframework.web.bind.annotation.RestController *)")
   public Object logAfter(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -39,7 +41,6 @@ public class MetricLoggerAspect {
     JSONObject metric = createMetric(joinPoint, stopWatch);
 
     logger.info("{}", metric);
-
     return result;
   }
 

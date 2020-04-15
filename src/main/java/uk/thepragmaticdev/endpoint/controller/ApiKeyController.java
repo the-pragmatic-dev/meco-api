@@ -4,6 +4,7 @@ import com.monitorjbl.json.JsonResult;
 import com.monitorjbl.json.JsonView;
 import com.monitorjbl.json.Match;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -42,10 +43,10 @@ public class ApiKeyController {
   }
 
   /**
-   * TODO.
+   * Find all keys owned by the authenticaed account.
    * 
-   * @param principal TODO
-   * @return
+   * @param principal The currently authenticated principal user
+   * @return A list of all keys owned by the account
    */
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.OK)
@@ -54,11 +55,12 @@ public class ApiKeyController {
   }
 
   /**
-   * TODO.
+   * Create a new key. This is the only time the key field will be visible in the
+   * response for security purposes.
    * 
-   * @param principal TODO
-   * @param apiKey    TODO
-   * @return
+   * @param principal The currently authenticated principal user
+   * @param apiKey    The new key to be created
+   * @return A newly created key
    */
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.CREATED)
@@ -69,12 +71,12 @@ public class ApiKeyController {
   }
 
   /**
-   * TODO.
+   * Update all mutable fields of a key owned by an authenticated account.
    * 
-   * @param principal TODO
-   * @param id        TODO
-   * @param apiKey    TODO
-   * @return
+   * @param principal The currently authenticated principal user
+   * @param id        The id of the key to be updated
+   * @param apiKey    A key with the desired values
+   * @return The updated key
    */
   @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.OK)
@@ -83,10 +85,10 @@ public class ApiKeyController {
   }
 
   /**
-   * TODO.
+   * Delete a key owned by an authenticated account.
    * 
-   * @param principal TODO
-   * @param id        TODO
+   * @param principal The currently authenticated principal user
+   * @param id        The id of the key to be deleted
    */
   @DeleteMapping(value = "/{id}")
   @ResponseStatus(value = HttpStatus.NO_CONTENT)
@@ -95,11 +97,11 @@ public class ApiKeyController {
   }
 
   /**
-   * TODO.
+   * Find the latest logs for the requested key id.
    * 
-   * @param pageable  TODO
-   * @param principal TODO
-   * @param id        TODO
+   * @param pageable  The pagination information
+   * @param principal The currently authenticated principal user
+   * @param id        The id of the key requesting logs
    * @return
    */
   @GetMapping(value = "/{id}/logs", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -109,26 +111,26 @@ public class ApiKeyController {
   }
 
   /**
-   * TODO.
+   * Download all logs for the requested key id as a CSV file.
    * 
-   * @param response  TODO
-   * @param principal TODO
-   * @param id        TODO
+   * @param response  The servlet response
+   * @param principal The currently authenticated principal user
+   * @param id        The id of the key requesting logs
    */
   @GetMapping(value = "/{id}/logs/download", produces = "text/csv")
   @ResponseStatus(value = HttpStatus.OK)
   public void downloadLog(HttpServletResponse response, Principal principal, @PathVariable long id) {
-    response.setCharacterEncoding("UTF-8");
-    response.setHeader("Access-Control-Expose-Headers", HttpHeaders.CONTENT_DISPOSITION);
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
     response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "api-key.csv" + "\"");
     apiKeyService.downloadLog(response, principal.getName(), id);
   }
 
   /**
-   * TODO.
+   * Counts the amount of keys owned by the authenticated account.
    * 
-   * @param principal TODO
-   * @return
+   * @param principal The currently authenticated principal user
+   * @return A count of keys owned by the authenticated account
    */
   @GetMapping(value = "/count")
   @ResponseStatus(value = HttpStatus.OK)

@@ -26,17 +26,17 @@ public class Scope implements Model {
   @JsonIgnore
   private Long id;
 
-  @Column(columnDefinition = "boolean default false")
-  private Boolean image;
+  @Column(columnDefinition = "boolean not null default false")
+  private boolean image;
 
-  @Column(columnDefinition = "boolean default false")
-  private Boolean gif;
+  @Column(columnDefinition = "boolean not null default false")
+  private boolean gif;
 
-  @Column(columnDefinition = "boolean default false")
-  private Boolean text;
+  @Column(columnDefinition = "boolean not null default false")
+  private boolean text;
 
-  @Column(columnDefinition = "boolean default false")
-  private Boolean video;
+  @Column(columnDefinition = "boolean not null default false")
+  private boolean video;
 
   @OneToOne(mappedBy = "scope")
   @JsonIgnore

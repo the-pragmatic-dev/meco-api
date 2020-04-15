@@ -50,7 +50,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
         new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, null), //
         headers(), HttpStatus.INTERNAL_SERVER_ERROR, //
         request//
-    ); //
+    );
   }
 
   private HttpHeaders headers() {

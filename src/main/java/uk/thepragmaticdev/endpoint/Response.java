@@ -1,5 +1,6 @@
 package uk.thepragmaticdev.endpoint;
 
+// TODO: this is only used with stripe example and should be deleted
 public class Response {
 
   private boolean status;
