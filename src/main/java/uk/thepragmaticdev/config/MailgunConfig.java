@@ -13,12 +13,13 @@ public class MailgunConfig {
   private final String fromEmail;
 
   /**
-   * TODO.
+   * Provides default configuration for Mailguns properties, credentials and
+   * defaults.
    * 
-   * @param domain    TODO
-   * @param secretKey TODO
-   * @param fromName  TODO
-   * @param fromEmail TODO
+   * @param domain    The Mailgun domain
+   * @param secretKey The Mailgun api key
+   * @param fromName  The default sender name
+   * @param fromEmail The default sender email address
    */
   public MailgunConfig(//
       @Value("${mailgun.domain}") String domain, //
@@ -32,9 +33,9 @@ public class MailgunConfig {
   }
 
   /**
-   * TODO.
+   * Configuration for Mailguns properties, credentials and defaults.
    * 
-   * @return
+   * @return Configuration parameters needed by Mailgun
    */
   @Bean
   public net.sargue.mailgun.Configuration configuration() {

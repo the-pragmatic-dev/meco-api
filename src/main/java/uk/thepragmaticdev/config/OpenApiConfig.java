@@ -16,9 +16,9 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
   /**
-   * TODO.
+   * Provides configuarion for OpenAPI instance.
    * 
-   * @return
+   * @return The OpenAPI instance
    */
   @Bean
   public OpenAPI api() {

@@ -41,13 +41,14 @@ public class ApiKeyService {
   private final int apiKeyLimit;
 
   /**
-   * TODO.
+   * Service for creating, updating and deleting accounts. Activity logs related
+   * to an authorised key may also be downloaded.
    * 
-   * @param accountService   TODO
-   * @param apiKeyRepository TODO
-   * @param apiKeyLogService TODO
-   * @param passwordEncoder  TODO
-   * @param apiKeyLimit      TODO
+   * @param accountService   The service for retrieving account information
+   * @param apiKeyRepository The data access repository for keys
+   * @param apiKeyLogService The service for accessing key logs
+   * @param passwordEncoder  The service for encoding passwords
+   * @param apiKeyLimit      The maximum number of keys allowed by account
    */
   @Autowired
   public ApiKeyService(//
@@ -63,17 +64,23 @@ public class ApiKeyService {
     this.apiKeyLimit = apiKeyLimit;
   }
 
+  /**
+   * Find all keys owned by the authenticaed account.
+   * 
+   * @param username The authenticated account username
+   * @return A list of all keys owned by the account
+   */
   public List<ApiKey> findAll(String username) {
     Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
     return apiKeyRepository.findAllByAccountId(authenticatedAccount.getId());
   }
 
   /**
-   * TODO.
+   * Create a new key.
    * 
-   * @param username TODO
-   * @param apiKey   TODO
-   * @return
+   * @param username The authenticated account username
+   * @param apiKey   The new key to be created
+   * @return A newly created key
    */
   @Transactional
   public ApiKey create(String username, ApiKey apiKey) {
@@ -95,12 +102,12 @@ public class ApiKeyService {
   }
 
   /**
-   * TODO.
+   * Update all mutable fields of a key owned by an authenticated account.
    * 
-   * @param username TODO
-   * @param id       TODO
-   * @param apiKey   TODO
-   * @return
+   * @param username The authenticated account username
+   * @param id       The id of the key to be updated
+   * @param apiKey   A key with the desired values
+   * @return The updated key
    */
   @Transactional
   public ApiKey update(String username, long id, ApiKey apiKey) {
@@ -109,7 +116,7 @@ public class ApiKeyService {
     ApiKey persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(apiKey.getId(), authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     persistedApiKey.setName(apiKey.getName());
-    updateScope(persistedApiKey, apiKey.getScope()); // TODO same as updateEnabled
+    updateScope(persistedApiKey, apiKey.getScope());
     updateAccessPolicies(persistedApiKey, apiKey.getAccessPolicies()); // TODO same as updateEnabled
     updateEnabled(persistedApiKey, apiKey.getEnabled());
     persistedApiKey.setModifiedDate(OffsetDateTime.now());
@@ -117,13 +124,27 @@ public class ApiKeyService {
   }
 
   private void updateScope(ApiKey persistedApiKey, Scope scope) {
-    persistedApiKey.getScope().setImage(scope.getImage());
-    persistedApiKey.getScope().setGif(scope.getGif());
-    persistedApiKey.getScope().setText(scope.getText());
-    persistedApiKey.getScope().setVideo(scope.getVideo());
+    Scope persistedScope = persistedApiKey.getScope();
+    if (persistedScope.getImage() != scope.getImage()) { // update image scope
+      apiKeyLogService.scope(persistedApiKey.getId(), "image", scope.getImage());
+      persistedScope.setImage(scope.getImage());
+    }
+    if (persistedScope.getGif() != scope.getGif()) { // update gif scope
+      apiKeyLogService.scope(persistedApiKey.getId(), "gif", scope.getGif());
+      persistedScope.setGif(scope.getGif());
+    }
+    if (persistedScope.getText() != scope.getText()) { // update text scope
+      apiKeyLogService.scope(persistedApiKey.getId(), "text", scope.getText());
+      persistedScope.setText(scope.getText());
+    }
+    if (persistedScope.getVideo() != scope.getVideo()) { // update video scope
+      apiKeyLogService.scope(persistedApiKey.getId(), "video", scope.getVideo());
+      persistedScope.setVideo(scope.getVideo());
+    }
   }
 
   private void updateAccessPolicies(ApiKey persistedApiKey, Collection<AccessPolicy> accessPolicies) {
+    // TODO not happy with this
     persistedApiKey.getAccessPolicies().clear();
     persistedApiKey.getAccessPolicies().addAll(accessPolicies);
   }
@@ -136,10 +157,10 @@ public class ApiKeyService {
   }
 
   /**
-   * TODO.
+   * Delete a key owned by an authenticated account.
    * 
-   * @param username TODO
-   * @param id       TODO
+   * @param username The authenticated account username
+   * @param id       The id of the key to be deleted
    */
   @Transactional
   public void delete(String username, long id) {
@@ -151,12 +172,12 @@ public class ApiKeyService {
   }
 
   /**
-   * TODO.
+   * Find the latest logs for the requested key id.
    * 
-   * @param pageable TODO
-   * @param username TODO
-   * @param id       TODO
-   * @return
+   * @param pageable The pagination information
+   * @param username The authenticated account username
+   * @param id       The id of the key requesting logs
+   * @return A page of the latest key logs
    */
   public Page<ApiKeyLog> log(Pageable pageable, String username, long id) {
     Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
@@ -166,11 +187,11 @@ public class ApiKeyService {
   }
 
   /**
-   * TODO.
+   * Download all logs for the requested key id as a CSV file.
    * 
-   * @param response TODO
-   * @param username TODO
-   * @param id       TODO
+   * @param response The servlet response
+   * @param username The authenticated account username
+   * @param id       The id of the key requesting logs
    */
   public void downloadLog(HttpServletResponse response, String username, long id) {
     Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
@@ -189,10 +210,10 @@ public class ApiKeyService {
   }
 
   /**
-   * TODO.
+   * Counts the amount of keys owned by the authenticated account.
    * 
-   * @param username TODO
-   * @return
+   * @param username The authenticated account username
+   * @return A count of keys owned by the authenticated account
    */
   public long count(String username) {
     Account authenticatedAccount = accountService.findAuthenticatedAccount(username);

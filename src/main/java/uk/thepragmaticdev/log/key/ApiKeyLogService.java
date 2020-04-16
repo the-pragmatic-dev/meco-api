@@ -19,11 +19,12 @@ public class ApiKeyLogService {
   private ApiKeyLogRepository apiKeyLogRepository;
 
   /**
-   * TODO.
+   * Service for logging key events such as updates and key usage.
    * 
-   * @param request             TODO
-   * @param requestService      TODO
-   * @param apiKeyLogRepository TODO
+   * @param request             The request information for HTTP servlets
+   * @param requestService      The service for gathering information of http
+   *                            requests.
+   * @param apiKeyLogRepository The data access repository for key logs
    */
   @Autowired
   public ApiKeyLogService(//
@@ -36,42 +37,51 @@ public class ApiKeyLogService {
   }
 
   /**
-   * TODO.
+   * Find all logs for the requested api key.
    * 
-   * @param apiKeyId TODO
-   * @return
+   * @param apiKeyId The id of the key requesting logs
+   * @return A list of all logs for the requested api key
    */
   public List<ApiKeyLog> findAllByApiKeyId(Long apiKeyId) {
     return apiKeyLogRepository.findAllByApiKeyIdOrderByInstantDesc(apiKeyId);
   }
 
   /**
-   * TODO.
+   * Find the latest logs for the requested key id.
    * 
-   * @param pageable TODO
-   * @param apiKeyId TODO
-   * @return
+   * @param pageable The pagination information
+   * @param apiKeyId The id of the key requesting logs
+   * @return A page of the latest requested key logs
    */
   public Page<ApiKeyLog> findAllByApiKeyId(Pageable pageable, Long apiKeyId) {
     return apiKeyLogRepository.findAllByApiKeyIdOrderByInstantDesc(pageable, apiKeyId);
   }
 
   /**
-   * TODO.
+   * Delete all logs for the given api key.
    * 
-   * @param apiKeyId TODO
-   * @return
+   * @param apiKeyId The id of the api key for deleting logs.
+   */
+  public void delete(Long apiKeyId) {
+    apiKeyLogRepository.deleteAllByApiKeyId(apiKeyId);
+  }
+
+  /**
+   * Log a created event for when a key is created.
+   * 
+   * @param apiKeyId The id of the key being created
+   * @return The persisted log
    */
   public ApiKeyLog created(Long apiKeyId) {
     return log(apiKeyId, "key.created");
   }
 
   /**
-   * TODO.
+   * Log an enabled event for when a key is enabled or disabled.
    * 
-   * @param apiKeyId TODO
-   * @param enabled  TODO
-   * @return
+   * @param apiKeyId The id of the key being enabled or disabled
+   * @param enabled  The enabled status of the key
+   * @return The persisted log
    */
   public ApiKeyLog enabled(Long apiKeyId, boolean enabled) {
     if (enabled) {
@@ -81,12 +91,18 @@ public class ApiKeyLogService {
   }
 
   /**
-   * TODO.
+   * Log a scope event for when any of the keys scope changes.
    * 
-   * @param apiKeyId TODO
+   * @param apiKeyId  The id of the keys scope being updated.
+   * @param scopeName The name of the scope
+   * @param enabled   The enabled status of the keys scope
+   * @return The persisted log
    */
-  public void delete(Long apiKeyId) {
-    apiKeyLogRepository.deleteAllByApiKeyId(apiKeyId);
+  public ApiKeyLog scope(Long apiKeyId, String scopeName, boolean enabled) {
+    if (enabled) {
+      return log(apiKeyId, String.format("key.scope.%s.enabled", scopeName));
+    }
+    return log(apiKeyId, String.format("key.scope.%s.disabled", scopeName));
   }
 
   private ApiKeyLog log(Long apiKeyId, String action) {

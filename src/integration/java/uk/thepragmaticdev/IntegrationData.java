@@ -149,6 +149,5 @@ public abstract class IntegrationData {
             .appendText(String.format("date to be within last %d %s of %s", amount, unit.toString(), now.toString()));
       }
     };
-
   }
 }

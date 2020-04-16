@@ -19,11 +19,12 @@ public class BillingLogService {
   private BillingLogRepository billingLogRepository;
 
   /**
-   * TODO.
+   * Service for logging billing events such as invoice creation.
    * 
-   * @param request              TODO
-   * @param requestService       TODO
-   * @param billingLogRepository TODO
+   * @param request              The request information for HTTP servlets
+   * @param requestService       The service for gathering information of http
+   *                             requests.
+   * @param billingLogRepository The data access repository for billing logs
    */
   @Autowired
   public BillingLogService(//
@@ -36,20 +37,20 @@ public class BillingLogService {
   }
 
   /**
-   * TODO.
+   * Find all logs for the requested account.
    * 
-   * @param accountId TODO
-   * @return
+   * @param accountId The id of the account requesting logs
+   * @return A list of all logs for the requested account
    */
   public List<BillingLog> findAllByAccountId(Long accountId) {
     return billingLogRepository.findAllByAccountIdOrderByInstantDesc(accountId);
   }
 
   /**
-   * TODO.
+   * Find the latest logs for the requested account.
    * 
-   * @param pageable  TODO
-   * @param accountId TODO
+   * @param pageable  The pagination information
+   * @param accountId The id of the account requesting logs
    * @return
    */
   public Page<BillingLog> findAllByAccountId(Pageable pageable, Long accountId) {
@@ -57,10 +58,10 @@ public class BillingLogService {
   }
 
   /**
-   * TODO.
+   * Log an invoice event for when an invoice is created.
    * 
-   * @param accountId TODO
-   * @return
+   * @param accountId The id of the account creating an invoice
+   * @return The persisted log
    */
   public BillingLog invoice(Long accountId) {
     return log(accountId, "billing.invoice");

@@ -20,6 +20,13 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
   private static final Logger logger = LoggerFactory.getLogger(RestResponseExceptionHandler.class);
 
+  /**
+   * Handles any api error exceptions thrown thoughout application.
+   * 
+   * @param ex      The api exception thrown
+   * @param request The request metadata
+   * @return The http response
+   */
   @ExceptionHandler(ApiException.class)
   protected ResponseEntity<Object> handleApiException(ApiException ex, WebRequest request) {
     ApiError responseBody = new ApiError(//
@@ -30,6 +37,9 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
     return handleExceptionInternal(ex, responseBody, headers(), ex.getErrorCode().getStatus(), request);
   }
 
+  /**
+   * Handles any exception thrown by validation errors on bad requests.
+   */
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(//
       MethodArgumentNotValidException ex, //
@@ -42,6 +52,13 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
     return handleExceptionInternal(ex, responseBody, headers(), HttpStatus.BAD_REQUEST, request);
   }
 
+  /**
+   * Handles any exception not caught by the above exception handlers.
+   * 
+   * @param ex      The general exception thrown
+   * @param request The request metadata
+   * @return The http response
+   */
   @ExceptionHandler(Exception.class)
   protected ResponseEntity<Object> exception(Exception ex, WebRequest request) {
     logger.error("{}", new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex)));

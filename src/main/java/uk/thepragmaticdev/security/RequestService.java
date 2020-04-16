@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 public class RequestService {
 
   /**
-   * TODO.
+   * Find the IP address of the clients request.
    * 
-   * @param request TODO
-   * @return
+   * @param request The request information for http servlets
+   * @return The clients IP
    */
   public String getClientIp(HttpServletRequest request) {
     String remoteAddr = "";

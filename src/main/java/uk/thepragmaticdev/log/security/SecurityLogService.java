@@ -19,11 +19,12 @@ public class SecurityLogService {
   private SecurityLogRepository securityLogRepository;
 
   /**
-   * TODO.
+   * Service for logging security events such as updates to account.
    * 
-   * @param request               TODO
-   * @param requestService        TODO
-   * @param securityLogRepository TODO
+   * @param request               The request information for HTTP servlets
+   * @param requestService        The service for gathering information of http
+   *                              requests.
+   * @param securityLogRepository The data access repository for security logs
    */
   @Autowired
   public SecurityLogService(//
@@ -35,24 +36,45 @@ public class SecurityLogService {
     this.securityLogRepository = securityLogRepository;
   }
 
+  /**
+   * Find all logs for the requested account.
+   * 
+   * @param accountId The id of the account requesting logs
+   * @return A list of all logs for the requested account
+   */
   public List<SecurityLog> findAllByAccountId(Long accountId) {
     return securityLogRepository.findAllByAccountIdOrderByInstantDesc(accountId);
   }
 
+  /**
+   * Find the latest logs for the requested account.
+   * 
+   * @param pageable  The pagination information
+   * @param accountId The id of the account requesting logs
+   * @return
+   */
   public Page<SecurityLog> findAllByAccountId(Pageable pageable, Long accountId) {
     return securityLogRepository.findAllByAccountIdOrderByInstantDesc(pageable, accountId);
   }
 
+  /**
+   * Log a created event for when an account is created.
+   * 
+   * @param accountId The id of the account being created
+   * @return The persisted log
+   */
   public SecurityLog created(Long accountId) {
     return log(accountId, "account.created");
   }
 
   /**
-   * TODO.
+   * Log an enabled event for when an account email subscription is enabled or
+   * disabled.
    * 
-   * @param accountId TODO
-   * @param enabled   TODO
-   * @return
+   * @param accountId The id of the account email subscription being enabled or
+   *                  disabled
+   * @param enabled   The enabled status of the accounts email subscription
+   * @return The persisted log
    */
   public SecurityLog emailSubscriptionEnabled(Long accountId, boolean enabled) {
     if (enabled) {
@@ -62,11 +84,13 @@ public class SecurityLogService {
   }
 
   /**
-   * TODO.
+   * Log an enabled event for when an account billing alert is enabled or
+   * disabled.
    * 
-   * @param accountId TODO
-   * @param enabled   TODO
-   * @return
+   * @param accountId The id of the account billing alert being enabled or
+   *                  disabled
+   * @param enabled   The enabled status of the accounts billing alert
+   * @return The persisted log
    */
   public SecurityLog billingAlertEnabled(Long accountId, boolean enabled) {
     if (enabled) {
@@ -76,10 +100,10 @@ public class SecurityLogService {
   }
 
   /**
-   * TODO.
+   * Log a fullname event for when an accounts fullname is updated.
    * 
-   * @param accountId TODO
-   * @return
+   * @param accountId The id of the account being created
+   * @return The persisted log
    */
   public SecurityLog fullname(Long accountId) {
     return log(accountId, "account.fullname.changed");
