@@ -24,6 +24,7 @@ import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
+import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 import uk.thepragmaticdev.log.key.ApiKeyLogService;
 
@@ -203,9 +204,9 @@ public class ApiKeyService {
           .withOrderedResults(true).build();
       writer.write(apiKeyLogService.findAllByApiKeyId(persistedApiKey.getId()));
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-      // TODO Auto-generated catch block
+      throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
+      throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
 

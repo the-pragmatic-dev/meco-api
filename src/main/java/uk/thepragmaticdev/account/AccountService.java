@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
+import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
@@ -178,9 +179,9 @@ public class AccountService {
           .withOrderedResults(true).build();
       writer.write(billingLogService.findAllByAccountId(authenticatedAccount.getId()));
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-      // TODO Auto-generated catch block
+      throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
+      throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
 
@@ -210,9 +211,9 @@ public class AccountService {
           .withOrderedResults(true).build();
       writer.write(securityLogService.findAllByAccountId(authenticatedAccount.getId()));
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-      // TODO Auto-generated catch block
+      throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
+      throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
 
