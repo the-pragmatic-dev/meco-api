@@ -19,18 +19,21 @@ DROP INDEX IF EXISTS api_key_hash_idx;
 DROP INDEX IF EXISTS api_key_account_id_idx;
 DROP INDEX IF EXISTS api_key_scope_id_idx;
 DROP INDEX IF EXISTS account_username_idx;
+DROP INDEX IF EXISTS account_password_reset_token_idx;
 -------------------------------------------------
 -- Account --------------------------------------
 CREATE TABLE account (
     id BIGSERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
+    password CHAR(60) NOT NULL,
+    password_reset_token CHAR(36),
     full_name TEXT,
     billing_alert_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     created_date TIMESTAMPTZ NOT NULL,
     email_subscription_enabled BOOLEAN NOT NULL DEFAULT FALSE
 );
 CREATE INDEX account_username_idx ON account (username);
+CREATE INDEX account_password_reset_token_idx ON account (password_reset_token);
 -------------------------------------------------
 -- Account Roles --------------------------------
 CREATE TABLE account_roles (

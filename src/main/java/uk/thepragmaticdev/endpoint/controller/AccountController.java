@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.account.Account;
@@ -81,6 +82,28 @@ public class AccountController {
   @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public Account update(Principal principal, @Valid @RequestBody Account account) {
     return accountService.update(principal.getName(), account);
+  }
+
+  /**
+   * Send a forgotten password email to the requested account.
+   * 
+   * @param username A valid account username
+   */
+  @PostMapping(value = "/me/forgot", produces = MediaType.APPLICATION_JSON_VALUE)
+  public void forgot(@RequestParam(value = "username", required = true) String username) {
+    accountService.forgot(username);
+  }
+
+  /**
+   * Reset old password to new password for the requested account.
+   * 
+   * @param account An account containing the new password
+   * @param token   The generated password reset token from the /me/forgot
+   *                endpoint
+   */
+  @PostMapping(value = "/me/reset", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public void reset(@Valid @RequestBody Account account, @RequestParam(value = "token", required = true) String token) {
+    accountService.reset(account, token);
   }
 
   /**

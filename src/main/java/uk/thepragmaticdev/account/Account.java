@@ -47,7 +47,12 @@ public class Account implements Model {
 
   @Size(min = 8, message = "Minimum password length: 8 characters.")
   @JsonProperty(access = Access.WRITE_ONLY)
+  @Column(columnDefinition = "bpchar")
   private String password;
+
+  @Column(columnDefinition = "bpchar")
+  @JsonIgnore
+  private String passwordResetToken;
 
   private String fullName;
 

@@ -71,6 +71,7 @@ public class AccountEndpointIT extends IntegrationData {
         .body("id", is(nullValue()))
         .body("username", is("admin@email.com"))
         .body("password", is(nullValue()))
+        .body("passwordResetToken", is(nullValue()))
         .body("fullName", is("Stephen Cathcart"))
         .body("emailSubscriptionEnabled", is(true))
         .body("billingAlertEnabled", is(false))
@@ -79,6 +80,22 @@ public class AccountEndpointIT extends IntegrationData {
         .body("apiKeys", is(nullValue()))
         .statusCode(200);
   }
+
+  // @endpoint:me/forgot
+
+  @Test
+  public void shouldReturnOkWhenForgottenPassword() {
+    given()
+      .params("username", account().getUsername())
+    .when()
+      .post(ACCOUNTS_ENDPOINT + "me/forgot")
+    .then()
+        .statusCode(200);
+  }
+
+  // @endpoint:me/reset
+
+  // TODO hard as need to mock email service to get password reset token to send
 
   // @endpoint:update
 
@@ -94,6 +111,8 @@ public class AccountEndpointIT extends IntegrationData {
       .put(ACCOUNTS_ENDPOINT + "me")
     .then()
         .body("username", is("admin@email.com"))
+        .body("password", is(nullValue()))
+        .body("passwordResetToken", is(nullValue()))
         .body("fullName", is(account.getFullName()))
         .body("emailSubscriptionEnabled", is(account.getEmailSubscriptionEnabled()))
         .body("billingAlertEnabled", is(account.getBillingAlertEnabled()))

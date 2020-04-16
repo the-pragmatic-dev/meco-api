@@ -51,7 +51,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/actuator/**").permitAll()
         // Allow Account Signin and Account Signup endpoints
         .antMatchers("/accounts/signin").permitAll()//
-        .antMatchers("/accounts/signup").permitAll()
+        .antMatchers("/accounts/signup").permitAll()//
+        .antMatchers("/accounts/me/forgot").permitAll()//
+        .antMatchers("/accounts/me/reset").permitAll()
         // Disallow everything else
         .anyRequest().authenticated();
 

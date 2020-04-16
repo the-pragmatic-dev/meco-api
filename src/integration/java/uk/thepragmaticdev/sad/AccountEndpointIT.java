@@ -139,6 +139,62 @@ public class AccountEndpointIT extends IntegrationData {
         .statusCode(401);
   }
 
+  // @endpoint:me/forgot
+
+  @Test
+  public void shouldNotReturnOkWhenForgottenPasswordForUnknownUsername() {
+    given()
+      .queryParam("username", "garbage@username.com")
+    .when()
+      .post(ACCOUNTS_ENDPOINT + "me/forgot")
+    .then()
+        .body("status", is("NOT_FOUND"))
+        .body("message", is("Username not found."))
+        .statusCode(404);
+  }
+
+  // @endpoint:me/reset
+
+  @Test
+  public void shouldNotResetPasswordWithInvalidToken() {
+    Account account = account();
+    account.setPassword("newpassword");
+    
+    given()
+      .queryParam("token", "garbage")
+      .contentType(JSON)
+      .body(account)
+    .when()
+      .post(ACCOUNTS_ENDPOINT + "me/reset")
+    .then()
+        .body("status", is("UNAUTHORIZED"))
+        .body("message", is("Expired or invalid password reset token."))
+        .statusCode(401);
+  }
+
+  @Test
+  public void shouldNotResetPasswordWhenPasswordIsTooShort() {
+    Account account = account();
+    account.setPassword("1234567");
+    
+    given()
+      .queryParam("token", "garbage")
+      .contentType(JSON)
+      .body(account)
+    .when()
+      .post(ACCOUNTS_ENDPOINT + "me/reset")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("subErrors", hasSize(1))
+        .root("subErrors[0]")
+          .body("object", is("account"))
+          .body("field", is("password"))
+          .body("rejectedValue", is("[PROTECTED]"))
+          .body("message", is("Minimum password length: 8 characters."))
+        .statusCode(400);
+  }
+
   // @endpoint:update
 
   @Test

@@ -8,6 +8,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,6 +152,35 @@ public class AccountService {
       securityLogService.emailSubscriptionEnabled(authenticatedAccount.getId(), emailSubscriptionEnabled);
       authenticatedAccount.setEmailSubscriptionEnabled(emailSubscriptionEnabled);
     }
+  }
+
+  /**
+   * Send a forgotten password email to the requested account.
+   * 
+   * @param username A valid account username
+   */
+  public void forgot(String username) {
+    Account authenticatedAccount = findAuthenticatedAccount(username);
+    authenticatedAccount.setPasswordResetToken(UUID.randomUUID().toString());
+    accountRepository.save(authenticatedAccount);
+    // Send email with url http://meco.dev/api/reset?token=...
+    // TODO send email with token authenticatedAccount.getPasswordResetToken()
+  }
+
+  /**
+   * Reset old password to new password for the requested account.
+   * 
+   * @param account An account containing the new password
+   * @param token   The generated password reset token from the /me/forgot
+   *                endpoint
+   */
+  public void reset(Account account, String token) {
+    Account persistedAccount = accountRepository.findByPasswordResetToken(token)
+        .orElseThrow(() -> new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN));
+    persistedAccount.setPassword(passwordEncoder.encode(account.getPassword()));
+    persistedAccount.setPasswordResetToken(null);
+    accountRepository.save(persistedAccount);
+    securityLogService.reset(persistedAccount.getId());
   }
 
   /**

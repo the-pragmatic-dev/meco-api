@@ -68,6 +68,16 @@ public class SecurityLogService {
   }
 
   /**
+   * Log a password reset event for when an accounts password is reset.
+   * 
+   * @param accountId The id of the account being updated
+   * @return The persisted log
+   */
+  public SecurityLog reset(Long accountId) {
+    return log(accountId, "account.password.reset");
+  }
+
+  /**
    * Log an enabled event for when an account email subscription is enabled or
    * disabled.
    * 
