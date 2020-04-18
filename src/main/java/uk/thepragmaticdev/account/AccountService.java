@@ -162,13 +162,15 @@ public class AccountService {
   }
 
   /**
-   * Send a forgotten password email to the requested account.
+   * Send a forgotten password email to the requested account. The reset token is
+   * valid for 24hours.
    * 
    * @param username A valid account username
    */
   public void forgot(String username) {
     Account authenticatedAccount = findAuthenticatedAccount(username);
     authenticatedAccount.setPasswordResetToken(UUID.randomUUID().toString());
+    authenticatedAccount.setPasswordResetTokenExpire(OffsetDateTime.now().plusDays(1));
     accountRepository.save(authenticatedAccount);
     emailService.sendForgottenPassword(authenticatedAccount);
   }
@@ -183,10 +185,15 @@ public class AccountService {
   public void reset(Account account, String token) {
     Account persistedAccount = accountRepository.findByPasswordResetToken(token)
         .orElseThrow(() -> new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN));
+    if (OffsetDateTime.now().isAfter(persistedAccount.getPasswordResetTokenExpire())) {
+      throw new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN);
+    }
     persistedAccount.setPassword(passwordEncoder.encode(account.getPassword()));
     persistedAccount.setPasswordResetToken(null);
+    persistedAccount.setPasswordResetTokenExpire(null);
     accountRepository.save(persistedAccount);
     securityLogService.reset(persistedAccount.getId());
+    emailService.sendResetPassword(persistedAccount);
   }
 
   /**

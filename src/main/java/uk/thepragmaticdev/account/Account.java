@@ -54,6 +54,9 @@ public class Account implements Model {
   @JsonIgnore
   private String passwordResetToken;
 
+  @JsonIgnore
+  private OffsetDateTime passwordResetTokenExpire;
+
   private String fullName;
 
   @Column(columnDefinition = "boolean not null default false")

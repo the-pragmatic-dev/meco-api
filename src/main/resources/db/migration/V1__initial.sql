@@ -27,6 +27,7 @@ CREATE TABLE account (
     username TEXT UNIQUE NOT NULL,
     password CHAR(60) NOT NULL,
     password_reset_token CHAR(36),
+    password_reset_token_expire TIMESTAMPTZ,
     full_name TEXT,
     billing_alert_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     created_date TIMESTAMPTZ NOT NULL,

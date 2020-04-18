@@ -64,6 +64,15 @@ public class EmailService {
     send(account.getUsername(), "Reset your MECO password", "forgotten-password", formData);
   }
 
+  /**
+   * Send an email informing the user their password has been updated.
+   * 
+   * @param account The account that was updated
+   */
+  public void sendResetPassword(Account account) {
+    // TODO user has reset their password
+  }
+
   private void send(String to, String subject, String template, MultiValueMap<String, String> formData) {
     webClient.post()//
         .uri(uriBuilder -> uriBuilder.path("/messages")//
