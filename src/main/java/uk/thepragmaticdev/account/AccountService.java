@@ -19,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
@@ -37,6 +38,8 @@ public class AccountService {
 
   private SecurityLogService securityLogService;
 
+  private EmailService emailService;
+
   private PasswordEncoder passwordEncoder;
 
   private JwtTokenProvider jwtTokenProvider;
@@ -50,6 +53,7 @@ public class AccountService {
    * @param accountRepository     The data access repository for accounts
    * @param billingLogService     The service for accessing billing logs
    * @param securityLogService    The service for accessing security logs
+   * @param emailService          The service for sending emails
    * @param passwordEncoder       The service for encoding passwords
    * @param jwtTokenProvider      The provider for creating, validating tokens
    * @param authenticationManager The manager for authentication providers
@@ -59,12 +63,14 @@ public class AccountService {
       AccountRepository accountRepository, //
       BillingLogService billingLogService, //
       SecurityLogService securityLogService, //
+      EmailService emailService, //
       PasswordEncoder passwordEncoder, //
       JwtTokenProvider jwtTokenProvider, //
       AuthenticationManager authenticationManager) {
     this.accountRepository = accountRepository;
     this.billingLogService = billingLogService;
     this.securityLogService = securityLogService;
+    this.emailService = emailService;
     this.passwordEncoder = passwordEncoder;
     this.jwtTokenProvider = jwtTokenProvider;
     this.authenticationManager = authenticationManager;
@@ -97,9 +103,10 @@ public class AccountService {
       account.setPassword(passwordEncoder.encode(account.getPassword()));
       account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
       account.setCreatedDate(OffsetDateTime.now());
-      accountRepository.save(account);
-      securityLogService.created(account.getId());
-      return jwtTokenProvider.createToken(account.getUsername(), account.getRoles());
+      Account persistedAccount = accountRepository.save(account);
+      securityLogService.created(persistedAccount.getId());
+      emailService.sendAccountCreated(persistedAccount);
+      return jwtTokenProvider.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
     } else {
       throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
     }
@@ -163,8 +170,7 @@ public class AccountService {
     Account authenticatedAccount = findAuthenticatedAccount(username);
     authenticatedAccount.setPasswordResetToken(UUID.randomUUID().toString());
     accountRepository.save(authenticatedAccount);
-    // Send email with url http://meco.dev/api/reset?token=...
-    // TODO send email with token authenticatedAccount.getPasswordResetToken()
+    emailService.sendForgottenPassword(authenticatedAccount);
   }
 
   /**

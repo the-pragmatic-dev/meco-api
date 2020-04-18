@@ -42,6 +42,7 @@
     <maven.surefire.plugin.version>3.0.0-M1</maven.surefire.plugin.version>
     <opencsv.version>5.1</opencsv.version>
     <podam.version>7.2.3.RELEASE</podam.version>
+    <reactor.version>1.0.1.RELEASE</reactor.version>
     <rest.assured.version>3.3.0</rest.assured.version>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>the-pragmatic-dev</sonar.organization>
@@ -80,6 +81,10 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
     <dependency>
@@ -89,6 +94,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <!-- reactor dependencies -->
+    <dependency>
+      <groupId>org.projectreactor</groupId>
+      <artifactId>reactor-spring</artifactId>
+      <version>${reactor.version}</version>
     </dependency>
     <!-- database dependencies -->
     <dependency>
