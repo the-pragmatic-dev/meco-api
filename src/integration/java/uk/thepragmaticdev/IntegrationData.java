@@ -82,7 +82,7 @@ public abstract class IntegrationData {
   // @models:default
 
   protected final Account account() {
-    return new Account(null, "admin@email.com", "password", null, null, true, false, null, null, null);
+    return new Account(null, "admin@email.com", "password", null, null, null, true, false, null, null, null);
   }
 
   protected final ApiKey key() {
