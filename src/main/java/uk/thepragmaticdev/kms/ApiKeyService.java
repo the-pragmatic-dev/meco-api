@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
+import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
@@ -33,9 +34,11 @@ public class ApiKeyService {
 
   private AccountService accountService;
 
+  private ApiKeyRepository apiKeyRepository;
+
   private ApiKeyLogService apiKeyLogService;
 
-  private ApiKeyRepository apiKeyRepository;
+  private EmailService emailService;
 
   private PasswordEncoder passwordEncoder;
 
@@ -48,6 +51,7 @@ public class ApiKeyService {
    * @param accountService   The service for retrieving account information
    * @param apiKeyRepository The data access repository for keys
    * @param apiKeyLogService The service for accessing key logs
+   * @param emailService     The service for sending emails
    * @param passwordEncoder  The service for encoding passwords
    * @param apiKeyLimit      The maximum number of keys allowed by account
    */
@@ -56,11 +60,13 @@ public class ApiKeyService {
       AccountService accountService, //
       ApiKeyRepository apiKeyRepository, //
       ApiKeyLogService apiKeyLogService, //
+      EmailService emailService, //
       PasswordEncoder passwordEncoder, //
       @Value("${kms.api-key-limit}") int apiKeyLimit) {
     this.accountService = accountService;
     this.apiKeyRepository = apiKeyRepository;
     this.apiKeyLogService = apiKeyLogService;
+    this.emailService = emailService;
     this.passwordEncoder = passwordEncoder;
     this.apiKeyLimit = apiKeyLimit;
   }
@@ -97,6 +103,7 @@ public class ApiKeyService {
       apiKey.setEnabled(true);
       ApiKey persistedApiKey = apiKeyRepository.save(apiKey);
       apiKeyLogService.created(persistedApiKey.getId());
+      emailService.sendKeyCreated(authenticatedAccount, persistedApiKey);
       return persistedApiKey;
     }
     throw new ApiException(ApiKeyCode.API_KEY_LIMIT);
@@ -170,6 +177,7 @@ public class ApiKeyService {
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     apiKeyLogService.delete(persistedApiKey.getId());
     apiKeyRepository.delete(persistedApiKey);
+    emailService.sendKeyDeleted(authenticatedAccount, persistedApiKey);
   }
 
   /**

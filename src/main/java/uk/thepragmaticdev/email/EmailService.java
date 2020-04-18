@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.kms.ApiKey;
 
 @Service
 public class EmailService {
@@ -70,7 +71,31 @@ public class EmailService {
    * @param account The account that was updated
    */
   public void sendResetPassword(Account account) {
-    // TODO user has reset their password
+    send(account.getUsername(), "Your MECO password has been changed", "reset-password", new LinkedMultiValueMap<>());
+  }
+
+  /**
+   * Send an email informing the user a new key has been created.
+   * 
+   * @param account The account the key was created on
+   */
+  public void sendKeyCreated(Account account, ApiKey createdKey) {
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("v:name", createdKey.getName());
+    formData.add("v:prefix", createdKey.getPrefix());
+    send(account.getUsername(), "A new key was added to your account", "new-key", formData);
+  }
+
+  /**
+   * Send an email informing the user a key has been deleted.
+   * 
+   * @param account The account the key was deleted on
+   */
+  public void sendKeyDeleted(Account account, ApiKey deletedKey) {
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("v:name", deletedKey.getName());
+    formData.add("v:prefix", deletedKey.getPrefix());
+    send(account.getUsername(), "A key was deleted from your account", "delete-key", formData);
   }
 
   private void send(String to, String subject, String template, MultiValueMap<String, String> formData) {
