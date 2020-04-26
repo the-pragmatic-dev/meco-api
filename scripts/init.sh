@@ -4,8 +4,8 @@ directory=$1
 user=$2 
 
 # directory for geolite2 database
-mkdir $directory
-chmod 755 $directory
-chown -R $user:$user $directory
+sudo mkdir $directory
+sudo chmod 755 $directory
+sudo chown -R $user:$user $directory
 
 echo "directory created: $directory, user: $user"
