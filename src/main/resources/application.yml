@@ -69,7 +69,7 @@ kms:
 
 geolite2:
     name: GeoLite2-City.mmdb
-    permalink: https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz
+    permalink: ${GEOLITE_URL:https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz}
     directory: ${GEOLITE_DIRECTORY:/var/lib/meco/}
 
 logging:
