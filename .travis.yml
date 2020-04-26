@@ -22,6 +22,7 @@ install: ./mvnw dependency:resolve
 before_script:
   - psql --version
   - psql -c 'create database travis_ci_test;' -U postgres
+  - ./scripts/init.sh /var/lib/meco/ root
 
 stages:
   - test
