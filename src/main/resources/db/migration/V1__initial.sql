@@ -18,6 +18,7 @@ DROP INDEX IF EXISTS account_roles_account_id_idx;
 DROP INDEX IF EXISTS api_key_hash_idx;
 DROP INDEX IF EXISTS api_key_account_id_idx;
 DROP INDEX IF EXISTS api_key_scope_id_idx;
+DROP INDEX IF EXISTS request_metadata_account_id_idx;
 DROP INDEX IF EXISTS account_username_idx;
 DROP INDEX IF EXISTS account_password_reset_token_idx;
 -------------------------------------------------
@@ -35,6 +36,24 @@ CREATE TABLE account (
 );
 CREATE INDEX account_username_idx ON account (username);
 CREATE INDEX account_password_reset_token_idx ON account (password_reset_token);
+-------------------------------------------------
+-- Request Metadata -----------------------------
+CREATE TABLE request_metadata (
+    id BIGSERIAL PRIMARY KEY,
+    ip TEXT,
+    city_name TEXT,
+    country_iso_code TEXT,
+    subdivision_iso_code TEXT,
+    operating_system_family TEXT,
+    operating_system_major TEXT,
+    operating_system_minor TEXT,
+    user_agent_family TEXT,
+    user_agent_major TEXT,
+    user_agent_minor TEXT,
+    created_date TIMESTAMPTZ NOT NULL,
+    account_id BIGINT NOT NULL REFERENCES account (id)
+);
+CREATE INDEX request_metadata_account_id_idx ON request_metadata (account_id);
 -------------------------------------------------
 -- Account Roles --------------------------------
 CREATE TABLE account_roles (

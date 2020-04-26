@@ -1,6 +1,7 @@
 package uk.thepragmaticdev.security;
 
-import io.jsonwebtoken.Claims;
+import static java.util.Objects.nonNull;
+
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import uk.thepragmaticdev.account.Role;
 import uk.thepragmaticdev.exception.ApiException;
@@ -62,14 +62,12 @@ public class JwtTokenProvider {
    * @return
    */
   public String createToken(String username, List<Role> roles) {
+    var now = new Date();
+    var validity = new Date(now.getTime() + validityInMilliseconds);
+    var claims = Jwts.claims().setSubject(username);
 
-    Claims claims = Jwts.claims().setSubject(username);
     claims.put("auth", roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).filter(Objects::nonNull)
         .collect(Collectors.toList()));
-
-    Date now = new Date();
-    Date validity = new Date(now.getTime() + validityInMilliseconds);
-
     return Jwts.builder() //
         .setClaims(claims) //
         .setIssuedAt(now) //
@@ -85,8 +83,8 @@ public class JwtTokenProvider {
    * @return TODO
    */
   public String resolveToken(HttpServletRequest req) {
-    String bearerToken = req.getHeader("Authorization");
-    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+    var bearerToken = req.getHeader("Authorization");
+    if (nonNull(bearerToken) && bearerToken.startsWith("Bearer ")) {
       return bearerToken.substring(7);
     }
     return null;
@@ -102,7 +100,7 @@ public class JwtTokenProvider {
     try {
       Jwts.parser().setSigningKey(jwtSecretKey).parseClaimsJws(token);
       return true;
-    } catch (JwtException | IllegalArgumentException e) {
+    } catch (JwtException | IllegalArgumentException ex) {
       throw new ApiException(AccountCode.INVALID_EXPIRED_TOKEN);
     }
   }
@@ -114,7 +112,7 @@ public class JwtTokenProvider {
    * @return
    */
   public Authentication getAuthentication(String token) {
-    UserDetails userDetails = myUserDetails.loadUserByUsername(getUsername(token));
+    var userDetails = myUserDetails.loadUserByUsername(getUsername(token));
     return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
   }
 

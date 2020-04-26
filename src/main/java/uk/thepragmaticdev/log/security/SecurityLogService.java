@@ -7,32 +7,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import uk.thepragmaticdev.security.RequestService;
+import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Service
 public class SecurityLogService {
 
   private HttpServletRequest request;
 
-  private RequestService requestService;
+  private RequestMetadataService requestMetadataService;
 
   private SecurityLogRepository securityLogRepository;
 
   /**
    * Service for logging security events such as updates to account.
    * 
-   * @param request               The request information for HTTP servlets
-   * @param requestService        The service for gathering information of http
-   *                              requests.
-   * @param securityLogRepository The data access repository for security logs
+   * @param request                The request information for HTTP servlets
+   * @param requestMetadataService The service for gathering ip and location
+   *                               information
+   * @param securityLogRepository  The data access repository for security logs
    */
   @Autowired
   public SecurityLogService(//
       HttpServletRequest request, //
-      RequestService requestService, //
+      RequestMetadataService requestMetadataService, //
       SecurityLogRepository securityLogRepository) {
     this.request = request;
-    this.requestService = requestService;
+    this.requestMetadataService = requestMetadataService;
     this.securityLogRepository = securityLogRepository;
   }
 
@@ -120,7 +120,7 @@ public class SecurityLogService {
   }
 
   private SecurityLog log(Long accountId, String action) {
-    return securityLogRepository
-        .save(new SecurityLog(null, accountId, action, requestService.getClientIp(request), OffsetDateTime.now()));
+    var ip = requestMetadataService.extractRequestMetadata(request).map(r -> r.getIp()).orElse("");
+    return securityLogRepository.save(new SecurityLog(null, accountId, action, ip, OffsetDateTime.now()));
   }
 }

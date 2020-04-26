@@ -28,6 +28,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.kms.ApiKey;
+import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @Data
 @NoArgsConstructor
@@ -78,4 +79,9 @@ public class Account implements Model {
   @JoinColumn(name = "account_id")
   @JsonIgnore
   private Collection<ApiKey> apiKeys;
+
+  @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+  @JoinColumn(name = "account_id")
+  @JsonIgnore
+  private Collection<RequestMetadata> requestMetadata;
 }

@@ -1,5 +1,7 @@
 package uk.thepragmaticdev.kms.validation;
 
+import static java.util.Objects.isNull;
+
 import java.util.Collection;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -11,13 +13,13 @@ public class Ipv4CidrValidator implements ConstraintValidator<Ipv4Cidr, Collecti
   @Override
   public boolean isValid(Collection<AccessPolicy> values, ConstraintValidatorContext context) {
     // Return valid if no access policies exist
-    if (values == null) {
+    if (isNull(values)) {
       return true;
     }
-    for (AccessPolicy accessPolicy : values) {
+    for (var accessPolicy : values) {
       try {
         new SubnetUtils(accessPolicy.getRange());
-      } catch (IllegalArgumentException e) {
+      } catch (IllegalArgumentException ex) {
         return false;
       }
     }

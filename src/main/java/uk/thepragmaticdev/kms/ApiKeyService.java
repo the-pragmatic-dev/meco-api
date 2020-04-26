@@ -1,7 +1,6 @@
 package uk.thepragmaticdev.kms;
 
 import com.opencsv.CSVWriter;
-import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
@@ -78,7 +76,7 @@ public class ApiKeyService {
    * @return A list of all keys owned by the account
    */
   public List<ApiKey> findAll(String username) {
-    Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     return apiKeyRepository.findAllByAccountId(authenticatedAccount.getId());
   }
 
@@ -91,7 +89,7 @@ public class ApiKeyService {
    */
   @Transactional
   public ApiKey create(String username, ApiKey apiKey) {
-    Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     if (apiKeyRepository.countByAccountId(authenticatedAccount.getId()) < apiKeyLimit) {
       apiKey.setId(null);
       apiKey.setAccount(authenticatedAccount);
@@ -101,7 +99,7 @@ public class ApiKeyService {
       apiKey.setHash(encodeApiKey(apiKey.getKey()));
       apiKey.setCreatedDate(OffsetDateTime.now());
       apiKey.setEnabled(true);
-      ApiKey persistedApiKey = apiKeyRepository.save(apiKey);
+      var persistedApiKey = apiKeyRepository.save(apiKey);
       apiKeyLogService.created(persistedApiKey.getId());
       emailService.sendKeyCreated(authenticatedAccount, persistedApiKey);
       return persistedApiKey;
@@ -120,8 +118,8 @@ public class ApiKeyService {
   @Transactional
   public ApiKey update(String username, long id, ApiKey apiKey) {
     apiKey.setId(id);
-    Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    ApiKey persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(apiKey.getId(), authenticatedAccount.getId())
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(apiKey.getId(), authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     persistedApiKey.setName(apiKey.getName());
     updateScope(persistedApiKey, apiKey.getScope());
@@ -132,7 +130,7 @@ public class ApiKeyService {
   }
 
   private void updateScope(ApiKey persistedApiKey, Scope scope) {
-    Scope persistedScope = persistedApiKey.getScope();
+    var persistedScope = persistedApiKey.getScope();
     if (persistedScope.getImage() != scope.getImage()) { // update image scope
       apiKeyLogService.scope(persistedApiKey.getId(), "image", scope.getImage());
       persistedScope.setImage(scope.getImage());
@@ -172,8 +170,8 @@ public class ApiKeyService {
    */
   @Transactional
   public void delete(String username, long id) {
-    Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    ApiKey persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     apiKeyLogService.delete(persistedApiKey.getId());
     apiKeyRepository.delete(persistedApiKey);
@@ -189,8 +187,8 @@ public class ApiKeyService {
    * @return A page of the latest key logs
    */
   public Page<ApiKeyLog> log(Pageable pageable, String username, long id) {
-    Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    ApiKey persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     return apiKeyLogService.findAllByApiKeyId(pageable, persistedApiKey.getId());
   }
@@ -203,17 +201,17 @@ public class ApiKeyService {
    * @param id       The id of the key requesting logs
    */
   public void downloadLog(HttpServletResponse response, String username, long id) {
-    Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    ApiKey persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     try {
-      StatefulBeanToCsv<ApiKeyLog> writer = new StatefulBeanToCsvBuilder<ApiKeyLog>(response.getWriter())
+      var writer = new StatefulBeanToCsvBuilder<ApiKeyLog>(response.getWriter())
           .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER).withSeparator(CSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
       writer.write(apiKeyLogService.findAllByApiKeyId(persistedApiKey.getId()));
-    } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+    } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
-    } catch (IOException e) {
+    } catch (IOException ex) {
       throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
@@ -225,7 +223,7 @@ public class ApiKeyService {
    * @return A count of keys owned by the authenticated account
    */
   public long count(String username) {
-    Account authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     return apiKeyRepository.countByAccountId(authenticatedAccount.getId());
   }
 
@@ -237,7 +235,7 @@ public class ApiKeyService {
    * @return
    */
   public boolean authenticate(String rawApiKey, String encodedApiKey) {
-    String apiKey = rawApiKey.substring(rawApiKey.indexOf(".") + 1);
+    var apiKey = rawApiKey.substring(rawApiKey.indexOf(".") + 1);
     return passwordEncoder.matches(apiKey, encodedApiKey);
   }
 
@@ -246,7 +244,7 @@ public class ApiKeyService {
   }
 
   private String generateApiKey() {
-    UUID uuid = UUID.randomUUID();
+    var uuid = UUID.randomUUID();
     return Base64.getEncoder().withoutPadding().encodeToString(uuid.toString().getBytes());
   }
 

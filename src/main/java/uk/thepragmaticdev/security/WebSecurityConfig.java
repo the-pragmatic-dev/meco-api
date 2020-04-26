@@ -32,35 +32,34 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-
-    // Disable Cross Site Request Forgery
+    // disable cross site request forgery
     http.csrf().disable();
 
-    // Adds a CorsFilter to bypass the authorization checks for preflight OPTIONS
-    // requests.
+    // add corsfilter to bypass authorization checks for preflight options requests.
     http.cors();
 
-    // No sessions will be created or used by Spring Security
+    // no sessions will be created or used by spring security
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-    // Entry points
+    // entry points
     http.authorizeRequests()
-        // Allow Swagger API Docs endpoint
+        // TODO: might remove swagger
+        // allow swagger api docs endpoint
         .antMatchers("/v3/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
-        // Allow Actuator endpoint
+        // allow actuator endpoint
         .antMatchers("/actuator/**").permitAll()
-        // Allow Account Signin and Account Signup endpoints
+        // allow account signin and account signup endpoints
         .antMatchers("/accounts/signin").permitAll()//
         .antMatchers("/accounts/signup").permitAll()//
         .antMatchers("/accounts/me/forgot").permitAll()//
         .antMatchers("/accounts/me/reset").permitAll()
-        // Disallow everything else
+        // disallow everything else
         .anyRequest().authenticated();
 
-    // If a user tries to access a resource without having enough permissions
+    // if a user tries to access a resource without having enough permissions
     http.exceptionHandling().accessDeniedPage("/login");
 
-    // Apply JWT
+    // apply jwt filter
     http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
   }
 
@@ -68,5 +67,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder(12);
   }
-
 }

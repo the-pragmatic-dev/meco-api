@@ -28,8 +28,8 @@ public class OpenApiConfig {
             .version("1.0.0") //
             .description("Account, billing & key management services.") //
             .license(new License() //
-                .name("CC BY-NC-ND 4.0") //
-                .url("https://creativecommons.org/licenses/by-nc-nd/4.0/") //
+                .name("Apache License Version 2.0") //
+                .url("http://www.apache.org/licenses/") //
             ) //
             .contact(new Contact() //
                 .email("steve@thepragmaticdev.uk") //

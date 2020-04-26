@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.kms.ApiKey;
+import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @Service
 public class EmailService {
@@ -21,7 +22,7 @@ public class EmailService {
   private final WebClient webClient;
   private final String domain;
   private final String fromName;
-  private final String fromEmail;
+  private final String fromEmail; // TODO: might be used
 
   /**
    * Service for sending emails. Provides default mailgun configuration.
@@ -61,6 +62,7 @@ public class EmailService {
    */
   public void sendForgottenPassword(Account account) {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("v:username", account.getUsername());
     formData.add("v:token", account.getPasswordResetToken());
     send(account.getUsername(), "Reset your MECO password", "forgotten-password", formData);
   }
@@ -71,7 +73,27 @@ public class EmailService {
    * @param account The account that was updated
    */
   public void sendResetPassword(Account account) {
-    send(account.getUsername(), "Your MECO password has been changed", "reset-password", new LinkedMultiValueMap<>());
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("v:username", account.getUsername());
+    send(account.getUsername(), "Your MECO password has been changed", "reset-password", formData);
+  }
+
+  /**
+   * Send an email informing the user that an unrecognized device signed in to the
+   * account.
+   * 
+   * @param account         The account that was signed in
+   * @param requestMetadata The geolocation and device information of the request
+   */
+  public void sendUnrecognizedDevice(Account account, RequestMetadata requestMetadata) {
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("v:time", requestMetadata.getCreatedDate().toString());
+    formData.add("v:cityName", requestMetadata.getGeoMetadata().getCityName());
+    formData.add("v:countryIsoCode", requestMetadata.getGeoMetadata().getCountryIsoCode());
+    formData.add("v:subdivisionIsoCode", requestMetadata.getGeoMetadata().getSubdivisionIsoCode());
+    formData.add("v:operatingSystemFamily", requestMetadata.getDeviceMetadata().getOperatingSystemFamily());
+    formData.add("v:userAgentFamily", requestMetadata.getDeviceMetadata().getUserAgentFamily());
+    send(account.getUsername(), "Unrecognized device signed in to your MECO account", "unrecognized-device", formData);
   }
 
   /**
@@ -99,6 +121,8 @@ public class EmailService {
   }
 
   private void send(String to, String subject, String template, MultiValueMap<String, String> formData) {
+    logger.info("webclient:send: to={}, subject={}, template={}, formData={}", to, subject, template,
+        formData.toString());
     webClient.post()//
         .uri(uriBuilder -> uriBuilder.path("/messages")//
             .queryParam("from", String.format("%s <mailgun@%s.mailgun.org>", fromName, domain))//
@@ -107,11 +131,11 @@ public class EmailService {
             .queryParam("template", template).build())
         .body(BodyInserters.fromFormData(formData)).retrieve()//
         .onStatus(HttpStatus::is4xxClientError, error -> {
-          logger.error("webclient - status {}, body {}", error.statusCode(), error.bodyToMono(String.class));
+          logger.error("webclient:error: status={}, body={}", error.statusCode(), error.bodyToMono(String.class));
           return Mono.empty();
         })//
         .onStatus(HttpStatus::is5xxServerError, error -> {
-          logger.error("webclient - status {}, body {}", error.statusCode(), error.bodyToMono(String.class));
+          logger.error("webclient:error: status={}, body={}", error.statusCode(), error.bodyToMono(String.class));
           return Mono.empty();
         })//
         .toBodilessEntity().subscribe();

@@ -18,6 +18,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationData;
+import uk.thepragmaticdev.exception.code.AccountCode;
+import uk.thepragmaticdev.exception.code.ApiKeyCode;
 import uk.thepragmaticdev.kms.AccessPolicy;
 import uk.thepragmaticdev.kms.ApiKey;
 
@@ -44,7 +46,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT)
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -146,7 +148,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
           .body("rejectedValue[0].range", is(dirtyAccessPolicy.getRange()))
           .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
         .statusCode(400);
-  }
+  } 
 
   @Test
   public void shouldNotCreateKeyWhenAtMaxKeyLimit() {
@@ -161,7 +163,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .post(API_KEY_ENDPOINT)
     .then()
         .body("status", is("FORBIDDEN"))
-        .body("message", is("You have requested too many API keys. Try deleting redundant keys."))
+        .body("message", is(ApiKeyCode.API_KEY_LIMIT.getMessage()))
         .statusCode(403);
   }
 
@@ -177,7 +179,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .put(API_KEY_ENDPOINT + "1")
       .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -191,7 +193,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .put(API_KEY_ENDPOINT + "9999")
       .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is("API key not found"))
+        .body("message", is(ApiKeyCode.NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -205,7 +207,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .delete(API_KEY_ENDPOINT + "1")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -217,7 +219,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .delete(API_KEY_ENDPOINT + "9999")
     .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is("API key not found"))
+        .body("message", is(ApiKeyCode.NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -231,7 +233,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "1/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -243,7 +245,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "9999/logs")
     .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is("API key not found"))
+        .body("message", is(ApiKeyCode.NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -257,7 +259,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "1/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -269,7 +271,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "9999/logs/download")
     .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is("API key not found"))
+        .body("message", is(ApiKeyCode.NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -283,7 +285,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "count")
       .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 

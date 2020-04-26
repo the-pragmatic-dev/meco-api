@@ -26,12 +26,12 @@ INSERT INTO billing_log (id, account_id, action, amount, instant) values (2, 1, 
 INSERT INTO billing_log (id, account_id, action, amount, instant) values (3, 1, 'subscription.created', '£0.00', '2020-02-25T15:55:19.111Z') ON CONFLICT DO NOTHING;
 ALTER SEQUENCE billing_log_id_seq RESTART WITH 4;
 -- API Key Log
-INSERT INTO api_key_log(id, api_key_id, action, address, instant) values (1, 1, 'image.predict', '5.65.196.222', '2020-02-25T15:40:19.111Z') ON CONFLICT DO NOTHING;
-INSERT INTO api_key_log(id, api_key_id, action, address, instant) values (2, 1, 'gif.predict', '5.65.196.222', '2020-02-25T16:40:19.111Z') ON CONFLICT DO NOTHING;
-INSERT INTO api_key_log(id, api_key_id, action, address, instant) values (3, 1, 'text.predict', '5.65.196.222', '2020-02-25T17:40:19.111Z') ON CONFLICT DO NOTHING;
+INSERT INTO api_key_log(id, api_key_id, action, address, instant) values (1, 1, 'image.predict', '196.245.163.202', '2020-02-25T15:40:19.111Z') ON CONFLICT DO NOTHING;
+INSERT INTO api_key_log(id, api_key_id, action, address, instant) values (2, 1, 'gif.predict', '196.245.163.202', '2020-02-25T16:40:19.111Z') ON CONFLICT DO NOTHING;
+INSERT INTO api_key_log(id, api_key_id, action, address, instant) values (3, 1, 'text.predict', '196.245.163.202', '2020-02-25T17:40:19.111Z') ON CONFLICT DO NOTHING;
 ALTER SEQUENCE api_key_log_id_seq RESTART WITH 4;
 -- Security Log
-INSERT INTO security_log (id, account_id, action, address, instant) values (1, 1, 'account.created', '5.65.196.222', '2020-02-24T15:40:19.111Z') ON CONFLICT DO NOTHING;
-INSERT INTO security_log (id, account_id, action, address, instant) values (2, 1, 'user.two_factor_successful_login', '5.65.196.222', '2020-02-25T15:50:19.111Z') ON CONFLICT DO NOTHING;
-INSERT INTO security_log (id, account_id, action, address, instant) values (3, 1, 'user.login', '5.65.196.222', '2020-02-25T15:51:19.111Z') ON CONFLICT DO NOTHING;
+INSERT INTO security_log (id, account_id, action, address, instant) values (1, 1, 'account.created', '196.245.163.202', '2020-02-24T15:40:19.111Z') ON CONFLICT DO NOTHING;
+INSERT INTO security_log (id, account_id, action, address, instant) values (2, 1, 'user.two_factor_successful_login', '196.245.163.202', '2020-02-25T15:50:19.111Z') ON CONFLICT DO NOTHING;
+INSERT INTO security_log (id, account_id, action, address, instant) values (3, 1, 'user.login', '196.245.163.202', '2020-02-25T15:51:19.111Z') ON CONFLICT DO NOTHING;
 ALTER SEQUENCE security_log_id_seq RESTART WITH 4;

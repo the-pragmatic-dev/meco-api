@@ -17,6 +17,16 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.202",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -74,7 +84,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A",
+								"value": "Bearer TOKEN",
 								"type": "text"
 							}
 						],
@@ -94,6 +104,69 @@
 					"response": []
 				},
 				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/accounts/me/forgot?username=admin@email.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"accounts",
+								"me",
+								"forgot"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "admin@email.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"password\": \"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/accounts/me/reset?token=TOKEN",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"accounts",
+								"me",
+								"reset"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "TOKEN"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Update",
 					"request": {
 						"method": "PUT",
@@ -104,13 +177,23 @@
 							},
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A",
+								"value": "Bearer TOKEN",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.202",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"fullName\": \"Ash\",\n    \"emailSubscriptionEnabled\": true,\n    \"billingAlertEnabled\": true\n}"
+							"raw": "{\n    \"fullName\": \"Ash\",\n    \"emailSubscriptionEnabled\": false,\n    \"billingAlertEnabled\": true\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/accounts/me",
@@ -134,7 +217,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A",
+								"value": "Bearer TOKEN",
 								"type": "text"
 							}
 						],
@@ -162,7 +245,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A",
+								"value": "Bearer TOKEN",
 								"type": "text"
 							}
 						],
@@ -191,7 +274,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A",
+								"value": "Bearer TOKEN",
 								"type": "text"
 							}
 						],
@@ -219,7 +302,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A",
+								"value": "Bearer TOKEN",
 								"type": "text"
 							}
 						],
@@ -254,7 +337,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A",
+								"value": "Bearer TOKEN",
 								"type": "text"
 							}
 						],
@@ -279,7 +362,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A",
+								"value": "Bearer TOKEN",
 								"type": "text"
 							},
 							{
@@ -319,7 +402,7 @@
 							{
 								"key": "Authorization",
 								"type": "text",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A"
+								"value": "Bearer TOKEN"
 							},
 							{
 								"key": "Content-Type",
@@ -359,7 +442,7 @@
 							{
 								"key": "Authorization",
 								"type": "text",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A"
+								"value": "Bearer TOKEN"
 							}
 						],
 						"body": {
@@ -397,7 +480,7 @@
 							{
 								"key": "Authorization",
 								"type": "text",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A"
+								"value": "Bearer TOKEN"
 							}
 						],
 						"body": {
@@ -436,7 +519,7 @@
 							{
 								"key": "Authorization",
 								"type": "text",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1ODcwMzgzMzUsImV4cCI6MTU4NzA0MTkzNX0.v9BJ3Llz9JU9dfiDKUs3lp9lnxUVoOH9WsVnDGLGb-A"
+								"value": "Bearer TOKEN"
 							}
 						],
 						"body": {

@@ -7,32 +7,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import uk.thepragmaticdev.security.RequestService;
+import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Service
 public class BillingLogService {
 
   private HttpServletRequest request;
 
-  private RequestService requestService;
+  private RequestMetadataService requestMetadataService;
 
   private BillingLogRepository billingLogRepository;
 
   /**
    * Service for logging billing events such as invoice creation.
    * 
-   * @param request              The request information for HTTP servlets
-   * @param requestService       The service for gathering information of http
-   *                             requests.
-   * @param billingLogRepository The data access repository for billing logs
+   * @param request                The request information for HTTP servlets
+   * @param requestMetadataService The service for gathering ip and location
+   *                               information
+   * @param billingLogRepository   The data access repository for billing logs
    */
   @Autowired
   public BillingLogService(//
       HttpServletRequest request, //
-      RequestService requestService, //
+      RequestMetadataService requestMetadataService, //
       BillingLogRepository billingLogRepository) {
     this.request = request;
-    this.requestService = requestService;
+    this.requestMetadataService = requestMetadataService;
     this.billingLogRepository = billingLogRepository;
   }
 
@@ -68,7 +68,7 @@ public class BillingLogService {
   }
 
   private BillingLog log(Long accountId, String action) {
-    return billingLogRepository
-        .save(new BillingLog(null, accountId, action, requestService.getClientIp(request), OffsetDateTime.now()));
+    var ip = requestMetadataService.extractRequestMetadata(request).map(r -> r.getIp()).orElse("");
+    return billingLogRepository.save(new BillingLog(null, accountId, action, ip, OffsetDateTime.now()));
   }
 }

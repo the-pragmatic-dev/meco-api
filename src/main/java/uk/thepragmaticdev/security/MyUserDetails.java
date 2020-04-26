@@ -5,7 +5,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountRepository;
 
 @Service
@@ -20,7 +19,7 @@ public class MyUserDetails implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    final Account account = accountRepository.findByUsername(username)
+    final var account = accountRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException(username));
 
     return org.springframework.security.core.userdetails.User//

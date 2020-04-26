@@ -16,6 +16,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationData;
 import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.exception.code.AccountCode;
 
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -44,7 +45,7 @@ public class AccountEndpointIT extends IntegrationData {
       .post(ACCOUNTS_ENDPOINT + "signin")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Your credentials are missing from the request, or aren't correct."))
+        .body("message", is(AccountCode.INVALID_CREDENTIALS.getMessage()))
         .statusCode(401);
   }
 
@@ -60,7 +61,7 @@ public class AccountEndpointIT extends IntegrationData {
       .post(ACCOUNTS_ENDPOINT + "signin")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Your credentials are missing from the request, or aren't correct."))
+        .body("message", is(AccountCode.INVALID_CREDENTIALS.getMessage()))
         .statusCode(401);
   }
 
@@ -77,7 +78,7 @@ public class AccountEndpointIT extends IntegrationData {
       .post(ACCOUNTS_ENDPOINT + "signup")
     .then()
         .body("status", is("CONFLICT"))
-        .body("message", is("Username is already in use."))
+        .body("message", is(AccountCode.USERNAME_UNAVAILABLE.getMessage()))
         .statusCode(409);
   }
 
@@ -135,7 +136,7 @@ public class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -149,7 +150,7 @@ public class AccountEndpointIT extends IntegrationData {
       .post(ACCOUNTS_ENDPOINT + "me/forgot")
     .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is("Username not found."))
+        .body("message", is(AccountCode.USERNAME_NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -168,7 +169,7 @@ public class AccountEndpointIT extends IntegrationData {
       .post(ACCOUNTS_ENDPOINT + "me/reset")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid password reset token."))
+        .body("message", is(AccountCode.INVALID_PASSWORD_RESET_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -209,7 +210,7 @@ public class AccountEndpointIT extends IntegrationData {
       .put(ACCOUNTS_ENDPOINT + "me")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -223,7 +224,7 @@ public class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -237,7 +238,7 @@ public class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -251,7 +252,7 @@ public class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me/security/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -265,7 +266,7 @@ public class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is("Expired or invalid token."))
+        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 

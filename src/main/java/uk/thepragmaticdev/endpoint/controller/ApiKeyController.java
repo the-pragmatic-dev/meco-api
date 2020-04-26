@@ -65,7 +65,7 @@ public class ApiKeyController {
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.CREATED)
   public ApiKey create(Principal principal, @Valid @RequestBody ApiKey apiKey) {
-    ApiKey key = apiKeyService.create(principal.getName(), apiKey);
+    var key = apiKeyService.create(principal.getName(), apiKey);
     return JsonResult.instance().use(JsonView.with(key).onClass(ApiKey.class, Match.match().include("key")))
         .returnValue();
   }

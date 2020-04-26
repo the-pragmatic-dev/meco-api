@@ -7,32 +7,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import uk.thepragmaticdev.security.RequestService;
+import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Service
 public class ApiKeyLogService {
 
   private HttpServletRequest request;
 
-  private RequestService requestService;
+  private RequestMetadataService requestMetadataService;
 
   private ApiKeyLogRepository apiKeyLogRepository;
 
   /**
    * Service for logging key events such as updates and key usage.
    * 
-   * @param request             The request information for HTTP servlets
-   * @param requestService      The service for gathering information of http
-   *                            requests.
-   * @param apiKeyLogRepository The data access repository for key logs
+   * @param request                The request information for HTTP servlets
+   * @param requestMetadataService The service for gathering ip and location
+   *                               information
+   * @param apiKeyLogRepository    The data access repository for key logs
    */
   @Autowired
   public ApiKeyLogService(//
       HttpServletRequest request, //
-      RequestService requestService, //
+      RequestMetadataService requestMetadataService, //
       ApiKeyLogRepository apiKeyLogRepository) {
     this.request = request;
-    this.requestService = requestService;
+    this.requestMetadataService = requestMetadataService;
     this.apiKeyLogRepository = apiKeyLogRepository;
   }
 
@@ -106,7 +106,7 @@ public class ApiKeyLogService {
   }
 
   private ApiKeyLog log(Long apiKeyId, String action) {
-    return apiKeyLogRepository
-        .save(new ApiKeyLog(null, apiKeyId, action, requestService.getClientIp(request), OffsetDateTime.now()));
+    var ip = requestMetadataService.extractRequestMetadata(request).map(r -> r.getIp()).orElse("");
+    return apiKeyLogRepository.save(new ApiKeyLog(null, apiKeyId, action, ip, OffsetDateTime.now()));
   }
 }

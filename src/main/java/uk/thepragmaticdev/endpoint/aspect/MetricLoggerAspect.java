@@ -33,19 +33,17 @@ public class MetricLoggerAspect {
    */
   @Around("within(@org.springframework.web.bind.annotation.RestController *)")
   public Object logAfter(ProceedingJoinPoint joinPoint) throws Throwable {
-    StopWatch stopWatch = new StopWatch();
+    var stopWatch = new StopWatch();
     stopWatch.start();
-    Object result = joinPoint.proceed();
+    var result = joinPoint.proceed();
     stopWatch.stop();
-
-    JSONObject metric = createMetric(joinPoint, stopWatch);
-
+    var metric = createMetric(joinPoint, stopWatch);
     logger.info("{}", metric);
     return result;
   }
 
   private JSONObject createMetric(ProceedingJoinPoint joinPoint, StopWatch stopWatch) {
-    JSONObject metric = new JSONObject();
+    var metric = new JSONObject();
     metric.put("class", joinPoint.getSignature().getDeclaringTypeName());
     metric.put("method", joinPoint.getSignature().getName());
     metric.put("millis", stopWatch.getTotalTimeMillis());
@@ -55,8 +53,8 @@ public class MetricLoggerAspect {
   }
 
   private JSONArray getArgs(Object[] args) {
-    JSONArray objects = new JSONArray();
-    for (Object object : args) {
+    var objects = new JSONArray();
+    for (var object : args) {
       if (!(object instanceof UsernamePasswordAuthenticationToken) && !(object instanceof Pageable)) {
         if (object instanceof Model) {
           objects.put(serialiseModel((Model) object));
@@ -71,15 +69,15 @@ public class MetricLoggerAspect {
   private String serialiseModel(Model model) {
     try {
       return new ObjectMapper().writeValueAsString(model);
-    } catch (JsonProcessingException e) {
+    } catch (JsonProcessingException ex) {
       logger.info("Error serialising model");
       return "";
     }
   }
 
   private String getUsername(Object[] args) {
-    String username = "unauthenticated";
-    for (Object object : args) {
+    var username = "unauthenticated";
+    for (var object : args) {
       if (object instanceof UsernamePasswordAuthenticationToken) {
         username = ((User) ((UsernamePasswordAuthenticationToken) object).getPrincipal()).getUsername();
       }

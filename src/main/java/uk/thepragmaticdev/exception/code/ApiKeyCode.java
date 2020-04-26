@@ -5,7 +5,7 @@ import uk.thepragmaticdev.exception.ErrorCode;
 
 public enum ApiKeyCode implements ErrorCode {
 
-  NOT_FOUND(HttpStatus.NOT_FOUND, "API key not found"),
+  NOT_FOUND(HttpStatus.NOT_FOUND, "API key not found."),
   API_KEY_LIMIT(HttpStatus.FORBIDDEN, "You have requested too many API keys. Try deleting redundant keys.");
 
   private final String message;

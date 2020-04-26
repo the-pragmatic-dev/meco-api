@@ -87,7 +87,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnOkWhenForgottenPassword() {
     given()
-      .params("username", account().getUsername())
+      .queryParam("username", account().getUsername())
     .when()
       .post(ACCOUNTS_ENDPOINT + "me/forgot")
     .then()
@@ -176,15 +176,15 @@ public class AccountEndpointIT extends IntegrationData {
         .body("content", hasSize(3))
         .root("content[0]")
           .body("action", is("user.login"))
-          .body("address", is("5.65.196.222"))
+          .body("address", is("196.245.163.202"))
           .body("instant", is("2020-02-25T15:51:19.111Z"))
         .root("content[1]")
           .body("action", is("user.two_factor_successful_login"))
-          .body("address", is("5.65.196.222"))
+          .body("address", is("196.245.163.202"))
           .body("instant", is("2020-02-25T15:50:19.111Z"))
         .root("content[2]")
           .body("action", is("account.created"))
-          .body("address", is("5.65.196.222"))
+          .body("address", is("196.245.163.202"))
           .body("instant", is("2020-02-24T15:40:19.111Z"))
         .statusCode(200);
   }

@@ -79,6 +79,27 @@ export DATASOURCE_PASSWORD=password
 
 Spring JPA is set to only validate the DDL - database configuration management is done through [Flyway](https://flywaydb.org/). Flyway will configure the database schema on startup by running all migration files under `src/main/resources/db/migration`. By default, a dummy admin account is created with the following credentials: username: `admin@email.com`, password: `password`.
 
+#### GeoLite2 database
+
+The application reads from a [GeoLite2](https://www.maxmind.com/en/geoip2-databases) city database in order to verify if our users are logging in from a new device/location. To retrive the database, you will need to:
+
+1. Create a MaxMind account.
+2. Generate a new licence key.
+3. Update the `geolite2.permalink` application property with your licence key.
+
+On startup the application will fetch the database and cache it in the `geolite2.directory`. Ensure you have ran the following script prior to application startup which creates the database directory and sets the owner / group:
+
+```bash
+./scripts/init.sh /var/lib/meco/ johnsnow
+```
+
+To test the device / geolocation functionality, ensure requests contain the following headers:
+
+| Key             | Value           |
+| --------------- | --------------- |
+| X-FORWARDED-FOR | 196.245.163.202 |
+| User-Agent      | User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 |
+
 ### Installing
 
 From the cloned workspace compile the project which will also run all unit tests:
@@ -219,6 +240,7 @@ Actuator endpoints are enabled by default to monitor and interact with the runni
 * [Project Lombok](https://projectlombok.org/) - Java library to minimize boilerplate.
 * [Stripe Java](https://github.com/stripe/stripe-java) - Java library for the Stripe API.
 * [Mailgun Java](https://github.com/sargue/mailgun) - Java library for the Mailgun API.
+* [GeoLite2](https://www.maxmind.com/en/geoip2-databases) - Geolocation database for verifying user locations.
 * [Programmatic JSON Views](https://github.com/monitorjbl/json-view) - Java library to include selected JSON fields.
 * [Checkstyle](https://github.com/checkstyle/checkstyle) - Java tool for checking source code adheres to Google code standard.
 * [JWT](https://jwt.io/) - JSON-based access tokens that assert a number of claims.
@@ -255,4 +277,3 @@ MECO API is licensed under the Apache License, Version 2.0. See [LICENSE](LICENS
 ## Acknowledgments
 
 * **Hugo Firth** - *Tech consultant* - [GitHub](https://github.com/hugofirth)
-

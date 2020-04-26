@@ -1,5 +1,7 @@
 package uk.thepragmaticdev.security;
 
+import static java.util.Objects.nonNull;
+
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -9,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uk.thepragmaticdev.exception.ApiError;
@@ -31,16 +32,16 @@ public class JwtTokenFilter extends OncePerRequestFilter {
       HttpServletRequest httpServletRequest, //
       HttpServletResponse httpServletResponse, //
       FilterChain filterChain) throws ServletException, IOException {
-    String token = jwtTokenProvider.resolveToken(httpServletRequest);
+    var token = jwtTokenProvider.resolveToken(httpServletRequest);
     try {
-      if (token != null && jwtTokenProvider.validateToken(token)) {
-        Authentication auth = jwtTokenProvider.getAuthentication(token);
+      if (nonNull(token) && jwtTokenProvider.validateToken(token)) {
+        var auth = jwtTokenProvider.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
       }
     } catch (ApiException ex) {
       SecurityContextHolder.clearContext();
 
-      ApiError responseBody = new ApiError(//
+      var responseBody = new ApiError(//
           AccountCode.INVALID_EXPIRED_TOKEN.getStatus(), //
           AccountCode.INVALID_EXPIRED_TOKEN.getMessage() //
       );

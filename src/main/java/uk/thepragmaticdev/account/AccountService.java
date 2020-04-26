@@ -1,7 +1,9 @@
 package uk.thepragmaticdev.account;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.opencsv.ICSVWriter;
-import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -9,6 +11,7 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +31,12 @@ import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
 import uk.thepragmaticdev.security.JwtTokenProvider;
+import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Service
 public class AccountService {
+
+  private HttpServletRequest request;
 
   private AccountRepository accountRepository;
 
@@ -39,6 +45,8 @@ public class AccountService {
   private SecurityLogService securityLogService;
 
   private EmailService emailService;
+
+  private RequestMetadataService requestMetadataService;
 
   private PasswordEncoder passwordEncoder;
 
@@ -50,46 +58,58 @@ public class AccountService {
    * Service for creating, authorizing and updating accounts. Billing and security
    * logs related to an authorised account may also be downloaded.
    * 
-   * @param accountRepository     The data access repository for accounts
-   * @param billingLogService     The service for accessing billing logs
-   * @param securityLogService    The service for accessing security logs
-   * @param emailService          The service for sending emails
-   * @param passwordEncoder       The service for encoding passwords
-   * @param jwtTokenProvider      The provider for creating, validating tokens
-   * @param authenticationManager The manager for authentication providers
+   * @param request                The request information for HTTP servlets
+   * @param accountRepository      The data access repository for accounts
+   * @param billingLogService      The service for accessing billing logs
+   * @param securityLogService     The service for accessing security logs
+   * @param emailService           The service for sending emails
+   * @param requestMetadataService The service for gathering ip and location
+   *                               information
+   * @param passwordEncoder        The service for encoding passwords
+   * @param jwtTokenProvider       The provider for creating, validating tokens
+   * @param authenticationManager  The manager for authentication providers
    */
   @Autowired
   public AccountService(//
+      HttpServletRequest request, //
       AccountRepository accountRepository, //
       BillingLogService billingLogService, //
       SecurityLogService securityLogService, //
       EmailService emailService, //
+      RequestMetadataService requestMetadataService, //
       PasswordEncoder passwordEncoder, //
       JwtTokenProvider jwtTokenProvider, //
       AuthenticationManager authenticationManager) {
+    this.request = request;
     this.accountRepository = accountRepository;
     this.billingLogService = billingLogService;
     this.securityLogService = securityLogService;
     this.emailService = emailService;
+    this.requestMetadataService = requestMetadataService;
     this.passwordEncoder = passwordEncoder;
     this.jwtTokenProvider = jwtTokenProvider;
     this.authenticationManager = authenticationManager;
   }
 
   /**
-   * Authorize an account.
+   * Authorize an account. If signing in from an unfamiliar ip or device the user
+   * will be notified by email.
    * 
    * @param username The username of an account attemping to sign in
    * @param password The password of an account attemping to sign in
    * @return An authentication token
    */
   public String signin(String username, String password) {
+    String token;
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-      return jwtTokenProvider.createToken(username, findAuthenticatedAccount(username).getRoles());
-    } catch (AuthenticationException e) {
+      var persistedAccount = findAuthenticatedAccount(username);
+      token = jwtTokenProvider.createToken(username, persistedAccount.getRoles());
+      requestMetadataService.verifyRequest(persistedAccount, request);
+    } catch (AuthenticationException ex) {
       throw new ApiException(AccountCode.INVALID_CREDENTIALS);
     }
+    return token;
   }
 
   /**
@@ -103,7 +123,7 @@ public class AccountService {
       account.setPassword(passwordEncoder.encode(account.getPassword()));
       account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
       account.setCreatedDate(OffsetDateTime.now());
-      Account persistedAccount = accountRepository.save(account);
+      var persistedAccount = accountRepository.save(account);
       securityLogService.created(persistedAccount.getId());
       emailService.sendAccountCreated(persistedAccount);
       return jwtTokenProvider.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
@@ -132,32 +152,31 @@ public class AccountService {
    * @return The updated account
    */
   public Account update(String username, @Valid Account account) {
-    Account authenticatedAccount = findAuthenticatedAccount(username);
+    var authenticatedAccount = findAuthenticatedAccount(username);
     updateFullName(authenticatedAccount, account.getFullName());
-    updateEmailSubscriptionEnabled(authenticatedAccount, account.getEmailSubscriptionEnabled());
     updateBillingAlertEnabled(authenticatedAccount, account.getBillingAlertEnabled());
+    updateEmailSubscriptionEnabled(authenticatedAccount, account.getEmailSubscriptionEnabled());
     return accountRepository.save(authenticatedAccount);
   }
 
-  private void updateFullName(Account authenticatedAccount, String fullName) {
-    if (authenticatedAccount.getFullName() == null ? fullName != null
-        : !authenticatedAccount.getFullName().equals(fullName)) {
-      securityLogService.fullname(authenticatedAccount.getId());
-      authenticatedAccount.setFullName(fullName);
+  private void updateFullName(Account account, String fullName) {
+    if (isNull(account.getFullName()) ? nonNull(fullName) : !account.getFullName().equals(fullName)) {
+      securityLogService.fullname(account.getId());
+      account.setFullName(fullName);
     }
   }
 
-  private void updateBillingAlertEnabled(Account authenticatedAccount, boolean billingAlertEnabled) {
-    if (authenticatedAccount.getBillingAlertEnabled() != billingAlertEnabled) {
-      securityLogService.billingAlertEnabled(authenticatedAccount.getId(), billingAlertEnabled);
-      authenticatedAccount.setBillingAlertEnabled(billingAlertEnabled);
+  private void updateBillingAlertEnabled(Account account, boolean billingAlertEnabled) {
+    if (account.getBillingAlertEnabled() != billingAlertEnabled) {
+      securityLogService.billingAlertEnabled(account.getId(), billingAlertEnabled);
+      account.setBillingAlertEnabled(billingAlertEnabled);
     }
   }
 
-  private void updateEmailSubscriptionEnabled(Account authenticatedAccount, boolean emailSubscriptionEnabled) {
-    if (authenticatedAccount.getEmailSubscriptionEnabled() != emailSubscriptionEnabled) {
-      securityLogService.emailSubscriptionEnabled(authenticatedAccount.getId(), emailSubscriptionEnabled);
-      authenticatedAccount.setEmailSubscriptionEnabled(emailSubscriptionEnabled);
+  private void updateEmailSubscriptionEnabled(Account account, boolean emailSubscriptionEnabled) {
+    if (account.getEmailSubscriptionEnabled() != emailSubscriptionEnabled) {
+      securityLogService.emailSubscriptionEnabled(account.getId(), emailSubscriptionEnabled);
+      account.setEmailSubscriptionEnabled(emailSubscriptionEnabled);
     }
   }
 
@@ -168,7 +187,7 @@ public class AccountService {
    * @param username A valid account username
    */
   public void forgot(String username) {
-    Account authenticatedAccount = findAuthenticatedAccount(username);
+    var authenticatedAccount = findAuthenticatedAccount(username);
     authenticatedAccount.setPasswordResetToken(UUID.randomUUID().toString());
     authenticatedAccount.setPasswordResetTokenExpire(OffsetDateTime.now().plusDays(1));
     accountRepository.save(authenticatedAccount);
@@ -183,7 +202,7 @@ public class AccountService {
    *                endpoint
    */
   public void reset(Account account, String token) {
-    Account persistedAccount = accountRepository.findByPasswordResetToken(token)
+    var persistedAccount = accountRepository.findByPasswordResetToken(token)
         .orElseThrow(() -> new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN));
     if (OffsetDateTime.now().isAfter(persistedAccount.getPasswordResetTokenExpire())) {
       throw new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN);
@@ -204,7 +223,7 @@ public class AccountService {
    * @return A page of the latest billing logs
    */
   public Page<BillingLog> billingLogs(Pageable pageable, String username) {
-    Account authenticatedAccount = findAuthenticatedAccount(username);
+    var authenticatedAccount = findAuthenticatedAccount(username);
     return billingLogService.findAllByAccountId(pageable, authenticatedAccount.getId());
   }
 
@@ -215,15 +234,15 @@ public class AccountService {
    * @param username The authenticated account username
    */
   public void downloadBillingLogs(HttpServletResponse response, String username) {
-    Account authenticatedAccount = findAuthenticatedAccount(username);
+    var authenticatedAccount = findAuthenticatedAccount(username);
     try {
-      StatefulBeanToCsv<BillingLog> writer = new StatefulBeanToCsvBuilder<BillingLog>(response.getWriter())
+      var writer = new StatefulBeanToCsvBuilder<BillingLog>(response.getWriter())
           .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
       writer.write(billingLogService.findAllByAccountId(authenticatedAccount.getId()));
-    } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+    } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
-    } catch (IOException e) {
+    } catch (IOException ex) {
       throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
@@ -236,7 +255,7 @@ public class AccountService {
    * @return A page of the latest security logs
    */
   public Page<SecurityLog> securityLogs(Pageable pageable, String username) {
-    Account authenticatedAccount = findAuthenticatedAccount(username);
+    var authenticatedAccount = findAuthenticatedAccount(username);
     return securityLogService.findAllByAccountId(pageable, authenticatedAccount.getId());
   }
 
@@ -247,19 +266,20 @@ public class AccountService {
    * @param username The authenticated account username
    */
   public void downloadSecurityLogs(HttpServletResponse response, String username) {
-    Account authenticatedAccount = findAuthenticatedAccount(username);
+    var authenticatedAccount = findAuthenticatedAccount(username);
     try {
-      StatefulBeanToCsv<SecurityLog> writer = new StatefulBeanToCsvBuilder<SecurityLog>(response.getWriter())
+      var writer = new StatefulBeanToCsvBuilder<SecurityLog>(response.getWriter())
           .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
       writer.write(securityLogService.findAllByAccountId(authenticatedAccount.getId()));
-    } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+    } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
-    } catch (IOException e) {
+    } catch (IOException ex) {
       throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
 
+  // TODO: unused method yet to be implemented
   @SuppressWarnings("unused")
   private String refresh(String username) {
     return jwtTokenProvider.createToken(username, findAuthenticatedAccount(username).getRoles());

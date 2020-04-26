@@ -29,7 +29,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
    */
   @ExceptionHandler(ApiException.class)
   protected ResponseEntity<Object> handleApiException(ApiException ex, WebRequest request) {
-    ApiError responseBody = new ApiError(//
+    var responseBody = new ApiError(//
         ex.getErrorCode().getStatus(), //
         ex.getErrorCode().getMessage() //
     );
@@ -46,7 +46,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
       HttpHeaders headers, //
       HttpStatus status, //
       WebRequest request) {
-    ApiError responseBody = new ApiError(HttpStatus.BAD_REQUEST, "Validation errors");
+    var responseBody = new ApiError(HttpStatus.BAD_REQUEST, "Validation errors");
     responseBody.addValidationErrors(ex.getBindingResult().getFieldErrors());
     logger.warn("{}", responseBody);
     return handleExceptionInternal(ex, responseBody, headers(), HttpStatus.BAD_REQUEST, request);
@@ -71,7 +71,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
   }
 
   private HttpHeaders headers() {
-    HttpHeaders headers = new HttpHeaders();
+    var headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     return headers;
   }

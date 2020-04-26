@@ -1,5 +1,7 @@
 package uk.thepragmaticdev.exception;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.gson.Gson;
@@ -30,12 +32,12 @@ public class ApiError {
    * @param fieldErrors The list of reasons for rejecting a specific field value
    */
   public void addValidationErrors(List<FieldError> fieldErrors) {
-    if (subErrors == null) {
+    if (isNull(subErrors)) {
       subErrors = new ArrayList<>();
     }
 
     fieldErrors.forEach((fieldError) -> {
-      Object rejectedValue = maskRejectedPasswordValue(fieldError);
+      var rejectedValue = maskRejectedPasswordValue(fieldError);
       this.subErrors.add(new ApiSubError(//
           fieldError.getObjectName(), //
           fieldError.getField(), //
