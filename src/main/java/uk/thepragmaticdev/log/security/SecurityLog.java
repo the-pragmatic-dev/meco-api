@@ -4,36 +4,37 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opencsv.bean.CsvIgnore;
 import java.time.OffsetDateTime;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.thepragmaticdev.endpoint.Model;
+import uk.thepragmaticdev.log.Log;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = "id") })
-public class SecurityLog implements Model {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @JsonIgnore
-  @CsvIgnore
-  private Long id;
+public class SecurityLog extends Log implements Model {
 
   @JsonIgnore
   @CsvIgnore
   private Long accountId;
 
-  private String action; // generated
-
   private String address; // generated
 
-  private OffsetDateTime instant; // generated
+  /**
+   * Entity to capture security events.
+   * 
+   * @param id        The primary key
+   * @param accountId The account id
+   * @param action    The billing action
+   * @param address   The ip address
+   * @param instant   The time of the action
+   */
+  public SecurityLog(Long id, Long accountId, String action, String address, OffsetDateTime instant) {
+    super(id, action, instant);
+    this.accountId = accountId;
+    this.address = address;
+  }
 }

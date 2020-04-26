@@ -45,19 +45,19 @@
     </encoder>
   </appender>
 
-  <logger name="uk.thepragmaticdev" level="INFO" additivity="false">
+  <logger name="uk.thepragmaticdev" level="INFO" additivity="true">
     <appender-ref ref="APP_LOG" />
   </logger>
 
-  <logger name="uk.thepragmaticdev.endpoint.aspect" level="INFO" additivity="false">
+  <logger name="uk.thepragmaticdev.endpoint.aspect" level="INFO" additivity="true">
     <appender-ref ref="METRICS_LOG" />
   </logger>
 
-  <logger name="uk.thepragmaticdev.endpoint.controller.advice.RestResponseExceptionHandler" level="FATAL" additivity="false">
+  <logger name="uk.thepragmaticdev.endpoint.controller.advice.RestResponseExceptionHandler" level="FATAL" additivity="true">
     <appender-ref ref="EXCEPTIONS_LOG" />
   </logger>
 
-  <logger name="uk.thepragmaticdev.security.JwtTokenFilter" level="FATAL" additivity="false">
+  <logger name="uk.thepragmaticdev.security.JwtTokenFilter" level="FATAL" additivity="true">
     <appender-ref ref="EXCEPTIONS_LOG" />
   </logger>
 
