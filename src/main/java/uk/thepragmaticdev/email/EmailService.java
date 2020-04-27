@@ -23,6 +23,18 @@ public class EmailService {
   private final String domain;
   private final String fromName;
   private final String fromEmail; // TODO: might be used
+  private final String accountCreatedName;
+  private final String accountCreatedSubject;
+  private final String accountForgottenPasswordName;
+  private final String accountForgottenPasswordSubject;
+  private final String accountResetPasswordName;
+  private final String accountResetPasswordSubject;
+  private final String accountUnrecognizedDeviceName;
+  private final String accountUnrecognizedDeviceSubject;
+  private final String keyCreatedName;
+  private final String keyCreatedSubject;
+  private final String keyDeletedName;
+  private final String keyDeletedSubject;
 
   /**
    * Service for sending emails. Provides default mailgun configuration.
@@ -37,10 +49,34 @@ public class EmailService {
       @Value("${mailgun.secret-key}") String secretKey, //
       @Value("${mailgun.from.name}") String fromName, //
       @Value("${mailgun.from.email}") String fromEmail, //
+      @Value("${mailgun.template.account-created.name}") String accountCreatedName, //
+      @Value("${mailgun.template.account-created.subject}") String accountCreatedSubject, //
+      @Value("${mailgun.template.account-forgotten-password.name}") String accountForgottenPasswordName, //
+      @Value("${mailgun.template.account-forgotten-password.subject}") String accountForgottenPasswordSubject, //
+      @Value("${mailgun.template.account-reset-password.name}") String accountResetPasswordName, //
+      @Value("${mailgun.template.account-reset-password.subject}") String accountResetPasswordSubject, //
+      @Value("${mailgun.template.account-unrecognized-device.name}") String accountUnrecognizedDeviceName, //
+      @Value("${mailgun.template.account-unrecognized-device.subject}") String accountUnrecognizedDeviceSubject, //
+      @Value("${mailgun.template.key-created.name}") String keyCreatedName, //
+      @Value("${mailgun.template.key-created.subject}") String keyCreatedSubject, //
+      @Value("${mailgun.template.key-deleted.name}") String keyDeletedName, //
+      @Value("${mailgun.template.key-deleted.subject}") String keyDeletedSubject, //
       WebClient.Builder webClientBuilder) {
     this.domain = domain;
     this.fromName = fromName;
     this.fromEmail = fromEmail;
+    this.accountCreatedName = accountCreatedName;
+    this.accountCreatedSubject = accountCreatedSubject;
+    this.accountForgottenPasswordName = accountForgottenPasswordName;
+    this.accountForgottenPasswordSubject = accountForgottenPasswordSubject;
+    this.accountResetPasswordName = accountResetPasswordName;
+    this.accountResetPasswordSubject = accountResetPasswordSubject;
+    this.accountUnrecognizedDeviceName = accountUnrecognizedDeviceName;
+    this.accountUnrecognizedDeviceSubject = accountUnrecognizedDeviceSubject;
+    this.keyCreatedName = keyCreatedName;
+    this.keyCreatedSubject = keyCreatedSubject;
+    this.keyDeletedName = keyDeletedName;
+    this.keyDeletedSubject = keyDeletedSubject;
     this.webClient = webClientBuilder.baseUrl(String.format("https://api.mailgun.net/v3/%s.mailgun.org", domain))//
         .defaultHeaders(header -> header.setBasicAuth("api", secretKey))//
         .build();
@@ -52,7 +88,7 @@ public class EmailService {
    * @param account The newly created account
    */
   public void sendAccountCreated(Account account) {
-    send(account.getUsername(), "Welcome to MECO!", "new-account", new LinkedMultiValueMap<>());
+    send(account.getUsername(), accountCreatedName, accountCreatedSubject, new LinkedMultiValueMap<>());
   }
 
   /**
@@ -64,7 +100,7 @@ public class EmailService {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:username", account.getUsername());
     formData.add("v:token", account.getPasswordResetToken());
-    send(account.getUsername(), "Reset your MECO password", "forgotten-password", formData);
+    send(account.getUsername(), accountForgottenPasswordName, accountForgottenPasswordSubject, formData);
   }
 
   /**
@@ -75,7 +111,7 @@ public class EmailService {
   public void sendResetPassword(Account account) {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:username", account.getUsername());
-    send(account.getUsername(), "Your MECO password has been changed", "reset-password", formData);
+    send(account.getUsername(), accountResetPasswordName, accountResetPasswordSubject, formData);
   }
 
   /**
@@ -93,7 +129,7 @@ public class EmailService {
     formData.add("v:subdivisionIsoCode", requestMetadata.getGeoMetadata().getSubdivisionIsoCode());
     formData.add("v:operatingSystemFamily", requestMetadata.getDeviceMetadata().getOperatingSystemFamily());
     formData.add("v:userAgentFamily", requestMetadata.getDeviceMetadata().getUserAgentFamily());
-    send(account.getUsername(), "Unrecognized device signed in to your MECO account", "unrecognized-device", formData);
+    send(account.getUsername(), accountUnrecognizedDeviceName, accountUnrecognizedDeviceSubject, formData);
   }
 
   /**
@@ -105,7 +141,7 @@ public class EmailService {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:name", createdKey.getName());
     formData.add("v:prefix", createdKey.getPrefix());
-    send(account.getUsername(), "A new key was added to your account", "new-key", formData);
+    send(account.getUsername(), keyCreatedName, keyCreatedSubject, formData);
   }
 
   /**
@@ -117,7 +153,7 @@ public class EmailService {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:name", deletedKey.getName());
     formData.add("v:prefix", deletedKey.getPrefix());
-    send(account.getUsername(), "A key was deleted from your account", "delete-key", formData);
+    send(account.getUsername(), keyDeletedName, keyDeletedSubject, formData);
   }
 
   private void send(String to, String subject, String template, MultiValueMap<String, String> formData) {
