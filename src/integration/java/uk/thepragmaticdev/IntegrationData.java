@@ -50,12 +50,11 @@ public abstract class IntegrationData {
    * Jackson annotations to enable serialising test data.
    */
   public IntegrationData() {
-    // RestAssured.requestSpecification = new RequestSpecBuilder()//
-    // .addHeader("User-Agent",
-    // "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0)
-    // AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36")//
-    // .addHeader("X-FORWARDED-FOR", "196.245.163.202")//
-    // .build();
+    RestAssured.requestSpecification = new RequestSpecBuilder()//
+        .addHeader("User-Agent",
+            "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36")//
+        .addHeader("X-FORWARDED-FOR", "196.245.163.202")//
+        .build();
     RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     RestAssured.config = RestAssuredConfig.config()
         .objectMapperConfig(objectMapperConfig().jackson2ObjectMapperFactory(new Jackson2ObjectMapperFactory() {

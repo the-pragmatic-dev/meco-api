@@ -188,8 +188,8 @@ public class ApiKeyEndpointIT extends IntegrationData {
     given()
       .contentType(JSON)
       .header(HttpHeaders.AUTHORIZATION, signin())
-      .header("User-Agent", "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36")
-      .header("X-FORWARDED-FOR", "196.245.163.202")
+      // .header("User-Agent", "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36")
+      // .header("X-FORWARDED-FOR", "196.245.163.202")
       .body(dirtyKey())
       .log().all() // TODO remove
     .when()
