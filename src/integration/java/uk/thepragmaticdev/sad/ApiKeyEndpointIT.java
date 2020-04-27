@@ -189,7 +189,6 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .contentType(JSON)
       .header(HttpHeaders.AUTHORIZATION, signin())
       .body(dirtyKey())
-      .log().all() // TODO remove
     .when()
       .put(API_KEY_ENDPOINT + "9999")
       .then()
