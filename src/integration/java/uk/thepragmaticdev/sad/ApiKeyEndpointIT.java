@@ -41,6 +41,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotReturnAllKeysWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(API_KEY_ENDPOINT)
@@ -59,6 +60,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
     key.setName(shortName);
 
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
       .body(key)
@@ -83,6 +85,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
     key.setName(longName);
 
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
       .body(key)
@@ -106,6 +109,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
     key.setScope(null);
 
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
       .body(key)
@@ -131,6 +135,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
     key.setAccessPolicies(Arrays.asList(dirtyAccessPolicy));
 
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
       .body(key)
@@ -156,6 +161,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
     IntStream.range(0, 8).forEach(i -> createValidKey());
     assertKeyCount(10);
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
       .body(key())
@@ -173,6 +179,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   public void shouldNotUpdateKeyWithInvalidToken() {
     given()
       .contentType(JSON)
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
       .body(dirtyKey())
     .when()
@@ -187,11 +194,9 @@ public class ApiKeyEndpointIT extends IntegrationData {
   public void shouldNotUpdateUnknownKey() {
     given()
       .contentType(JSON)
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
-      // .header("User-Agent", "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36")
-      // .header("X-FORWARDED-FOR", "196.245.163.202")
       .body(dirtyKey())
-      .log().all() // TODO remove
     .when()
       .put(API_KEY_ENDPOINT + "9999")
       .then()
@@ -205,6 +210,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotDeleteKeyWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .delete(API_KEY_ENDPOINT + "1")
@@ -217,6 +223,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotDeleteUnknownKey() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .delete(API_KEY_ENDPOINT + "9999")
@@ -231,6 +238,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotReturnLatestKeyLogsWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(API_KEY_ENDPOINT + "1/logs")
@@ -243,6 +251,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotReturnLatestKeyLogsForUnknownKey() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(API_KEY_ENDPOINT + "9999/logs")
@@ -257,6 +266,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotDownloadKeyLogsWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(API_KEY_ENDPOINT + "1/logs/download")
@@ -269,6 +279,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotDownloadKeyLogsForUnknownKey() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(API_KEY_ENDPOINT + "9999/logs/download")
@@ -283,6 +294,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotReturnKeyCountWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(API_KEY_ENDPOINT + "count")
@@ -294,6 +306,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   private void createValidKey() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
       .body(key())
@@ -305,6 +318,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   private void assertKeyCount(int expectedCount) {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(API_KEY_ENDPOINT + "count")

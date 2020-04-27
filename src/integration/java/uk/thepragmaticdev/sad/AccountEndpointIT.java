@@ -39,6 +39,7 @@ public class AccountEndpointIT extends IntegrationData {
     account.setUsername("random@email.com");
 
     given()
+      .headers(headers())
       .contentType(JSON)
       .body(account)
     .when()
@@ -55,6 +56,7 @@ public class AccountEndpointIT extends IntegrationData {
     account.setPassword("invalidPassword");
 
     given()
+      .headers(headers())
       .contentType(JSON)
       .body(account)
     .when()
@@ -72,6 +74,7 @@ public class AccountEndpointIT extends IntegrationData {
     Account account = account();
 
     given()
+      .headers(headers())
       .contentType(JSON)
       .body(account)
     .when()
@@ -88,6 +91,7 @@ public class AccountEndpointIT extends IntegrationData {
     account.setUsername("invalid@");
 
     given()
+      .headers(headers())
       .contentType(JSON)
       .body(account)
     .when()
@@ -110,6 +114,7 @@ public class AccountEndpointIT extends IntegrationData {
     account.setPassword("1234567");
 
     given()
+      .headers(headers())
       .contentType(JSON)
       .body(account)
     .when()
@@ -131,6 +136,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldNotReturnAuthenticatedAccountWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(ACCOUNTS_ENDPOINT + "me")
@@ -145,6 +151,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldNotReturnOkWhenForgottenPasswordForUnknownUsername() {
     given()
+      .headers(headers())
       .queryParam("username", "garbage@username.com")
     .when()
       .post(ACCOUNTS_ENDPOINT + "me/forgot")
@@ -162,6 +169,7 @@ public class AccountEndpointIT extends IntegrationData {
     account.setPassword("newpassword");
     
     given()
+      .headers(headers())
       .queryParam("token", "garbage")
       .contentType(JSON)
       .body(account)
@@ -179,6 +187,7 @@ public class AccountEndpointIT extends IntegrationData {
     account.setPassword("1234567");
     
     given()
+      .headers(headers())
       .queryParam("token", "garbage")
       .contentType(JSON)
       .body(account)
@@ -204,6 +213,7 @@ public class AccountEndpointIT extends IntegrationData {
 
     given()
       .contentType(JSON)
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
       .body(account)
     .when()
@@ -219,6 +229,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldNotReturnLatestBillingLogsWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
@@ -233,6 +244,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldNotDownloadBillingLogsWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
@@ -247,6 +259,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldNotReturnLatestSecurityLogsWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs")
@@ -261,6 +274,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldNotDownloadSecurityLogsWithInvalidToken() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")

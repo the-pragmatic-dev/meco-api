@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.not;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.mapper.factory.Jackson2ObjectMapperFactory;
 import java.io.IOException;
@@ -18,6 +17,8 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.cactoos.io.ResourceOf;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
@@ -43,18 +44,11 @@ public abstract class IntegrationData {
   protected static final String API_KEY_ENDPOINT = "http://localhost:8080/api-keys/";
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
 
-  // TODO: set fake useragent and ip for all requests
-
   /**
    * Default to logging RestAssured errors only if validation fails. Also disable
    * Jackson annotations to enable serialising test data.
    */
   public IntegrationData() {
-    RestAssured.requestSpecification = new RequestSpecBuilder()//
-        .addHeader("User-Agent",
-            "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36")//
-        .addHeader("X-FORWARDED-FOR", "196.245.163.202")//
-        .build();
     RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     RestAssured.config = RestAssuredConfig.config()
         .objectMapperConfig(objectMapperConfig().jackson2ObjectMapperFactory(new Jackson2ObjectMapperFactory() {
@@ -66,6 +60,19 @@ public abstract class IntegrationData {
         }));
   }
 
+  /**
+   * Default headers to mock user agent and ip.
+   * 
+   * @return A map of default headers
+   */
+  protected Map<String, String> headers() {
+    var headers = new HashMap<String, String>();
+    headers.put("User-Agent", "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0)"
+        + " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
+    headers.put("X-FORWARDED-FOR", "196.245.163.202");
+    return headers;
+  }
+
   // @formatter:off
 
   /**
@@ -75,6 +82,7 @@ public abstract class IntegrationData {
   protected String signin() {
     return String.format("Bearer %s", 
       given()
+        .headers(headers())
         .contentType(JSON)
         .body(account())
       .when()

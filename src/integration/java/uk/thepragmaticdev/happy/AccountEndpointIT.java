@@ -50,6 +50,7 @@ public class AccountEndpointIT extends IntegrationData {
     account.setUsername("test@email.com");
 
     given()
+      .headers(headers())
       .contentType(JSON)
       .body(account)
     .when()
@@ -64,6 +65,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnAuthenticatedAccount() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me")
@@ -87,6 +89,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnOkWhenForgottenPassword() {
     given()
+      .headers(headers())
       .queryParam("username", account().getUsername())
     .when()
       .post(ACCOUNTS_ENDPOINT + "me/forgot")
@@ -105,6 +108,7 @@ public class AccountEndpointIT extends IntegrationData {
     Account account = dirtyAccount();
 
     given()
+      .headers(headers())
       .contentType(JSON)
       .header(HttpHeaders.AUTHORIZATION, signin())
       .body(account)
@@ -127,6 +131,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnLatestBillingLogs() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
@@ -153,6 +158,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldDownloadBillingLogs() throws IOException {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
@@ -168,6 +174,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnLatestSecurityLogs() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs")
@@ -194,6 +201,7 @@ public class AccountEndpointIT extends IntegrationData {
   @Test
   public void shouldDownloadSecurityLogs() throws IOException {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")

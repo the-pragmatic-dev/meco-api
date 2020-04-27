@@ -42,6 +42,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnAllKeysOwnedByAuthenticatedAccount() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(API_KEY_ENDPOINT)
@@ -95,9 +96,10 @@ public class ApiKeyEndpointIT extends IntegrationData {
     ApiKey key = key();
 
     ApiKey response = given()
-        .header(HttpHeaders.AUTHORIZATION, signin())
-        .contentType(JSON)
-        .body(key)
+          .headers(headers())
+          .header(HttpHeaders.AUTHORIZATION, signin())
+          .contentType(JSON)
+          .body(key)
         .when()
           .post(API_KEY_ENDPOINT)
         .then()
@@ -131,6 +133,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
     given()
       .contentType(JSON)
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .body(key)
     .when()
@@ -160,6 +163,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldDeleteKey() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .delete(API_KEY_ENDPOINT + "1")
@@ -181,6 +185,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnLatestLogsForKey() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(API_KEY_ENDPOINT + "1/logs")
@@ -207,6 +212,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldDownloadKeyLogs() throws IOException {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(API_KEY_ENDPOINT + "1/logs/download")
@@ -222,6 +228,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldReturnKeyCountOfAuthenticatedAccount() {
     given()
+      .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
     .when()
       .get(API_KEY_ENDPOINT + "count")
