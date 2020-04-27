@@ -63,7 +63,26 @@ mailgun:
     from:
         name: ${MAILGUN_FROM_NAME:name}
         email: ${MAILGUN_FROM_EMAIL:email}
-
+    template:
+        account-created:
+            name: 'account-created'
+            subject: 'Welcome to MECO!'
+        account-forgotten-password:
+            name: 'account-forgotten-password'
+            subject: 'Reset your MECO password'
+        account-reset-password:
+            name: 'account-reset-password'
+            subject: 'Your MECO password has been changed'
+        account-unrecognized-device:
+            name: 'account-unrecognized-device'
+            subject: 'Unrecognized device signed in to your MECO account'
+        key-created:
+            name: 'key-created'
+            subject: 'A new key was added to your account'
+        key-deleted:
+            name: 'key-deleted'
+            subject: 'A key was deleted from your account'
+            
 kms:
     api-key-limit: ${API_KEY_LIMIT:10}
 
