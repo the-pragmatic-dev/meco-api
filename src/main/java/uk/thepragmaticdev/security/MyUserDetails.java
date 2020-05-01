@@ -10,7 +10,7 @@ import uk.thepragmaticdev.account.AccountRepository;
 @Service
 public class MyUserDetails implements UserDetailsService {
 
-  private AccountRepository accountRepository;
+  private final AccountRepository accountRepository;
 
   @Autowired
   public MyUserDetails(AccountRepository accountRepository) {

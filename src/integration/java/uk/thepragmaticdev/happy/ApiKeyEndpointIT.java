@@ -194,16 +194,16 @@ public class ApiKeyEndpointIT extends IntegrationData {
         .body("content", hasSize(3))
         .root("content[0]")
           .body("action", is("text.predict"))
-          .body("address", is("196.245.163.202"))
-          .body("instant", is("2020-02-25T17:40:19.111Z"))
+          .body("createdDate", is("2020-02-26T15:40:19.111Z"))
+          .spec(validRequestMetadataSpec(0))
         .root("content[1]")
           .body("action", is("gif.predict"))
-          .body("address", is("196.245.163.202"))
-          .body("instant", is("2020-02-25T16:40:19.111Z"))
+          .body("createdDate", is("2020-02-25T15:40:19.111Z"))
+          .spec(validRequestMetadataSpec(1))
         .root("content[2]")
           .body("action", is("image.predict"))
-          .body("address", is("196.245.163.202"))
-          .body("instant", is("2020-02-25T15:40:19.111Z"))
+          .body("createdDate", is("2020-02-24T15:40:19.111Z"))
+          .spec(validRequestMetadataSpec(2))
         .statusCode(200);
   }
 

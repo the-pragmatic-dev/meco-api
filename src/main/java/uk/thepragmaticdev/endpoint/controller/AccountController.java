@@ -31,7 +31,7 @@ import uk.thepragmaticdev.log.security.SecurityLog;
 @Tag(name = "accounts")
 public class AccountController {
 
-  private AccountService accountService;
+  private final AccountService accountService;
 
   @Autowired
   public AccountController(AccountService accountService) {

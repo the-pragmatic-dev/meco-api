@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SecurityLogRepository extends JpaRepository<SecurityLog, Long> {
 
-  List<SecurityLog> findAllByAccountIdOrderByInstantDesc(Long accountId);
+  List<SecurityLog> findAllByAccountIdOrderByCreatedDateDesc(Long accountId);
 
-  Page<SecurityLog> findAllByAccountIdOrderByInstantDesc(Pageable pageable, Long accountId);
+  Page<SecurityLog> findAllByAccountIdOrderByCreatedDateDesc(Pageable pageable, Long accountId);
 }

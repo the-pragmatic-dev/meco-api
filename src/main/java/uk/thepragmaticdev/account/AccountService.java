@@ -36,23 +36,23 @@ import uk.thepragmaticdev.security.request.RequestMetadataService;
 @Service
 public class AccountService {
 
-  private HttpServletRequest request;
+  private final HttpServletRequest request;
 
-  private AccountRepository accountRepository;
+  private final AccountRepository accountRepository;
 
-  private BillingLogService billingLogService;
+  private final BillingLogService billingLogService;
 
-  private SecurityLogService securityLogService;
+  private final SecurityLogService securityLogService;
 
-  private EmailService emailService;
+  private final EmailService emailService;
 
-  private RequestMetadataService requestMetadataService;
+  private final RequestMetadataService requestMetadataService;
 
-  private PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
-  private JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenProvider jwtTokenProvider;
 
-  private AuthenticationManager authenticationManager;
+  private final AuthenticationManager authenticationManager;
 
   /**
    * Service for creating, authorizing and updating accounts. Billing and security
@@ -124,7 +124,7 @@ public class AccountService {
       account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
       account.setCreatedDate(OffsetDateTime.now());
       var persistedAccount = accountRepository.save(account);
-      securityLogService.created(persistedAccount.getId());
+      securityLogService.created(persistedAccount);
       emailService.sendAccountCreated(persistedAccount);
       return jwtTokenProvider.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
     } else {
@@ -161,21 +161,21 @@ public class AccountService {
 
   private void updateFullName(Account account, String fullName) {
     if (isNull(account.getFullName()) ? nonNull(fullName) : !account.getFullName().equals(fullName)) {
-      securityLogService.fullname(account.getId());
+      securityLogService.fullname(account);
       account.setFullName(fullName);
     }
   }
 
   private void updateBillingAlertEnabled(Account account, boolean billingAlertEnabled) {
     if (account.getBillingAlertEnabled() != billingAlertEnabled) {
-      securityLogService.billingAlertEnabled(account.getId(), billingAlertEnabled);
+      securityLogService.billingAlertEnabled(account, billingAlertEnabled);
       account.setBillingAlertEnabled(billingAlertEnabled);
     }
   }
 
   private void updateEmailSubscriptionEnabled(Account account, boolean emailSubscriptionEnabled) {
     if (account.getEmailSubscriptionEnabled() != emailSubscriptionEnabled) {
-      securityLogService.emailSubscriptionEnabled(account.getId(), emailSubscriptionEnabled);
+      securityLogService.emailSubscriptionEnabled(account, emailSubscriptionEnabled);
       account.setEmailSubscriptionEnabled(emailSubscriptionEnabled);
     }
   }
@@ -211,7 +211,7 @@ public class AccountService {
     persistedAccount.setPasswordResetToken(null);
     persistedAccount.setPasswordResetTokenExpire(null);
     accountRepository.save(persistedAccount);
-    securityLogService.reset(persistedAccount.getId());
+    securityLogService.reset(persistedAccount);
     emailService.sendResetPassword(persistedAccount);
   }
 
@@ -224,7 +224,7 @@ public class AccountService {
    */
   public Page<BillingLog> billingLogs(Pageable pageable, String username) {
     var authenticatedAccount = findAuthenticatedAccount(username);
-    return billingLogService.findAllByAccountId(pageable, authenticatedAccount.getId());
+    return billingLogService.findAllByAccountId(pageable, authenticatedAccount);
   }
 
   /**
@@ -239,7 +239,8 @@ public class AccountService {
       var writer = new StatefulBeanToCsvBuilder<BillingLog>(response.getWriter())
           .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
-      writer.write(billingLogService.findAllByAccountId(authenticatedAccount.getId()));
+      writer.write(billingLogService.findAllByAccountId(authenticatedAccount));
+      securityLogService.downloadBillingLogs(authenticatedAccount);
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
     } catch (IOException ex) {
@@ -256,7 +257,7 @@ public class AccountService {
    */
   public Page<SecurityLog> securityLogs(Pageable pageable, String username) {
     var authenticatedAccount = findAuthenticatedAccount(username);
-    return securityLogService.findAllByAccountId(pageable, authenticatedAccount.getId());
+    return securityLogService.findAllByAccountId(pageable, authenticatedAccount);
   }
 
   /**
@@ -271,7 +272,8 @@ public class AccountService {
       var writer = new StatefulBeanToCsvBuilder<SecurityLog>(response.getWriter())
           .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
-      writer.write(securityLogService.findAllByAccountId(authenticatedAccount.getId()));
+      writer.write(securityLogService.findAllByAccountId(authenticatedAccount));
+      securityLogService.downloadSecurityLogs(authenticatedAccount);
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
     } catch (IOException ex) {

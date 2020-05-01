@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.kms.ApiKey;
+import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @Service
@@ -118,17 +119,18 @@ public class EmailService {
    * Send an email informing the user that an unrecognized device signed in to the
    * account.
    * 
-   * @param account         The account that was signed in
-   * @param requestMetadata The geolocation and device information of the request
+   * @param account The account that was signed in
+   * @param log     The security log containing request metadata of the request
    */
-  public void sendUnrecognizedDevice(Account account, RequestMetadata requestMetadata) {
+  public void sendUnrecognizedDevice(Account account, SecurityLog log) {
+    RequestMetadata metadata = log.getRequestMetadata();
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-    formData.add("v:time", requestMetadata.getCreatedDate().toString());
-    formData.add("v:cityName", requestMetadata.getGeoMetadata().getCityName());
-    formData.add("v:countryIsoCode", requestMetadata.getGeoMetadata().getCountryIsoCode());
-    formData.add("v:subdivisionIsoCode", requestMetadata.getGeoMetadata().getSubdivisionIsoCode());
-    formData.add("v:operatingSystemFamily", requestMetadata.getDeviceMetadata().getOperatingSystemFamily());
-    formData.add("v:userAgentFamily", requestMetadata.getDeviceMetadata().getUserAgentFamily());
+    formData.add("v:time", log.getCreatedDate().toString());
+    formData.add("v:cityName", metadata.getGeoMetadata().getCityName());
+    formData.add("v:countryIsoCode", metadata.getGeoMetadata().getCountryIsoCode());
+    formData.add("v:subdivisionIsoCode", metadata.getGeoMetadata().getSubdivisionIsoCode());
+    formData.add("v:operatingSystemFamily", metadata.getDeviceMetadata().getOperatingSystemFamily());
+    formData.add("v:userAgentFamily", metadata.getDeviceMetadata().getUserAgentFamily());
     send(account.getUsername(), accountUnrecognizedDeviceName, accountUnrecognizedDeviceSubject, formData);
   }
 

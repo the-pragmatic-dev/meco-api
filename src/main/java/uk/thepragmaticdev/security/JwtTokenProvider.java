@@ -25,12 +25,12 @@ import uk.thepragmaticdev.exception.code.AccountCode;
 @Component
 public class JwtTokenProvider {
 
+  private final long validityInMilliseconds;
+
+  private final MyUserDetails myUserDetails;
+
   // TODO INSECURE! Static key should be kept on a config-server.
   private String jwtSecretKey;
-
-  private long validityInMilliseconds;
-
-  private MyUserDetails myUserDetails;
 
   /**
    * TODO.

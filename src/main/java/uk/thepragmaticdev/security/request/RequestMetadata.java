@@ -1,42 +1,27 @@
 package uk.thepragmaticdev.security.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.time.OffsetDateTime;
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvRecurse;
+import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.thepragmaticdev.account.Account;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "id") })
+@Embeddable
 public class RequestMetadata {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
+  @CsvBindByName
   private String ip;
 
   @Embedded
+  @CsvRecurse
   private GeoMetadata geoMetadata;
 
   @Embedded
+  @CsvRecurse
   private DeviceMetadata deviceMetadata;
-
-  private OffsetDateTime createdDate; // generated
-
-  @ManyToOne
-  @JsonIgnore
-  private Account account;
 }

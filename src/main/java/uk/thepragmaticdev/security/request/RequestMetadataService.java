@@ -14,7 +14,6 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -24,21 +23,24 @@ import org.rauschig.jarchivelib.ArchiverFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ua_parser.Parser;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.CriticalCode;
+import uk.thepragmaticdev.log.security.SecurityLog;
+import uk.thepragmaticdev.log.security.SecurityLogService;
 
 @Service
 public class RequestMetadataService {
 
   private static final Logger logger = LoggerFactory.getLogger(RequestMetadataService.class);
 
-  private final RequestMetadataRepository requestMetadataRepository;
-
   private final EmailService emailService;
+
+  private final SecurityLogService securityLogService;
 
   private final String databaseName;
 
@@ -52,24 +54,23 @@ public class RequestMetadataService {
    * Service for extracting and verifying client geolocation and device metadata
    * from a given request.
    * 
-   * @param databaseName              The GeoLite2 database name
-   * @param databaseUrl               The GeoLite2 database remote url
-   * @param databaseDirectory         The local directory of the GeoLite2 database
-   * @param requestMetadataRepository The data access repository for historical
-   *                                  request metadata
-   * @param emailService              The service for sending emails
+   * @param databaseName       The GeoLite2 database name
+   * @param databaseUrl        The GeoLite2 database remote url
+   * @param databaseDirectory  The local directory of the GeoLite2 database
+   * @param emailService       The service for sending emails
+   * @param securityLogService The service for finding security logs
    */
   public RequestMetadataService(//
       @Value("${geolite2.name}") String databaseName, //
       @Value("${geolite2.permalink}") String databaseUrl, //
       @Value("${geolite2.directory}") String databaseDirectory, //
-      RequestMetadataRepository requestMetadataRepository, //
-      EmailService emailService) {
+      EmailService emailService, //
+      @Lazy SecurityLogService securityLogService) {
     this.databaseName = databaseName;
     this.databaseUrl = databaseUrl;
     this.databaseDirectory = databaseDirectory;
-    this.requestMetadataRepository = requestMetadataRepository;
     this.emailService = emailService;
+    this.securityLogService = securityLogService;
   }
 
   /**
@@ -138,16 +139,15 @@ public class RequestMetadataService {
 
   private void verifyRequestMetadata(Account account, RequestMetadata requestMetadata) {
     if (!matchesExistingRequestMetadata(account, requestMetadata)) {
-      requestMetadata.setAccount(account);
-      requestMetadataRepository.save(requestMetadata);
-      emailService.sendUnrecognizedDevice(account, requestMetadata);
-      logger.warn("Unrecognized device detected ({}) for account {}", requestMetadata.getId(), account.getId());
+      SecurityLog log = securityLogService.unrecognizedDevice(account, requestMetadata);
+      emailService.sendUnrecognizedDevice(account, log);
+      logger.warn("Unrecognized device {} detected for account {}", requestMetadata, account.getId());
     }
   }
 
   private boolean matchesExistingRequestMetadata(Account account, RequestMetadata requestMetadata) {
-    var knownMetadata = requestMetadataRepository.findByAccountId(account.getId());
-    return knownMetadata.stream().anyMatch(existingMetadata -> metaDataMatches(requestMetadata, existingMetadata));
+    var securityLogs = securityLogService.findAllByAccountId(account);
+    return securityLogs.stream().anyMatch(log -> metaDataMatches(requestMetadata, log.getRequestMetadata()));
   }
 
   private boolean metaDataMatches(RequestMetadata existing, RequestMetadata request) {
@@ -168,12 +168,9 @@ public class RequestMetadataService {
       var geoMetadata = extractGeoMetadata(request);
       var deviceMetadata = extractDeviceMetadata(request);
       return Optional.of(new RequestMetadata(//
-          null, //
           extractIp(request), //
           geoMetadata, //
-          deviceMetadata, //
-          OffsetDateTime.now(), //
-          null));
+          deviceMetadata));
     } catch (AddressNotFoundException ex) {
       logger.warn("IP address not present in the database: ", ex.getMessage());
     } catch (GeoIp2Exception ex) {

@@ -140,6 +140,12 @@ You can run integration tests by running the following command at the command pr
 ./mvnw clean verify -P integration
 ```
 
+To run an individual integration test:
+
+```bash
+./mvnw -Dit.test=AccountEndpointIT#shouldReturnLatestSecurityLogs clean verify -Pintegration
+```
+
 ### Sonar report
 
 Sonar properties are defined in `pom.xml`. Test reports are pushed to [SonarCloud](https://sonarcloud.io/dashboard?id=the-pragmatic-dev_meco-api) using the following command on our [Travis CI](https://travis-ci.com/github/the-pragmatic-dev/meco-api) build server:

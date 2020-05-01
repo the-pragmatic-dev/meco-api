@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BillingLogRepository extends JpaRepository<BillingLog, Long> {
 
-  List<BillingLog> findAllByAccountIdOrderByInstantDesc(Long accountId);
+  List<BillingLog> findAllByAccountIdOrderByCreatedDateDesc(Long accountId);
 
-  Page<BillingLog> findAllByAccountIdOrderByInstantDesc(Pageable pageable, Long accountId);
+  Page<BillingLog> findAllByAccountIdOrderByCreatedDateDesc(Pageable pageable, Long accountId);
 }

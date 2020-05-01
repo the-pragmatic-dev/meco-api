@@ -18,7 +18,6 @@ DROP INDEX IF EXISTS account_roles_account_id_idx;
 DROP INDEX IF EXISTS api_key_hash_idx;
 DROP INDEX IF EXISTS api_key_account_id_idx;
 DROP INDEX IF EXISTS api_key_scope_id_idx;
-DROP INDEX IF EXISTS request_metadata_account_id_idx;
 DROP INDEX IF EXISTS account_username_idx;
 DROP INDEX IF EXISTS account_password_reset_token_idx;
 -------------------------------------------------
@@ -36,24 +35,6 @@ CREATE TABLE account (
 );
 CREATE INDEX account_username_idx ON account (username);
 CREATE INDEX account_password_reset_token_idx ON account (password_reset_token);
--------------------------------------------------
--- Request Metadata -----------------------------
-CREATE TABLE request_metadata (
-    id BIGSERIAL PRIMARY KEY,
-    ip TEXT,
-    city_name TEXT,
-    country_iso_code TEXT,
-    subdivision_iso_code TEXT,
-    operating_system_family TEXT,
-    operating_system_major TEXT,
-    operating_system_minor TEXT,
-    user_agent_family TEXT,
-    user_agent_major TEXT,
-    user_agent_minor TEXT,
-    created_date TIMESTAMPTZ NOT NULL,
-    account_id BIGINT NOT NULL REFERENCES account (id)
-);
-CREATE INDEX request_metadata_account_id_idx ON request_metadata (account_id);
 -------------------------------------------------
 -- Account Roles --------------------------------
 CREATE TABLE account_roles (
@@ -106,7 +87,7 @@ CREATE TABLE billing_log (
     account_id BIGINT NOT NULL REFERENCES account (id),
     action TEXT NOT NULL,
     amount TEXT NOT NULL,
-    instant TIMESTAMPTZ NOT NULL
+    created_date TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX billing_log_account_id_idx ON billing_log (account_id);
 -------------------------------------------------
@@ -115,8 +96,17 @@ CREATE TABLE api_key_log (
     id BIGSERIAL PRIMARY KEY,
     api_key_id BIGINT NOT NULL REFERENCES api_key (id),
     action TEXT NOT NULL,
-    address TEXT NOT NULL,
-    instant TIMESTAMPTZ NOT NULL
+    ip TEXT,
+    city_name TEXT,
+    country_iso_code TEXT,
+    subdivision_iso_code TEXT,
+    operating_system_family TEXT,
+    operating_system_major TEXT,
+    operating_system_minor TEXT,
+    user_agent_family TEXT,
+    user_agent_major TEXT,
+    user_agent_minor TEXT,
+    created_date TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX api_key_log_api_key_id_idx ON api_key_log (api_key_id);
 -------------------------------------------------
@@ -125,7 +115,16 @@ CREATE TABLE security_log (
     id BIGSERIAL PRIMARY KEY,
     account_id BIGINT NOT NULL REFERENCES account (id),
     action TEXT NOT NULL,
-    address TEXT NOT NULL,
-    instant TIMESTAMPTZ NOT NULL
+    ip TEXT,
+    city_name TEXT,
+    country_iso_code TEXT,
+    subdivision_iso_code TEXT,
+    operating_system_family TEXT,
+    operating_system_major TEXT,
+    operating_system_minor TEXT,
+    user_agent_family TEXT,
+    user_agent_major TEXT,
+    user_agent_minor TEXT,
+    created_date TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX security_log_account_id_idx ON security_log (account_id);

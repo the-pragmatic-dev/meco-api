@@ -26,19 +26,22 @@ import uk.thepragmaticdev.exception.code.ApiKeyCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 import uk.thepragmaticdev.log.key.ApiKeyLogService;
+import uk.thepragmaticdev.log.security.SecurityLogService;
 
 @Service
 public class ApiKeyService {
 
-  private AccountService accountService;
+  private final AccountService accountService;
 
-  private ApiKeyRepository apiKeyRepository;
+  private final ApiKeyRepository apiKeyRepository;
 
-  private ApiKeyLogService apiKeyLogService;
+  private final ApiKeyLogService apiKeyLogService;
 
-  private EmailService emailService;
+  private final SecurityLogService securityLogService;
 
-  private PasswordEncoder passwordEncoder;
+  private final EmailService emailService;
+
+  private final PasswordEncoder passwordEncoder;
 
   private final int apiKeyLimit;
 
@@ -46,24 +49,27 @@ public class ApiKeyService {
    * Service for creating, updating and deleting accounts. Activity logs related
    * to an authorised key may also be downloaded.
    * 
-   * @param accountService   The service for retrieving account information
-   * @param apiKeyRepository The data access repository for keys
-   * @param apiKeyLogService The service for accessing key logs
-   * @param emailService     The service for sending emails
-   * @param passwordEncoder  The service for encoding passwords
-   * @param apiKeyLimit      The maximum number of keys allowed by account
+   * @param accountService     The service for retrieving account information
+   * @param apiKeyRepository   The data access repository for keys
+   * @param apiKeyLogService   The service for accessing key logs
+   * @param securityLogService The service for accessing security logs
+   * @param emailService       The service for sending emails
+   * @param passwordEncoder    The service for encoding passwords
+   * @param apiKeyLimit        The maximum number of keys allowed by account
    */
   @Autowired
   public ApiKeyService(//
       AccountService accountService, //
       ApiKeyRepository apiKeyRepository, //
       ApiKeyLogService apiKeyLogService, //
+      SecurityLogService securityLogService, //
       EmailService emailService, //
       PasswordEncoder passwordEncoder, //
       @Value("${kms.api-key-limit}") int apiKeyLimit) {
     this.accountService = accountService;
     this.apiKeyRepository = apiKeyRepository;
     this.apiKeyLogService = apiKeyLogService;
+    this.securityLogService = securityLogService;
     this.emailService = emailService;
     this.passwordEncoder = passwordEncoder;
     this.apiKeyLimit = apiKeyLimit;
@@ -100,7 +106,7 @@ public class ApiKeyService {
       apiKey.setCreatedDate(OffsetDateTime.now());
       apiKey.setEnabled(true);
       var persistedApiKey = apiKeyRepository.save(apiKey);
-      apiKeyLogService.created(persistedApiKey.getId());
+      apiKeyLogService.created(persistedApiKey);
       emailService.sendKeyCreated(authenticatedAccount, persistedApiKey);
       return persistedApiKey;
     }
@@ -132,19 +138,19 @@ public class ApiKeyService {
   private void updateScope(ApiKey persistedApiKey, Scope scope) {
     var persistedScope = persistedApiKey.getScope();
     if (persistedScope.getImage() != scope.getImage()) { // update image scope
-      apiKeyLogService.scope(persistedApiKey.getId(), "image", scope.getImage());
+      apiKeyLogService.scope(persistedApiKey, "image", scope.getImage());
       persistedScope.setImage(scope.getImage());
     }
     if (persistedScope.getGif() != scope.getGif()) { // update gif scope
-      apiKeyLogService.scope(persistedApiKey.getId(), "gif", scope.getGif());
+      apiKeyLogService.scope(persistedApiKey, "gif", scope.getGif());
       persistedScope.setGif(scope.getGif());
     }
     if (persistedScope.getText() != scope.getText()) { // update text scope
-      apiKeyLogService.scope(persistedApiKey.getId(), "text", scope.getText());
+      apiKeyLogService.scope(persistedApiKey, "text", scope.getText());
       persistedScope.setText(scope.getText());
     }
     if (persistedScope.getVideo() != scope.getVideo()) { // update video scope
-      apiKeyLogService.scope(persistedApiKey.getId(), "video", scope.getVideo());
+      apiKeyLogService.scope(persistedApiKey, "video", scope.getVideo());
       persistedScope.setVideo(scope.getVideo());
     }
   }
@@ -157,7 +163,7 @@ public class ApiKeyService {
 
   private void updateEnabled(ApiKey persistedApiKey, boolean enabled) {
     if (persistedApiKey.getEnabled() != enabled) {
-      apiKeyLogService.enabled(persistedApiKey.getId(), enabled);
+      apiKeyLogService.enabled(persistedApiKey, enabled);
       persistedApiKey.setEnabled(enabled);
     }
   }
@@ -173,8 +179,8 @@ public class ApiKeyService {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
-    apiKeyLogService.delete(persistedApiKey.getId());
     apiKeyRepository.delete(persistedApiKey);
+    securityLogService.deleteKey(authenticatedAccount, persistedApiKey);
     emailService.sendKeyDeleted(authenticatedAccount, persistedApiKey);
   }
 
@@ -190,7 +196,7 @@ public class ApiKeyService {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
-    return apiKeyLogService.findAllByApiKeyId(pageable, persistedApiKey.getId());
+    return apiKeyLogService.findAllByApiKeyId(pageable, persistedApiKey);
   }
 
   /**
@@ -208,7 +214,8 @@ public class ApiKeyService {
       var writer = new StatefulBeanToCsvBuilder<ApiKeyLog>(response.getWriter())
           .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER).withSeparator(CSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
-      writer.write(apiKeyLogService.findAllByApiKeyId(persistedApiKey.getId()));
+      writer.write(apiKeyLogService.findAllByApiKeyId(persistedApiKey));
+      apiKeyLogService.downloadLogs(persistedApiKey);
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
     } catch (IOException ex) {

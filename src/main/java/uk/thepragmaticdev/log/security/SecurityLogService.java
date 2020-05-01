@@ -7,16 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.kms.ApiKey;
+import uk.thepragmaticdev.security.request.RequestMetadata;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Service
 public class SecurityLogService {
 
-  private HttpServletRequest request;
+  private final HttpServletRequest request;
 
-  private RequestMetadataService requestMetadataService;
+  private final RequestMetadataService requestMetadataService;
 
-  private SecurityLogRepository securityLogRepository;
+  private final SecurityLogRepository securityLogRepository;
 
   /**
    * Service for logging security events such as updates to account.
@@ -39,88 +42,132 @@ public class SecurityLogService {
   /**
    * Find all logs for the requested account.
    * 
-   * @param accountId The id of the account requesting logs
+   * @param account The account requesting logs
    * @return A list of all logs for the requested account
    */
-  public List<SecurityLog> findAllByAccountId(Long accountId) {
-    return securityLogRepository.findAllByAccountIdOrderByInstantDesc(accountId);
+  public List<SecurityLog> findAllByAccountId(Account account) {
+    return securityLogRepository.findAllByAccountIdOrderByCreatedDateDesc(account.getId());
   }
 
   /**
    * Find the latest logs for the requested account.
    * 
-   * @param pageable  The pagination information
-   * @param accountId The id of the account requesting logs
+   * @param pageable The pagination information
+   * @param account  The account requesting logs
    * @return
    */
-  public Page<SecurityLog> findAllByAccountId(Pageable pageable, Long accountId) {
-    return securityLogRepository.findAllByAccountIdOrderByInstantDesc(pageable, accountId);
+  public Page<SecurityLog> findAllByAccountId(Pageable pageable, Account account) {
+    return securityLogRepository.findAllByAccountIdOrderByCreatedDateDesc(pageable, account.getId());
   }
 
   /**
    * Log a created event for when an account is created.
    * 
-   * @param accountId The id of the account being created
+   * @param account The account being created
    * @return The persisted log
    */
-  public SecurityLog created(Long accountId) {
-    return log(accountId, "account.created");
+  public SecurityLog created(Account account) {
+    return log(account, "account.created");
   }
 
   /**
    * Log a password reset event for when an accounts password is reset.
    * 
-   * @param accountId The id of the account being updated
+   * @param account The account being updated
    * @return The persisted log
    */
-  public SecurityLog reset(Long accountId) {
-    return log(accountId, "account.password.reset");
+  public SecurityLog reset(Account account) {
+    return log(account, "account.password.reset");
   }
 
   /**
    * Log an enabled event for when an account email subscription is enabled or
    * disabled.
    * 
-   * @param accountId The id of the account email subscription being enabled or
-   *                  disabled
-   * @param enabled   The enabled status of the accounts email subscription
+   * @param account The account email subscription being enabled or disabled
+   * @param enabled The enabled status of the accounts email subscription
    * @return The persisted log
    */
-  public SecurityLog emailSubscriptionEnabled(Long accountId, boolean enabled) {
+  public SecurityLog emailSubscriptionEnabled(Account account, boolean enabled) {
     if (enabled) {
-      return log(accountId, "account.email_subscription.enabled");
+      return log(account, "account.email_subscription.enabled");
     }
-    return log(accountId, "account.email_subscription.disabled");
+    return log(account, "account.email_subscription.disabled");
   }
 
   /**
    * Log an enabled event for when an account billing alert is enabled or
    * disabled.
    * 
-   * @param accountId The id of the account billing alert being enabled or
-   *                  disabled
-   * @param enabled   The enabled status of the accounts billing alert
+   * @param account The account billing alert being enabled or disabled
+   * @param enabled The enabled status of the accounts billing alert
    * @return The persisted log
    */
-  public SecurityLog billingAlertEnabled(Long accountId, boolean enabled) {
+  public SecurityLog billingAlertEnabled(Account account, boolean enabled) {
     if (enabled) {
-      return log(accountId, "account.billing_alert.enabled");
+      return log(account, "account.billing_alert.enabled");
     }
-    return log(accountId, "account.billing_alert.disabled");
+    return log(account, "account.billing_alert.disabled");
   }
 
   /**
    * Log a fullname event for when an accounts fullname is updated.
    * 
-   * @param accountId The id of the account being created
+   * @param account The account being created
    * @return The persisted log
    */
-  public SecurityLog fullname(Long accountId) {
-    return log(accountId, "account.fullname.changed");
+  public SecurityLog fullname(Account account) {
+    return log(account, "account.fullname.changed");
   }
 
-  private SecurityLog log(Long accountId, String action) {
-    var ip = requestMetadataService.extractRequestMetadata(request).map(r -> r.getIp()).orElse("");
-    return securityLogRepository.save(new SecurityLog(null, accountId, action, ip, OffsetDateTime.now()));
+  /**
+   * Log a signin from an unrecognized device.
+   * 
+   * @param account The account signing in
+   * @return The persisted log
+   */
+  public SecurityLog unrecognizedDevice(Account account, RequestMetadata requestMetadata) {
+    return log(account, "account.signin.unrecognized_device", requestMetadata);
+  }
+
+  /**
+   * Log when an accounts billing logs have been downloaded.
+   * 
+   * @param account The account downloading logs
+   * @return The persisted log
+   */
+  public SecurityLog downloadBillingLogs(Account account) {
+    return log(account, "account.download.billing_logs");
+  }
+
+  /**
+   * Log when an accounts security logs have been downloaded.
+   * 
+   * @param account The account downloading logs
+   * @return The persisted log
+   */
+  public SecurityLog downloadSecurityLogs(Account account) {
+    return log(account, "account.download.security_logs");
+  }
+
+  /**
+   * Log when an api key has been deleted from the account. The key logs will have
+   * been deleted hence we log this event in the security logs.
+   * 
+   * @param account The account associated with the api key
+   * @param key     The api key that was deleted
+   * @return The persisted log
+   */
+  public SecurityLog deleteKey(Account account, ApiKey key) {
+    return log(account, String.format("account.key.%s.deleted", key.getPrefix()));
+  }
+
+  private SecurityLog log(Account account, String action) {
+    var requestMetadata = requestMetadataService.extractRequestMetadata(request).orElse(null);
+    return log(account, action, requestMetadata);
+  }
+
+  private SecurityLog log(Account account, String action, RequestMetadata requestMetadata) {
+    return securityLogRepository.save(new SecurityLog(null, account, action, requestMetadata, OffsetDateTime.now()));
   }
 }

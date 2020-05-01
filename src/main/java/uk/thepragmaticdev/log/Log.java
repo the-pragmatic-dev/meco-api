@@ -1,6 +1,7 @@
 package uk.thepragmaticdev.log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvIgnore;
 import java.time.OffsetDateTime;
 import javax.persistence.GeneratedValue;
@@ -23,7 +24,9 @@ public class Log {
   @CsvIgnore
   private Long id;
 
+  @CsvBindByName
   private String action; // generated
 
-  private OffsetDateTime instant; // generated
+  @CsvBindByName
+  private OffsetDateTime createdDate; // generated
 }

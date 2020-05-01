@@ -7,16 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Service
 public class BillingLogService {
 
-  private HttpServletRequest request;
+  private final HttpServletRequest request;
 
-  private RequestMetadataService requestMetadataService;
+  private final RequestMetadataService requestMetadataService;
 
-  private BillingLogRepository billingLogRepository;
+  private final BillingLogRepository billingLogRepository;
 
   /**
    * Service for logging billing events such as invoice creation.
@@ -39,36 +40,36 @@ public class BillingLogService {
   /**
    * Find all logs for the requested account.
    * 
-   * @param accountId The id of the account requesting logs
+   * @param account The authenticated account
    * @return A list of all logs for the requested account
    */
-  public List<BillingLog> findAllByAccountId(Long accountId) {
-    return billingLogRepository.findAllByAccountIdOrderByInstantDesc(accountId);
+  public List<BillingLog> findAllByAccountId(Account account) {
+    return billingLogRepository.findAllByAccountIdOrderByCreatedDateDesc(account.getId());
   }
 
   /**
    * Find the latest logs for the requested account.
    * 
-   * @param pageable  The pagination information
-   * @param accountId The id of the account requesting logs
+   * @param pageable The pagination information
+   * @param account  The authenticated account
    * @return
    */
-  public Page<BillingLog> findAllByAccountId(Pageable pageable, Long accountId) {
-    return billingLogRepository.findAllByAccountIdOrderByInstantDesc(pageable, accountId);
+  public Page<BillingLog> findAllByAccountId(Pageable pageable, Account account) {
+    return billingLogRepository.findAllByAccountIdOrderByCreatedDateDesc(pageable, account.getId());
   }
 
   /**
    * Log an invoice event for when an invoice is created.
    * 
-   * @param accountId The id of the account creating an invoice
+   * @param account The authenticated account
    * @return The persisted log
    */
-  public BillingLog invoice(Long accountId) {
-    return log(accountId, "billing.invoice");
+  public BillingLog invoice(Account account) {
+    return log(account, "billing.invoice");
   }
 
-  private BillingLog log(Long accountId, String action) {
+  private BillingLog log(Account account, String action) {
     var ip = requestMetadataService.extractRequestMetadata(request).map(r -> r.getIp()).orElse("");
-    return billingLogRepository.save(new BillingLog(null, accountId, action, ip, OffsetDateTime.now()));
+    return billingLogRepository.save(new BillingLog(null, account, action, ip, OffsetDateTime.now()));
   }
 }

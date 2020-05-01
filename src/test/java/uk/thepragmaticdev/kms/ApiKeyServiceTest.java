@@ -22,6 +22,7 @@ import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
 import uk.thepragmaticdev.log.key.ApiKeyLogService;
+import uk.thepragmaticdev.log.security.SecurityLogService;
 
 @SpringBootTest
 public class ApiKeyServiceTest {
@@ -36,6 +37,9 @@ public class ApiKeyServiceTest {
   private ApiKeyLogService apiKeyLogService;
 
   @Mock
+  private SecurityLogService securityLogService;
+
+  @Mock
   private EmailService emailService;
 
   @Mock
@@ -46,7 +50,8 @@ public class ApiKeyServiceTest {
   @BeforeEach
   public void initEach() {
     // defaulting key allowance to 10
-    sut = new ApiKeyService(accountService, apiKeyRepository, apiKeyLogService, emailService, passwordEncoder, 10);
+    sut = new ApiKeyService(accountService, apiKeyRepository, apiKeyLogService, securityLogService, emailService,
+        passwordEncoder, 10);
   }
 
   @Test

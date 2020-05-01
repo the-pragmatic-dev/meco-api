@@ -4,13 +4,16 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.ObjectMapperConfig.objectMapperConfig;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
+import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.mapper.factory.Jackson2ObjectMapperFactory;
+import io.restassured.specification.ResponseSpecification;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.OffsetDateTime;
@@ -73,6 +76,24 @@ public abstract class IntegrationData {
     return headers;
   }
 
+  protected ResponseSpecification validRequestMetadataSpec(int index) {
+    String root = String.format("content[%d].requestMetadata.", index);
+    ResponseSpecBuilder builder = new ResponseSpecBuilder();
+    builder.expectBody(root.concat("ip"), is("196.245.163.202"));
+    builder.rootPath(root.concat("geoMetadata"));
+    builder.expectBody("cityName", is("London"));
+    builder.expectBody("countryIsoCode", is("GB"));
+    builder.expectBody("subdivisionIsoCode", is("ENG"));
+    builder.rootPath(root.concat("deviceMetadata"));
+    builder.expectBody("operatingSystemFamily", is("Mac OS X"));
+    builder.expectBody("operatingSystemMajor", is("10"));
+    builder.expectBody("operatingSystemMinor", is("14"));
+    builder.expectBody("userAgentFamily", is("Chrome"));
+    builder.expectBody("userAgentMajor", is("71"));
+    builder.expectBody("userAgentMinor", is("0"));
+    return builder.build();
+  }
+
   // @formatter:off
 
   /**
@@ -98,12 +119,13 @@ public abstract class IntegrationData {
   // @models:default
 
   protected final Account account() {
-    return new Account(null, "admin@email.com", "password", null, null, null, true, false, null, null, null, null);
+    return new Account(null, "admin@email.com", "password", null, null, null, true, false, null, null, null, null,
+        null);
   }
 
   protected final ApiKey key() {
     return new ApiKey(null, "name", null, null, null, null, null, null, true, scope(), Arrays.asList(accessPolicy()),
-        null);
+        null, null);
   }
 
   protected final AccessPolicy accessPolicy() {

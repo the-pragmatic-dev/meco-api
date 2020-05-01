@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.kms.validation.Ipv4Cidr;
+import uk.thepragmaticdev.log.key.ApiKeyLog;
 
 @Data
 @NoArgsConstructor
@@ -66,10 +67,13 @@ public class ApiKey implements Model {
   private Scope scope;
 
   @Ipv4Cidr
-  @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+  @OneToMany(mappedBy = "apiKey", cascade = { CascadeType.ALL }, orphanRemoval = true)
   @JsonIgnoreProperties({ "apiKey" })
-  @JoinColumn(name = "api_key_id", referencedColumnName = "id")
   private List<AccessPolicy> accessPolicies;
+
+  @OneToMany(mappedBy = "apiKey", cascade = { CascadeType.ALL }, orphanRemoval = true)
+  @JsonIgnore
+  private List<ApiKeyLog> apiKeyLogs;
 
   @ManyToOne
   @JsonIgnore

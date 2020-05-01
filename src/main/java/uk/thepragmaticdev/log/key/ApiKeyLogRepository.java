@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ApiKeyLogRepository extends JpaRepository<ApiKeyLog, Long> {
 
-  List<ApiKeyLog> findAllByApiKeyIdOrderByInstantDesc(Long apiKeyId);
+  List<ApiKeyLog> findAllByApiKeyIdOrderByCreatedDateDesc(Long apiKeyId);
 
-  Page<ApiKeyLog> findAllByApiKeyIdOrderByInstantDesc(Pageable pageable, Long apiKeyId);
+  Page<ApiKeyLog> findAllByApiKeyIdOrderByCreatedDateDesc(Pageable pageable, Long apiKeyId);
 
   void deleteAllByApiKeyId(Long apiKeyId);
 }

@@ -17,7 +17,7 @@ import uk.thepragmaticdev.endpoint.Response;
 @Tag(name = "billing")
 public class BillingController {
 
-  private BillingService billingService;
+  private final BillingService billingService;
 
   @Autowired
   public BillingController(BillingService billingService) {

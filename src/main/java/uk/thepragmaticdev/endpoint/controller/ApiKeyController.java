@@ -35,7 +35,7 @@ import uk.thepragmaticdev.log.key.ApiKeyLog;
 @Tag(name = "api-keys")
 public class ApiKeyController {
 
-  private ApiKeyService apiKeyService;
+  private final ApiKeyService apiKeyService;
 
   @Autowired
   public ApiKeyController(ApiKeyService apiKeyService) {

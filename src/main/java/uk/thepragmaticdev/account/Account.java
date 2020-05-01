@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import java.time.OffsetDateTime;
-import java.util.Collection;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,7 +15,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -28,7 +26,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.kms.ApiKey;
-import uk.thepragmaticdev.security.request.RequestMetadata;
+import uk.thepragmaticdev.log.billing.BillingLog;
+import uk.thepragmaticdev.log.security.SecurityLog;
 
 @Data
 @NoArgsConstructor
@@ -75,13 +74,15 @@ public class Account implements Model {
   private List<Role> roles;
 
   @Valid
-  @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
-  @JoinColumn(name = "account_id")
+  @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL }, orphanRemoval = true)
   @JsonIgnore
-  private Collection<ApiKey> apiKeys;
+  private List<ApiKey> apiKeys;
 
-  @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
-  @JoinColumn(name = "account_id")
+  @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL }, orphanRemoval = true)
   @JsonIgnore
-  private Collection<RequestMetadata> requestMetadata;
+  private List<BillingLog> billingLogs;
+
+  @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL }, orphanRemoval = true)
+  @JsonIgnore
+  private List<SecurityLog> securityLogs;
 }

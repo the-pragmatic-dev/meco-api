@@ -12,9 +12,9 @@ import uk.thepragmaticdev.security.request.RequestMetadataService;
 @EnableAspectJAutoProxy
 public class Application {
 
-  private ConfigurableApplicationContext context;
+  private final ConfigurableApplicationContext context;
 
-  private RequestMetadataService requestMetadataService;
+  private final RequestMetadataService requestMetadataService;
 
   @Autowired
   public Application(ConfigurableApplicationContext context, RequestMetadataService requestMetadataService) {
