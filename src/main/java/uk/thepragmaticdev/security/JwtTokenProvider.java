@@ -29,7 +29,6 @@ public class JwtTokenProvider {
 
   private final MyUserDetails myUserDetails;
 
-  // TODO INSECURE! Static key should be kept on a config-server.
   private String jwtSecretKey;
 
   /**

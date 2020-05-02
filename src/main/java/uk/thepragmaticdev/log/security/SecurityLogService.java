@@ -121,6 +121,16 @@ public class SecurityLogService {
   }
 
   /**
+   * Log a signin.
+   * 
+   * @param account The account signing in
+   * @return The persisted log
+   */
+  public SecurityLog signin(Account account) {
+    return log(account, "account.signin");
+  }
+
+  /**
    * Log a signin from an unrecognized device.
    * 
    * @param account The account signing in
@@ -148,6 +158,17 @@ public class SecurityLogService {
    */
   public SecurityLog downloadSecurityLogs(Account account) {
     return log(account, "account.download.security_logs");
+  }
+
+  /**
+   * Log when an api key has been created from the account.
+   * 
+   * @param account The account associated with the api key
+   * @param key     The api key that was created
+   * @return The persisted log
+   */
+  public SecurityLog createKey(Account account, ApiKey key) {
+    return log(account, String.format("account.key.%s.created", key.getPrefix()));
   }
 
   /**

@@ -36,6 +36,9 @@ import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.kms.AccessPolicy;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.kms.Scope;
+import uk.thepragmaticdev.security.request.DeviceMetadata;
+import uk.thepragmaticdev.security.request.GeoMetadata;
+import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @Component
 public abstract class IntegrationData {
@@ -136,6 +139,18 @@ public abstract class IntegrationData {
     return new Scope(null, true, true, false, false, null);
   }
 
+  protected final RequestMetadata requestMetadata() {
+    return new RequestMetadata("196.245.163.202", geoMetadata(), deviceMetadata());
+  }
+
+  protected final GeoMetadata geoMetadata() {
+    return new GeoMetadata("London", "GB", "ENG");
+  }
+
+  protected final DeviceMetadata deviceMetadata() {
+    return new DeviceMetadata("Mac OS X", "10", "14", "Chrome", "71", "0");
+  }
+
   // @models:dirty
 
   protected final Account dirtyAccount() {
@@ -172,19 +187,16 @@ public abstract class IntegrationData {
   protected Matcher<String> withinLast(final int amount, final ChronoUnit unit) {
     return new BaseMatcher<String>() {
 
-      private OffsetDateTime now;
-
       @Override
       public boolean matches(Object actual) {
-        long diff = Math.abs(unit.between(OffsetDateTime.parse((CharSequence) actual), now));
+        long diff = Math.abs(unit.between(OffsetDateTime.parse((CharSequence) actual), OffsetDateTime.now()));
         return diff <= amount;
       }
 
       @Override
       public void describeTo(Description description) {
-        now = OffsetDateTime.now();
-        description
-            .appendText(String.format("date to be within last %d %s of %s", amount, unit.toString(), now.toString()));
+        description.appendText(String.format("date to be within last %d %s of %s", amount, unit.toString(),
+            OffsetDateTime.now().toString()));
       }
     };
   }

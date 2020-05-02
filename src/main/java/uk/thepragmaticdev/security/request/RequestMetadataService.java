@@ -142,6 +142,8 @@ public class RequestMetadataService {
       SecurityLog log = securityLogService.unrecognizedDevice(account, requestMetadata);
       emailService.sendUnrecognizedDevice(account, log);
       logger.warn("Unrecognized device {} detected for account {}", requestMetadata, account.getId());
+    } else {
+      securityLogService.signin(account);
     }
   }
 
@@ -150,7 +152,15 @@ public class RequestMetadataService {
     return securityLogs.stream().anyMatch(log -> metaDataMatches(requestMetadata, log.getRequestMetadata()));
   }
 
-  private boolean metaDataMatches(RequestMetadata existing, RequestMetadata request) {
+  private boolean metaDataMatches(RequestMetadata request, RequestMetadata existing) {
+    if (isNull(request) && isNull(existing)) {
+      // if both are null then return true
+      return true;
+    }
+    if ((isNull(request) && nonNull(existing)) || (nonNull(request) && isNull(existing))) {
+      // if only one is null then return false
+      return false;
+    }
     return Objects.equals(existing.getGeoMetadata(), request.getGeoMetadata())
         && Objects.equals(existing.getDeviceMetadata(), request.getDeviceMetadata());
   }

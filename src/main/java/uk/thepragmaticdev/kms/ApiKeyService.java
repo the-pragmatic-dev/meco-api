@@ -107,6 +107,7 @@ public class ApiKeyService {
       apiKey.setEnabled(true);
       var persistedApiKey = apiKeyRepository.save(apiKey);
       apiKeyLogService.created(persistedApiKey);
+      securityLogService.createKey(authenticatedAccount, persistedApiKey);
       emailService.sendKeyCreated(authenticatedAccount, persistedApiKey);
       return persistedApiKey;
     }
