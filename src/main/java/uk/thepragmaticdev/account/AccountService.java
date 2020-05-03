@@ -1,8 +1,5 @@
 package uk.thepragmaticdev.account;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.opencsv.ICSVWriter;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -160,7 +157,7 @@ public class AccountService {
   }
 
   private void updateFullName(Account account, String fullName) {
-    if (isNull(account.getFullName()) ? nonNull(fullName) : !account.getFullName().equals(fullName)) {
+    if (account.getFullName() == null ? fullName != null : !account.getFullName().equals(fullName)) {
       securityLogService.fullname(account);
       account.setFullName(fullName);
     }

@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -105,6 +106,7 @@ public class ApiKeyService {
       apiKey.setHash(encodeApiKey(apiKey.getKey()));
       apiKey.setCreatedDate(OffsetDateTime.now());
       apiKey.setEnabled(true);
+      setAccessPolicies(apiKey);
       var persistedApiKey = apiKeyRepository.save(apiKey);
       apiKeyLogService.created(persistedApiKey);
       securityLogService.createKey(authenticatedAccount, persistedApiKey);
@@ -112,6 +114,15 @@ public class ApiKeyService {
       return persistedApiKey;
     }
     throw new ApiException(ApiKeyCode.API_KEY_LIMIT);
+  }
+
+  private void setAccessPolicies(ApiKey apiKey) {
+    if (apiKey.getAccessPolicies() == null) {
+      return;
+    }
+    apiKey.getAccessPolicies().forEach(p -> {
+      p.setApiKey(apiKey);
+    });
   }
 
   /**
@@ -130,7 +141,7 @@ public class ApiKeyService {
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     persistedApiKey.setName(apiKey.getName());
     updateScope(persistedApiKey, apiKey.getScope());
-    updateAccessPolicies(persistedApiKey, apiKey.getAccessPolicies()); // TODO same as updateEnabled
+    updateAccessPolicies(persistedApiKey, apiKey.getAccessPolicies());
     updateEnabled(persistedApiKey, apiKey.getEnabled());
     persistedApiKey.setModifiedDate(OffsetDateTime.now());
     return apiKeyRepository.save(persistedApiKey);
@@ -156,10 +167,35 @@ public class ApiKeyService {
     }
   }
 
-  private void updateAccessPolicies(ApiKey persistedApiKey, Collection<AccessPolicy> accessPolicies) {
-    // TODO not happy with this
-    persistedApiKey.getAccessPolicies().clear();
-    persistedApiKey.getAccessPolicies().addAll(accessPolicies);
+  private void updateAccessPolicies(ApiKey persistedApiKey, Collection<AccessPolicy> newPolicies) {
+    var existingPolicies = persistedApiKey.getAccessPolicies();
+    // check to see if new and exitsing policies match, if so skip
+    if (!CollectionUtils.isEqualCollection(existingPolicies, newPolicies)) {
+      // add new polcies or update existing policies
+      for (var newPolicy : newPolicies) {
+        var existingPolicy = existingPolicies.stream().filter(p -> p.getRange().equals(newPolicy.getRange()))
+            .findFirst();
+        if (existingPolicy.isPresent()) {
+          existingPolicy.get().setName(newPolicy.getName());
+          apiKeyLogService.accessPolicy(persistedApiKey, "updated", newPolicy.getRange());
+        } else {
+          newPolicy.setApiKey(persistedApiKey);
+          existingPolicies.add(newPolicy);
+          apiKeyLogService.accessPolicy(persistedApiKey, "created", newPolicy.getRange());
+        }
+      }
+      // remove existing policies that don't exist in new policies
+      existingPolicies.removeIf(p -> !policyMatches(persistedApiKey, p, newPolicies));
+    }
+  }
+
+  private boolean policyMatches(ApiKey persistedApiKey, AccessPolicy existingPolicy,
+      Collection<AccessPolicy> newPolicies) {
+    var exists = newPolicies.stream().anyMatch(p -> p.getRange().equals(existingPolicy.getRange()));
+    if (!exists) {
+      apiKeyLogService.accessPolicy(persistedApiKey, "deleted", existingPolicy.getRange());
+    }
+    return exists;
   }
 
   private void updateEnabled(ApiKey persistedApiKey, boolean enabled) {

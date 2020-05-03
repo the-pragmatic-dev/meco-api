@@ -26,7 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationData;
-import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
@@ -53,7 +52,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldCreateAccount() {
-    Account account = account();
+    var account = account();
     account.setUsername("test@email.com");
 
     given()
@@ -112,7 +111,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldUpdateOnlyMutableAccountFields() {
-    Account account = dirtyAccount();
+    var account = dirtyAccount();
 
     given()
       .headers(headers())
@@ -211,7 +210,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldDownloadSecurityLogs() throws IOException {
-    String csv = given()
+    var csv = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin())
         .when()
@@ -242,10 +241,10 @@ public class AccountEndpointIT extends IntegrationData {
   }
 
   private void assertCsvMatch(String csv, List<SecurityLog> expectedSecurityLogs) {
-    try (Scanner scanner = new Scanner(csv)) {
+    try (var scanner = new Scanner(csv)) {
       assertHeaders(scanner.nextLine());
-      for (SecurityLog log : expectedSecurityLogs) {
-        String[] fields = scanner.nextLine().split(",");
+      for (var log : expectedSecurityLogs) {
+        var fields = scanner.nextLine().split(",");
         assertSecurityLog(fields, log);
       }
       assertThat(scanner.hasNextLine(), is(false));

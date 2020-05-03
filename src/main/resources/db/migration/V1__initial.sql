@@ -64,7 +64,7 @@ CREATE TABLE api_key (
     modified_date TIMESTAMPTZ,
     enabled BOOLEAN NOT NULL,
     account_id BIGINT NOT NULL REFERENCES account (id),
-    scope_id BIGINT REFERENCES scope (id),
+    scope_id BIGINT NOT NULL REFERENCES scope (id),
     UNIQUE (id, scope_id)
 );
 CREATE INDEX api_key_hash_idx ON api_key (hash);
@@ -76,7 +76,7 @@ CREATE TABLE access_policy (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     range TEXT NOT NULL,
-    api_key_id BIGINT REFERENCES api_key (id),
+    api_key_id BIGINT NOT NULL REFERENCES api_key (id),
     UNIQUE (range, api_key_id)
 );
 CREATE INDEX access_policy_api_key_id_idx ON access_policy (api_key_id);

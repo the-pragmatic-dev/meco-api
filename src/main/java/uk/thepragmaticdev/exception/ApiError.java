@@ -1,7 +1,5 @@
 package uk.thepragmaticdev.exception;
 
-import static java.util.Objects.isNull;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.gson.Gson;
@@ -32,7 +30,7 @@ public class ApiError {
    * @param fieldErrors The list of reasons for rejecting a specific field value
    */
   public void addValidationErrors(List<FieldError> fieldErrors) {
-    if (isNull(subErrors)) {
+    if (subErrors == null) {
       subErrors = new ArrayList<>();
     }
 

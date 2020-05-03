@@ -20,8 +20,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import uk.thepragmaticdev.IntegrationData;
 import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
-import uk.thepragmaticdev.kms.AccessPolicy;
-import uk.thepragmaticdev.kms.ApiKey;
 
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -55,8 +53,8 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateKeyWhenNameIsTooShort() {
-    String shortName = "ab";
-    ApiKey key = key();
+    var shortName = "ab";
+    var key = key();
     key.setName(shortName);
 
     given()
@@ -80,8 +78,8 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateKeyWhenNameIsTooLong() {
-    String longName = "abcdefghijklmnopqrstu";
-    ApiKey key = key();
+    var longName = "abcdefghijklmnopqrstu";
+    var key = key();
     key.setName(longName);
 
     given()
@@ -105,7 +103,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateKeyWithNoScope() {
-    ApiKey key = key();
+    var key = key();
     key.setScope(null);
 
     given()
@@ -129,8 +127,8 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateKeyWithInvalidIpv4Cidr() {
-    ApiKey key = key();
-    AccessPolicy dirtyAccessPolicy = dirtyAccessPolicy();
+    var key = key();
+    var dirtyAccessPolicy = dirtyAccessPolicy();
     dirtyAccessPolicy.setRange("invalidRange");
     key.setAccessPolicies(Arrays.asList(dirtyAccessPolicy));
 

@@ -11,12 +11,14 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import uk.thepragmaticdev.endpoint.Model;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = "id") })
 public class AccessPolicy implements Model {
@@ -26,9 +28,11 @@ public class AccessPolicy implements Model {
   @JsonIgnore
   private Long id;
 
+  @EqualsAndHashCode.Include
   @Size(min = 1)
   private String name;
 
+  @EqualsAndHashCode.Include
   @Size(min = 1)
   private String range;
 

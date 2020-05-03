@@ -15,7 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationData;
-import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.exception.code.AccountCode;
 
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
@@ -35,7 +34,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotSigninWhenUsernameDoesNotExist() {
-    Account account = account();
+    var account = account();
     account.setUsername("random@email.com");
 
     given()
@@ -52,7 +51,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotSigninWhenPasswordIsInvalid() {
-    Account account = account();
+    var account = account();
     account.setPassword("invalidPassword");
 
     given()
@@ -71,7 +70,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateAccountWhenUsernameAlreadyExists() {
-    Account account = account();
+    var account = account();
 
     given()
       .headers(headers())
@@ -87,7 +86,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateAccountWhenUsernameIsInvalidEmail() {
-    Account account = account();
+    var account = account();
     account.setUsername("invalid@");
 
     given()
@@ -110,7 +109,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateAccountWhenPasswordIsTooShort() {
-    Account account = account();
+    var account = account();
     account.setPassword("1234567");
 
     given()
@@ -165,7 +164,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotResetPasswordWithInvalidToken() {
-    Account account = account();
+    var account = account();
     account.setPassword("newpassword");
     
     given()
@@ -183,7 +182,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotResetPasswordWhenPasswordIsTooShort() {
-    Account account = account();
+    var account = account();
     account.setPassword("1234567");
     
     given()
@@ -209,7 +208,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotUpdateAccountWithInvalidToken() {
-    Account account = dirtyAccount();
+    var account = dirtyAccount();
 
     given()
       .contentType(JSON)

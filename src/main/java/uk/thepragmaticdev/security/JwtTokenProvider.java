@@ -1,7 +1,5 @@
 package uk.thepragmaticdev.security;
 
-import static java.util.Objects.nonNull;
-
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -83,7 +81,7 @@ public class JwtTokenProvider {
    */
   public String resolveToken(HttpServletRequest req) {
     var bearerToken = req.getHeader("Authorization");
-    if (nonNull(bearerToken) && bearerToken.startsWith("Bearer ")) {
+    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
       return bearerToken.substring(7);
     }
     return null;

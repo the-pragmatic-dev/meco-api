@@ -1,8 +1,5 @@
 package uk.thepragmaticdev.security.request;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
@@ -30,7 +27,6 @@ import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.CriticalCode;
-import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
 
 @Service
@@ -114,7 +110,7 @@ public class RequestMetadataService {
     var archiver = ArchiverFactory.createArchiver(destination.toFile());
     var stream = archiver.stream(destination.toFile());
     ArchiveEntry entry;
-    while (nonNull(entry = stream.getNextEntry())) {
+    while ((entry = stream.getNextEntry()) != null) {
       if (entry.getName().contains(databaseName)) {
         logger.info("Found database: {}", entry.getName());
         entry.extract(destination.getParent().toFile());
@@ -139,7 +135,7 @@ public class RequestMetadataService {
 
   private void verifyRequestMetadata(Account account, RequestMetadata requestMetadata) {
     if (!matchesExistingRequestMetadata(account, requestMetadata)) {
-      SecurityLog log = securityLogService.unrecognizedDevice(account, requestMetadata);
+      var log = securityLogService.unrecognizedDevice(account, requestMetadata);
       emailService.sendUnrecognizedDevice(account, log);
       logger.warn("Unrecognized device {} detected for account {}", requestMetadata, account.getId());
     } else {
@@ -153,11 +149,11 @@ public class RequestMetadataService {
   }
 
   private boolean metaDataMatches(RequestMetadata request, RequestMetadata existing) {
-    if (isNull(request) && isNull(existing)) {
+    if (request == null && existing == null) {
       // if both are null then return true
       return true;
     }
-    if ((isNull(request) && nonNull(existing)) || (nonNull(request) && isNull(existing))) {
+    if ((request == null && existing != null) || (request != null && existing == null)) {
       // if only one is null then return false
       return false;
     }
@@ -198,9 +194,9 @@ public class RequestMetadataService {
     var ipAddress = InetAddress.getByName(extractIp(request));
     var response = databaseReader.city(ipAddress);
     return new GeoMetadata(//
-        isNull(response.getCity()) ? "" : response.getCity().getName(), //
-        isNull(response.getCountry()) ? "" : response.getCountry().getIsoCode(), //
-        isNull(response.getLeastSpecificSubdivision()) ? "" : response.getLeastSpecificSubdivision().getIsoCode());
+        response.getCity() == null ? "" : response.getCity().getName(), //
+        response.getCountry() == null ? "" : response.getCountry().getIsoCode(), //
+        response.getLeastSpecificSubdivision() == null ? "" : response.getLeastSpecificSubdivision().getIsoCode());
   }
 
   private DeviceMetadata extractDeviceMetadata(HttpServletRequest request) throws IOException {
@@ -218,7 +214,7 @@ public class RequestMetadataService {
 
   private String extractIp(HttpServletRequest request) {
     var clientXForwardedForIp = request.getHeader("X-FORWARDED-FOR");
-    if (isNull(clientXForwardedForIp)) {
+    if (clientXForwardedForIp == null) {
       return request.getRemoteAddr();
     } else {
       return parseXForwardedHeader(clientXForwardedForIp);

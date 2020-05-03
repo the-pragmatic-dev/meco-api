@@ -80,8 +80,8 @@ public abstract class IntegrationData {
   }
 
   protected ResponseSpecification validRequestMetadataSpec(int index) {
-    String root = String.format("content[%d].requestMetadata.", index);
-    ResponseSpecBuilder builder = new ResponseSpecBuilder();
+    var root = String.format("content[%d].requestMetadata.", index);
+    var builder = new ResponseSpecBuilder();
     builder.expectBody(root.concat("ip"), is("196.245.163.202"));
     builder.rootPath(root.concat("geoMetadata"));
     builder.expectBody("cityName", is("London"));
@@ -158,19 +158,19 @@ public abstract class IntegrationData {
   }
 
   protected final ApiKey dirtyKey() {
-    ApiKey dirtyKey = podam(ApiKey.class);
+    var dirtyKey = podam(ApiKey.class);
     dirtyKey.setAccessPolicies(Arrays.asList(dirtyAccessPolicy()));
     return dirtyKey;
   }
 
   protected final AccessPolicy dirtyAccessPolicy() {
-    AccessPolicy dirtyAccessPolicy = podam(AccessPolicy.class);
+    var dirtyAccessPolicy = podam(AccessPolicy.class);
     dirtyAccessPolicy.setRange("89.1.2.3/32");
     return dirtyAccessPolicy;
   }
 
   private <T> T podam(Class<T> pojoClass) {
-    PodamFactory factory = new PodamFactoryImpl();
+    var factory = new PodamFactoryImpl();
     factory.getStrategy().setDefaultNumberOfCollectionElements(0);
     factory.getStrategy().addOrReplaceTypeManufacturer(Date.class, new DateManufacturer());
     return factory.manufacturePojo(pojoClass);
@@ -189,7 +189,7 @@ public abstract class IntegrationData {
 
       @Override
       public boolean matches(Object actual) {
-        long diff = Math.abs(unit.between(OffsetDateTime.parse((CharSequence) actual), OffsetDateTime.now()));
+        var diff = Math.abs(unit.between(OffsetDateTime.parse((CharSequence) actual), OffsetDateTime.now()));
         return diff <= amount;
       }
 

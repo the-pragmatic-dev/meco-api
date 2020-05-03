@@ -83,6 +83,18 @@ public class ApiKeyLogService {
   }
 
   /**
+   * Log an access policy event for when a keys polices are updated.
+   * 
+   * @param apiKey The key being updated
+   * @param action The action being performed on the policy
+   * @param range  The policy range
+   * @return The persisted log
+   */
+  public ApiKeyLog accessPolicy(ApiKey apiKey, String action, String range) {
+    return log(apiKey, String.format("key.access_policy.%s.%s", range, action));
+  }
+
+  /**
    * Log a scope event for when any of the keys scope changes.
    * 
    * @param apiKey    The key being updated.

@@ -81,7 +81,7 @@ public class ApiKeyServiceTest {
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
     when(apiKeyRepository.countByAccountId(anyLong())).thenReturn(10L); // max keys
 
-    ApiException ex = Assertions.assertThrows(ApiException.class, () -> {
+    var ex = Assertions.assertThrows(ApiException.class, () -> {
       sut.create("username", apiKey);
     });
     assertThat(ex.getErrorCode(), is(ApiKeyCode.API_KEY_LIMIT));

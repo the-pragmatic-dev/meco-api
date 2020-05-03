@@ -1,7 +1,5 @@
 package uk.thepragmaticdev.security;
 
-import static java.util.Objects.nonNull;
-
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -34,7 +32,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException {
     var token = jwtTokenProvider.resolveToken(httpServletRequest);
     try {
-      if (nonNull(token) && jwtTokenProvider.validateToken(token)) {
+      if (token != null && jwtTokenProvider.validateToken(token)) {
         var auth = jwtTokenProvider.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
       }

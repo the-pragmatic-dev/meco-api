@@ -93,9 +93,9 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldCreateKey() {
-    ApiKey key = key();
+    var key = key();
 
-    ApiKey response = given()
+    var response = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin())
           .contentType(JSON)
@@ -129,7 +129,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldUpdateOnlyMutableKeyFields() {
-    ApiKey key = dirtyKey();
+    var key = dirtyKey();
 
     given()
       .contentType(JSON)
@@ -238,7 +238,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   }
   
   private void assertValidKey(ApiKey response) {
-    String key = response.getKey();
+    var key = response.getKey();
     assertThat(key, startsWith(String.format("%s.", response.getPrefix())));
     assertThat(key.substring(key.lastIndexOf(".") + 1).length(), is(48));
   }
