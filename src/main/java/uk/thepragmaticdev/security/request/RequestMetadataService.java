@@ -178,13 +178,13 @@ public class RequestMetadataService {
           geoMetadata, //
           deviceMetadata));
     } catch (AddressNotFoundException ex) {
-      logger.warn("IP address not present in the database: %s", ex.getMessage());
+      logger.warn("IP address not present in the database: {0}", ex.getMessage());
     } catch (GeoIp2Exception ex) {
-      logger.warn("Generic GeoIp2 error: ", ex.getMessage());
+      logger.warn("Generic GeoIp2 error: {0}", ex.getMessage());
     } catch (UnknownHostException ex) {
-      logger.warn("IP address of host could not be determined: %s", ex.getMessage());
+      logger.warn("IP address of host could not be determined: {0}", ex.getMessage());
     } catch (IOException ex) {
-      logger.warn("IO error when extracting request metadata: %s", ex.getMessage());
+      logger.warn("IO error when extracting request metadata: {0}", ex.getMessage());
     }
     return Optional.empty();
   }
