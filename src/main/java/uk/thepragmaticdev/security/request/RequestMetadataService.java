@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.ArchiveEntry;
@@ -101,8 +102,10 @@ public class RequestMetadataService {
   }
 
   private Optional<Path> findLocalDatabase() throws IOException {
-    return Files.find(Paths.get(databaseDirectory), Integer.MAX_VALUE,
-        (path, basicFileAttributes) -> path.toFile().getName().matches(databaseName)).findFirst();
+    try (Stream<Path> files = Files.find(Paths.get(databaseDirectory), Integer.MAX_VALUE,
+        (path, basicFileAttributes) -> path.toFile().getName().matches(databaseName))) {
+      return files.findFirst();
+    }
   }
 
   private Optional<Path> extractDatabase(Path destination) throws IOException {
