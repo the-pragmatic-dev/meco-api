@@ -1,6 +1,6 @@
 package uk.thepragmaticdev.kms;
 
-import com.opencsv.CSVWriter;
+import com.opencsv.ICSVWriter;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -120,9 +120,7 @@ public class ApiKeyService {
     if (apiKey.getAccessPolicies() == null) {
       return;
     }
-    apiKey.getAccessPolicies().forEach(p -> {
-      p.setApiKey(apiKey);
-    });
+    apiKey.getAccessPolicies().forEach(p -> p.setApiKey(apiKey));
   }
 
   /**
@@ -249,7 +247,7 @@ public class ApiKeyService {
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     try {
       var writer = new StatefulBeanToCsvBuilder<ApiKeyLog>(response.getWriter())
-          .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER).withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+          .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
           .withOrderedResults(true).build();
       writer.write(apiKeyLogService.findAllByApiKeyId(persistedApiKey));
       apiKeyLogService.downloadLogs(persistedApiKey);
@@ -279,7 +277,7 @@ public class ApiKeyService {
    * @return
    */
   public boolean authenticate(String rawApiKey, String encodedApiKey) {
-    var apiKey = rawApiKey.substring(rawApiKey.indexOf(".") + 1);
+    var apiKey = rawApiKey.substring(rawApiKey.indexOf('.') + 1);
     return passwordEncoder.matches(apiKey, encodedApiKey);
   }
 

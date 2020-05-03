@@ -5,7 +5,6 @@ import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -87,7 +86,7 @@ public class RequestMetadataService {
     return true;
   }
 
-  private Optional<Path> fetchDatabase() throws MalformedURLException, IOException {
+  private Optional<Path> fetchDatabase() throws IOException {
     final var connectionTimeout = 10000;
     final var readTimeout = 10000;
     var localDatabase = findLocalDatabase();
@@ -150,11 +149,9 @@ public class RequestMetadataService {
 
   private boolean metaDataMatches(RequestMetadata request, RequestMetadata existing) {
     if (request == null && existing == null) {
-      // if both are null then return true
       return true;
     }
-    if ((request == null && existing != null) || (request != null && existing == null)) {
-      // if only one is null then return false
+    if (request == null || existing == null) {
       return false;
     }
     return Objects.equals(existing.getGeoMetadata(), request.getGeoMetadata())
@@ -178,19 +175,18 @@ public class RequestMetadataService {
           geoMetadata, //
           deviceMetadata));
     } catch (AddressNotFoundException ex) {
-      logger.warn("IP address not present in the database: ", ex.getMessage());
+      logger.warn("IP address not present in the database: %s", ex.getMessage());
     } catch (GeoIp2Exception ex) {
       logger.warn("Generic GeoIp2 error: ", ex.getMessage());
     } catch (UnknownHostException ex) {
-      logger.warn("IP address of host could not be determined: ", ex.getMessage());
+      logger.warn("IP address of host could not be determined: %s", ex.getMessage());
     } catch (IOException ex) {
-      logger.warn("IO error when extracting request metadata: ", ex.getMessage());
+      logger.warn("IO error when extracting request metadata: %s", ex.getMessage());
     }
     return Optional.empty();
   }
 
-  private GeoMetadata extractGeoMetadata(HttpServletRequest request)
-      throws GeoIp2Exception, UnknownHostException, IOException {
+  private GeoMetadata extractGeoMetadata(HttpServletRequest request) throws GeoIp2Exception, IOException {
     var ipAddress = InetAddress.getByName(extractIp(request));
     var response = databaseReader.city(ipAddress);
     return new GeoMetadata(//

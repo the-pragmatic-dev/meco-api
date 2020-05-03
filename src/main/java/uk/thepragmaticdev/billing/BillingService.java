@@ -40,7 +40,7 @@ public class BillingService {
       Customer customer = Customer.create(customerParams);
       id = customer.getId();
     } catch (Exception ex) {
-      ex.printStackTrace();
+      ex.printStackTrace(); // TODO
     }
     return id;
   }
@@ -75,7 +75,7 @@ public class BillingService {
       Subscription sub = Subscription.create(params);
       id = sub.getId();
     } catch (Exception ex) {
-      ex.printStackTrace();
+      ex.printStackTrace(); // TODO
     }
     return id;
   }
@@ -94,7 +94,7 @@ public class BillingService {
       sub.cancel();
       status = true;
     } catch (Exception ex) {
-      ex.printStackTrace();
+      ex.printStackTrace(); // TODO
       status = false;
     }
     return status;
@@ -111,7 +111,7 @@ public class BillingService {
       Stripe.apiKey = stripeSecretKey;
       return Coupon.retrieve(code);
     } catch (Exception ex) {
-      ex.printStackTrace();
+      ex.printStackTrace(); // TODO
     }
     return null;
   }

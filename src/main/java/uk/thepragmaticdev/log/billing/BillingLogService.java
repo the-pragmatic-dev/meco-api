@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.security.request.RequestMetadata;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Service
@@ -69,7 +70,7 @@ public class BillingLogService {
   }
 
   private BillingLog log(Account account, String action) {
-    var ip = requestMetadataService.extractRequestMetadata(request).map(r -> r.getIp()).orElse("");
+    var ip = requestMetadataService.extractRequestMetadata(request).map(RequestMetadata::getIp).orElse("");
     return billingLogRepository.save(new BillingLog(null, account, action, ip, OffsetDateTime.now()));
   }
 }

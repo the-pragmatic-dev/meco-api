@@ -34,7 +34,7 @@ public class ApiError {
       subErrors = new ArrayList<>();
     }
 
-    fieldErrors.forEach((fieldError) -> {
+    fieldErrors.forEach(fieldError -> {
       var rejectedValue = maskRejectedPasswordValue(fieldError);
       this.subErrors.add(new ApiSubError(//
           fieldError.getObjectName(), //

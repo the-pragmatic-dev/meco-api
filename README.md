@@ -122,7 +122,8 @@ the output from a successful build is below.
 
 ## Running the tests
 
-Maven profiles exist for running either the unit tests or integration tests, `unit` and `integration` respectively. The `unit` profile is active by default.
+Maven profiles exist for running either the unit tests or integration tests, `unit` and `integration` respectively. The `unit` profile is active by default. 
+To run both the unit and integration tests use the `all` profile.
 
 ### Unit tests
 
@@ -153,6 +154,8 @@ Sonar properties are defined in `pom.xml`. Test reports are pushed to [SonarClou
 ```bash
 ./mvnw sonar:sonar
 ```
+
+[JaCoCo](https://github.com/jacoco/jacoco) generates individual coverage reports for unit and integration tests. It also generates an aggregate report called `aggregate.exec`, this is pushed to SonarCloud.
 
 ### Coding style guide
 

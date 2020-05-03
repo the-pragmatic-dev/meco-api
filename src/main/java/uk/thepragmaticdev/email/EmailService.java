@@ -159,8 +159,7 @@ public class EmailService {
   }
 
   private void send(String to, String subject, String template, MultiValueMap<String, String> formData) {
-    logger.info("webclient:send: to={}, subject={}, template={}, formData={}", to, subject, template,
-        formData.toString());
+    logger.info("webclient:send: to={}, subject={}, template={}, formData={}", to, subject, template, formData);
     webClient.post()//
         .uri(uriBuilder -> uriBuilder.path("/messages")//
             .queryParam("from", String.format("%s <mailgun@%s.mailgun.org>", fromName, domain))//
