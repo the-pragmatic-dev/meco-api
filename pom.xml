@@ -5,7 +5,7 @@
   <groupId>uk.thepragmaticdev</groupId>
   <artifactId>meco-api</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <name>meco-api</name>
   <description>Monitoring Explicit Content Online: account, billing and key management services.</description>
   <licenses>
@@ -50,6 +50,7 @@
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>the-pragmatic-dev</sonar.organization>
     <sonar.projectKey>the-pragmatic-dev_meco-api</sonar.projectKey>
+    <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <springdoc.version>1.3.1</springdoc.version>
     <stripe.version>16.4.0</stripe.version>
     <uap-java.version>1.4.0</uap-java.version>
@@ -73,6 +74,14 @@
       <properties>
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>true</skip.unit.tests>
+      </properties>
+    </profile>
+    <!-- configuration for unit and integration tests -->
+    <profile>
+      <id>all</id>
+      <properties>
+        <skip.integration.tests>false</skip.integration.tests>
+        <skip.unit.tests>false</skip.unit.tests>
       </properties>
     </profile>
   </profiles>
@@ -346,18 +355,68 @@
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco.version}</version>
         <executions>
+          <!-- pre-unit-test starts the JaCoCo agent before the unit tests are run -->
           <execution>
-            <id>default-prepare-agent</id>
+            <id>pre-unit-test</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
           </execution>
+          <!-- post-unit-test generates the unit test code coverage report after the unit tests pass -->
           <execution>
-            <id>default-report</id>
-            <phase>prepare-package</phase>
+            <id>post-unit-test</id>
+            <phase>test</phase>
             <goals>
               <goal>report</goal>
             </goals>
+          </execution>
+          <!-- pre-integration-test prepares the JaCoCo agent for the integration tests -->
+          <execution>
+            <id>pre-integration-test</id>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+          </execution>
+          <!-- post-integration-test runs the report for integration tests -->
+          <execution>
+            <id>post-integration-test</id>
+            <goals>
+              <goal>report-integration</goal>
+            </goals>
+          </execution>
+          <!-- merge-results will merge the code coverage results of unit and integration tests into a new file, aggregate.exec -->
+          <execution>
+            <id>merge-results</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>merge</goal>
+            </goals>
+            <configuration>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>*.exec</include>
+                  </includes>
+                  <excludes>
+                    <exclude>aggregate.exec</exclude>
+                  </excludes>
+                </fileSet>
+              </fileSets>
+              <destFile>${project.build.directory}/aggregate.exec</destFile>
+            </configuration>
+          </execution>
+          <!-- post-merge-report will generate the report for the aggregate coverage -->
+          <execution>
+            <id>post-merge-report</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <dataFile>${project.build.directory}/aggregate.exec</dataFile>
+              <outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
+            </configuration>
           </execution>
         </executions>
       </plugin>
