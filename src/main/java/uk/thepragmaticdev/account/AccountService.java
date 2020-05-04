@@ -19,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
@@ -96,7 +97,7 @@ public class AccountService {
    * @param password The password of an account attemping to sign in
    * @return An authentication token
    */
-  public String signin(String username, String password) {
+  public AccountSigninResponse signin(String username, String password) {
     String token;
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -106,7 +107,7 @@ public class AccountService {
     } catch (AuthenticationException ex) {
       throw new ApiException(AccountCode.INVALID_CREDENTIALS);
     }
-    return token;
+    return new AccountSigninResponse(token);
   }
 
   /**

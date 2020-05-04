@@ -32,6 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
+import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.kms.AccessPolicy;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.kms.Scope;
@@ -107,13 +109,13 @@ public abstract class IntegrationData {
       given()
         .headers(headers())
         .contentType(JSON)
-        .body(account())
+        .body(accountSigninRequest())
       .when()
         .post(ACCOUNTS_ENDPOINT + "signin")
       .then()
-          .body(not(emptyString()))
+          .body("token", not(emptyString()))
           .statusCode(200)
-      .extract().body().asString());
+      .extract().as(AccountSigninResponse.class).getToken());
   }
 
   // @formatter:on
@@ -123,6 +125,10 @@ public abstract class IntegrationData {
   protected final Account account() {
     return new Account(null, "admin@email.com", "password", null, null, null, true, false, null, null, null, null,
         null);
+  }
+
+  protected final AccountSigninRequest accountSigninRequest() {
+    return new AccountSigninRequest("admin@email.com", "password");
   }
 
   protected final ApiKey key() {

@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
+import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
+import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
@@ -41,12 +43,12 @@ public class AccountController {
   /**
    * Authorize an account.
    * 
-   * @param account The account attempting to sign
+   * @param request The account details for signing in
    * @return An authentication token
    */
   @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public String signin(@Valid @RequestBody Account account) {
-    return accountService.signin(account.getUsername(), account.getPassword());
+  public AccountSigninResponse signin(@Valid @RequestBody AccountSigninRequest request) {
+    return accountService.signin(request.getUsername(), request.getPassword());
   }
 
   /**
