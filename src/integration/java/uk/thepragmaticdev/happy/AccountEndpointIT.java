@@ -10,6 +10,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -20,18 +22,32 @@ import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationData;
+import uk.thepragmaticdev.TestConfig;
+import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.account.AccountService;
+import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
+@Import(TestConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 public class AccountEndpointIT extends IntegrationData {
   // @formatter:off
+
+  @Autowired
+  private EmailService emailService;
+
+  @Autowired
+  private AccountService accountService;
 
   /**
    * Called before each integration test to reset database to default state.
@@ -108,7 +124,28 @@ public class AccountEndpointIT extends IntegrationData {
 
   // @endpoint:me/reset
 
-  // TODO hard as need to mock email service to get password reset token to send
+  @Test
+  public void shouldReturnOkWhenResetPassword() {
+    accountService.forgot(account().getUsername());
+    var captor = ArgumentCaptor.forClass(Account.class);
+    verify(emailService, atLeastOnce()).sendForgottenPassword(captor.capture());
+    var actual = captor.getValue();
+    var diffMinutes = ChronoUnit.MINUTES.between(OffsetDateTime.now(), actual.getPasswordResetTokenExpire());
+    assertThat(actual.getPasswordResetToken(), is(not(emptyString())));
+    assertThat(diffMinutes, is(1439L)); // 23 hours and 59 minutes
+
+    var account = account();
+    account.setPassword("newpassword");
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(account)
+      .queryParam("token", actual.getPasswordResetToken())
+    .when()
+      .post(ACCOUNTS_ENDPOINT + "me/reset")
+    .then()
+        .statusCode(200);
+  }
 
   // @endpoint:update
 
