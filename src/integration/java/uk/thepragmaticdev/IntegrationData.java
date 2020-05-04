@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
+import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.kms.AccessPolicy;
 import uk.thepragmaticdev.kms.ApiKey;
@@ -129,6 +130,10 @@ public abstract class IntegrationData {
 
   protected final AccountSigninRequest accountSigninRequest() {
     return new AccountSigninRequest("admin@email.com", "password");
+  }
+
+  protected final AccountSignupRequest accountSignupRequest() {
+    return new AccountSignupRequest("admin@email.com", "password");
   }
 
   protected final ApiKey key() {

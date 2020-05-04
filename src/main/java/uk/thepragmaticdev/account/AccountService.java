@@ -20,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
+import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
@@ -93,8 +94,8 @@ public class AccountService {
    * Authorize an account. If signing in from an unfamiliar ip or device the user
    * will be notified by email.
    * 
-   * @param username The username of an account attemping to sign in
-   * @param password The password of an account attemping to sign in
+   * @param username The username of an account attemping to signin
+   * @param password The password of an account attemping to signin
    * @return An authentication token
    */
   public AccountSigninResponse signin(String username, String password) {
@@ -113,18 +114,22 @@ public class AccountService {
   /**
    * Create a new account.
    * 
-   * @param account The new account to be created
-   * @return A newly created account
+   * @param username The username of an account attemping to signup
+   * @param password The password of an account attemping to signup
+   * @return An authentication token
    */
-  public String signup(Account account) {
-    if (!accountRepository.existsByUsername(account.getUsername())) {
-      account.setPassword(passwordEncoder.encode(account.getPassword()));
+  public AccountSignupResponse signup(String username, String password) {
+    if (!accountRepository.existsByUsername(username)) {
+      var account = new Account();
+      account.setUsername(username);
+      account.setPassword(passwordEncoder.encode(password));
       account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
       account.setCreatedDate(OffsetDateTime.now());
       var persistedAccount = accountRepository.save(account);
       securityLogService.created(persistedAccount);
       emailService.sendAccountCreated(persistedAccount);
-      return jwtTokenProvider.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
+      var token = jwtTokenProvider.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
+      return new AccountSignupResponse(token);
     } else {
       throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
     }

@@ -73,12 +73,12 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateAccountWhenUsernameAlreadyExists() {
-    var account = account();
+    var request = accountSignupRequest();
 
     given()
       .headers(headers())
       .contentType(JSON)
-      .body(account)
+      .body(request)
     .when()
       .post(ACCOUNTS_ENDPOINT + "signup")
     .then()
@@ -89,13 +89,13 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateAccountWhenUsernameIsInvalidEmail() {
-    var account = account();
-    account.setUsername("invalid@");
+    var request = accountSignupRequest();
+    request.setUsername("invalid@");
 
     given()
       .headers(headers())
       .contentType(JSON)
-      .body(account)
+      .body(request)
     .when()
       .post(ACCOUNTS_ENDPOINT + "signup")
     .then()
@@ -103,22 +103,22 @@ public class AccountEndpointIT extends IntegrationData {
         .body("message", is("Validation errors"))
         .body("subErrors", hasSize(1))
         .root("subErrors[0]")
-          .body("object", is("account"))
+          .body("object", is("accountSignupRequest"))
           .body("field", is("username"))
-          .body("rejectedValue", is(account.getUsername()))
+          .body("rejectedValue", is(request.getUsername()))
           .body("message", is("Username is not a valid email."))
         .statusCode(400);
   }
 
   @Test
   public void shouldNotCreateAccountWhenPasswordIsTooShort() {
-    var account = account();
-    account.setPassword("1234567");
+    var request = accountSignupRequest();
+    request.setPassword("1234567");
 
     given()
       .headers(headers())
       .contentType(JSON)
-      .body(account)
+      .body(request)
     .when()
       .post(ACCOUNTS_ENDPOINT + "signup")
     .then()
@@ -126,7 +126,7 @@ public class AccountEndpointIT extends IntegrationData {
         .body("message", is("Validation errors"))
         .body("subErrors", hasSize(1))
         .root("subErrors[0]")
-          .body("object", is("account"))
+          .body("object", is("accountSignupRequest"))
           .body("field", is("password"))
           .body("rejectedValue", is("[PROTECTED]"))
           .body("message", is("Minimum password length: 8 characters."))

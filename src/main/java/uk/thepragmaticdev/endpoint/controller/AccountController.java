@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
+import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
+import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
@@ -54,13 +56,13 @@ public class AccountController {
   /**
    * Create a new account.
    * 
-   * @param account The new account to be created
+   * @param request The new account details to be created
    * @return A newly created account
    */
   @ResponseStatus(value = HttpStatus.CREATED)
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public String signup(@Valid @RequestBody Account account) {
-    return accountService.signup(account);
+  public AccountSignupResponse signup(@Valid @RequestBody AccountSignupRequest request) {
+    return accountService.signup(request.getUsername(), request.getPassword());
   }
 
   /**

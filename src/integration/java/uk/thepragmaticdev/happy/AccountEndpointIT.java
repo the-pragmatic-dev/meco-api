@@ -71,17 +71,17 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldCreateAccount() {
-    var account = account();
-    account.setUsername("test@email.com");
+    var request = accountSignupRequest();
+    request.setUsername("test@email.com");
 
     given()
       .headers(headers())
       .contentType(JSON)
-      .body(account)
+      .body(request)
     .when()
       .post(ACCOUNTS_ENDPOINT + "signup")
     .then()
-        .body(not(emptyString()))
+        .body("token", not(emptyString()))
         .statusCode(201);
   }
 
