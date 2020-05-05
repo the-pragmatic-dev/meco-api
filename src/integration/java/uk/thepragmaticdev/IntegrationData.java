@@ -34,6 +34,7 @@ import uk.co.jemos.podam.api.PodamFactoryImpl;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
+import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.kms.AccessPolicy;
 import uk.thepragmaticdev.kms.ApiKey;
@@ -134,6 +135,10 @@ public abstract class IntegrationData {
 
   protected final AccountSignupRequest accountSignupRequest() {
     return new AccountSignupRequest("admin@email.com", "password");
+  }
+
+  protected final AccountUpdateRequest accountUpdateRequest() {
+    return new AccountUpdateRequest("Ash", false, true);
   }
 
   protected final ApiKey key() {

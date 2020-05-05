@@ -37,13 +37,13 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotSigninWhenUsernameDoesNotExist() {
-    var account = account();
-    account.setUsername("random@email.com");
+    var request = accountSigninRequest();
+    request.setUsername("random@email.com");
 
     given()
       .headers(headers())
       .contentType(JSON)
-      .body(account)
+      .body(request)
     .when()
       .post(ACCOUNTS_ENDPOINT + "signin")
     .then()
@@ -54,13 +54,13 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotSigninWhenPasswordIsInvalid() {
-    var account = account();
-    account.setPassword("invalidPassword");
+    var request = accountSigninRequest();
+    request.setPassword("invalidPassword");
 
     given()
       .headers(headers())
       .contentType(JSON)
-      .body(account)
+      .body(request)
     .when()
       .post(ACCOUNTS_ENDPOINT + "signin")
     .then()
@@ -211,13 +211,13 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotUpdateAccountWithInvalidToken() {
-    var account = dirtyAccount();
+    var request = accountUpdateRequest();
 
     given()
       .contentType(JSON)
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
-      .body(account)
+      .body(request)
     .when()
       .put(ACCOUNTS_ENDPOINT + "me")
     .then()

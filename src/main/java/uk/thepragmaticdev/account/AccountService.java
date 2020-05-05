@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -147,15 +146,18 @@ public class AccountService {
    * Update all mutable fields of an authenticated account if a change is
    * detected.
    * 
-   * @param username The authenticated account username
-   * @param account  An account with the desired values
+   * @param username                 The authenticated account username
+   * @param fullName                 An updated fullname
+   * @param emailSubscriptionEnabled An updated email subscription
+   * @param billingAlertEnabled      An updated billing alert
    * @return The updated account
    */
-  public Account update(String username, @Valid Account account) {
+  public Account update(String username, String fullName, boolean emailSubscriptionEnabled,
+      boolean billingAlertEnabled) {
     var authenticatedAccount = findAuthenticatedAccount(username);
-    updateFullName(authenticatedAccount, account.getFullName());
-    updateBillingAlertEnabled(authenticatedAccount, account.getBillingAlertEnabled());
-    updateEmailSubscriptionEnabled(authenticatedAccount, account.getEmailSubscriptionEnabled());
+    updateFullName(authenticatedAccount, fullName);
+    updateBillingAlertEnabled(authenticatedAccount, billingAlertEnabled);
+    updateEmailSubscriptionEnabled(authenticatedAccount, emailSubscriptionEnabled);
     return accountRepository.save(authenticatedAccount);
   }
 

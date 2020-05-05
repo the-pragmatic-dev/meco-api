@@ -151,13 +151,13 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldUpdateOnlyMutableAccountFields() {
-    var account = dirtyAccount();
+    var request = accountUpdateRequest();
 
     given()
       .headers(headers())
       .contentType(JSON)
       .header(HttpHeaders.AUTHORIZATION, signin())
-      .body(account)
+      .body(request)
     .when()
       .put(ACCOUNTS_ENDPOINT + "me")
     .then()
@@ -165,9 +165,9 @@ public class AccountEndpointIT extends IntegrationData {
         .body("password", is(nullValue()))
         .body("passwordResetToken", is(nullValue()))
         .body("passwordResetTokenExpire", is(nullValue()))
-        .body("fullName", is(account.getFullName()))
-        .body("emailSubscriptionEnabled", is(account.getEmailSubscriptionEnabled()))
-        .body("billingAlertEnabled", is(account.getBillingAlertEnabled()))
+        .body("fullName", is(request.getFullName()))
+        .body("emailSubscriptionEnabled", is(request.getEmailSubscriptionEnabled()))
+        .body("billingAlertEnabled", is(request.getBillingAlertEnabled()))
         .body("createdDate", is("2020-02-25T10:30:44.232Z"))
         .statusCode(200);
   }

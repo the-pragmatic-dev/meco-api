@@ -25,9 +25,11 @@ import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
+import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.account.dto.response.AccountMeResponse;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
+import uk.thepragmaticdev.account.dto.response.AccountUpdateResponse;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
@@ -89,12 +91,15 @@ public class AccountController {
    * Update all mutable fields of an authenticated account.
    * 
    * @param principal The currently authenticated principal user
-   * @param account   An account with the desired values
+   * @param request   Details of account with the desired values
    * @return The updated account
    */
   @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Account update(Principal principal, @Valid @RequestBody Account account) {
-    return accountService.update(principal.getName(), account);
+  public AccountUpdateResponse update(Principal principal, @Valid @RequestBody AccountUpdateRequest request) {
+    var account = accountService.update(principal.getName(), request.getFullName(),
+        request.getEmailSubscriptionEnabled(), request.getBillingAlertEnabled());
+    // TODO: unit test
+    return modelMapper.map(account, AccountUpdateResponse.class);
   }
 
   /**
