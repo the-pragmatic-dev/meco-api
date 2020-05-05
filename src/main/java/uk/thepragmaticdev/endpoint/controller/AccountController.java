@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
+import uk.thepragmaticdev.account.dto.response.AccountMeResponse;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
 import uk.thepragmaticdev.log.billing.BillingLog;
@@ -37,9 +39,12 @@ public class AccountController {
 
   private final AccountService accountService;
 
+  private final ModelMapper modelMapper;
+
   @Autowired
-  public AccountController(AccountService accountService) {
+  public AccountController(AccountService accountService, ModelMapper modelMapper) {
     this.accountService = accountService;
+    this.modelMapper = modelMapper;
   }
 
   /**
@@ -50,7 +55,8 @@ public class AccountController {
    */
   @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
   public AccountSigninResponse signin(@Valid @RequestBody AccountSigninRequest request) {
-    return accountService.signin(request.getUsername(), request.getPassword());
+    var token = accountService.signin(request.getUsername(), request.getPassword());
+    return new AccountSigninResponse(token);
   }
 
   /**
@@ -62,7 +68,8 @@ public class AccountController {
   @ResponseStatus(value = HttpStatus.CREATED)
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
   public AccountSignupResponse signup(@Valid @RequestBody AccountSignupRequest request) {
-    return accountService.signup(request.getUsername(), request.getPassword());
+    var token = accountService.signup(request.getUsername(), request.getPassword());
+    return new AccountSignupResponse(token);
   }
 
   /**
@@ -72,8 +79,10 @@ public class AccountController {
    * @return The authenticated account
    */
   @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Account findAuthenticatedAccount(Principal principal) {
-    return accountService.findAuthenticatedAccount(principal.getName());
+  public AccountMeResponse findAuthenticatedAccount(Principal principal) {
+    var account = accountService.findAuthenticatedAccount(principal.getName());
+    // TODO: unit test
+    return modelMapper.map(account, AccountMeResponse.class);
   }
 
   /**

@@ -19,8 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
-import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
@@ -98,7 +96,7 @@ public class AccountService {
    * @param password The password of an account attemping to signin
    * @return An authentication token
    */
-  public AccountSigninResponse signin(String username, String password) {
+  public String signin(String username, String password) {
     String token;
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -108,7 +106,7 @@ public class AccountService {
     } catch (AuthenticationException ex) {
       throw new ApiException(AccountCode.INVALID_CREDENTIALS);
     }
-    return new AccountSigninResponse(token);
+    return token;
   }
 
   /**
@@ -118,7 +116,7 @@ public class AccountService {
    * @param password The password of an account attemping to signup
    * @return An authentication token
    */
-  public AccountSignupResponse signup(String username, String password) {
+  public String signup(String username, String password) {
     if (!accountRepository.existsByUsername(username)) {
       var account = new Account();
       account.setUsername(username);
@@ -128,8 +126,7 @@ public class AccountService {
       var persistedAccount = accountRepository.save(account);
       securityLogService.created(persistedAccount);
       emailService.sendAccountCreated(persistedAccount);
-      var token = jwtTokenProvider.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
-      return new AccountSignupResponse(token);
+      return jwtTokenProvider.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
     } else {
       throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
     }
