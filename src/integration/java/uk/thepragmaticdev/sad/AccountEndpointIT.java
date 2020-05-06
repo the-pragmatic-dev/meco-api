@@ -167,14 +167,13 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotResetPasswordWithInvalidToken() {
-    var account = account();
-    account.setPassword("newpassword");
+    var request = accountResetRequest();
     
     given()
       .headers(headers())
       .queryParam("token", "garbage")
       .contentType(JSON)
-      .body(account)
+      .body(request)
     .when()
       .post(ACCOUNTS_ENDPOINT + "me/reset")
     .then()
@@ -185,14 +184,14 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotResetPasswordWhenPasswordIsTooShort() {
-    var account = account();
-    account.setPassword("1234567");
+    var request = accountResetRequest();
+    request.setPassword("1234567");
     
     given()
       .headers(headers())
       .queryParam("token", "garbage")
       .contentType(JSON)
-      .body(account)
+      .body(request)
     .when()
       .post(ACCOUNTS_ENDPOINT + "me/reset")
     .then()
@@ -200,7 +199,7 @@ public class AccountEndpointIT extends IntegrationData {
         .body("message", is("Validation errors"))
         .body("subErrors", hasSize(1))
         .root("subErrors[0]")
-          .body("object", is("account"))
+          .body("object", is("accountResetRequest"))
           .body("field", is("password"))
           .body("rejectedValue", is("[PROTECTED]"))
           .body("message", is("Minimum password length: 8 characters."))

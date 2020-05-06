@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
+import uk.thepragmaticdev.account.dto.request.AccountResetRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
@@ -115,13 +115,14 @@ public class AccountController {
   /**
    * Reset old password to new password for the requested account.
    * 
-   * @param account An account containing the new password
+   * @param request An request containing the new password
    * @param token   The generated password reset token from the /me/forgot
    *                endpoint
    */
   @PostMapping(value = "/me/reset", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public void reset(@Valid @RequestBody Account account, @RequestParam(value = "token", required = true) String token) {
-    accountService.reset(account, token);
+  public void reset(@Valid @RequestBody AccountResetRequest request,
+      @RequestParam(value = "token", required = true) String token) {
+    accountService.reset(request.getPassword(), token);
   }
 
   /**

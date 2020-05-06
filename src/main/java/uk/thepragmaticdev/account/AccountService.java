@@ -199,17 +199,17 @@ public class AccountService {
   /**
    * Reset old password to new password for the requested account.
    * 
-   * @param account An account containing the new password
-   * @param token   The generated password reset token from the /me/forgot
-   *                endpoint
+   * @param password The accounts new password
+   * @param token    The generated password reset token from the /me/forgot
+   *                 endpoint
    */
-  public void reset(Account account, String token) {
+  public void reset(String password, String token) {
     var persistedAccount = accountRepository.findByPasswordResetToken(token)
         .orElseThrow(() -> new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN));
     if (OffsetDateTime.now().isAfter(persistedAccount.getPasswordResetTokenExpire())) {
       throw new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN);
     }
-    persistedAccount.setPassword(passwordEncoder.encode(account.getPassword()));
+    persistedAccount.setPassword(passwordEncoder.encode(password));
     persistedAccount.setPasswordResetToken(null);
     persistedAccount.setPasswordResetTokenExpire(null);
     accountRepository.save(persistedAccount);

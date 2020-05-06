@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
 import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.account.dto.request.AccountResetRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
@@ -139,6 +140,10 @@ public abstract class IntegrationData {
 
   protected final AccountUpdateRequest accountUpdateRequest() {
     return new AccountUpdateRequest("Ash", false, true);
+  }
+
+  protected final AccountResetRequest accountResetRequest() {
+    return new AccountResetRequest("newpassword");
   }
 
   protected final ApiKey key() {

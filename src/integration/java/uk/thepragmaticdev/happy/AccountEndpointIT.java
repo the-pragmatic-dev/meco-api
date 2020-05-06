@@ -115,7 +115,7 @@ public class AccountEndpointIT extends IntegrationData {
   public void shouldReturnOkWhenForgottenPassword() {
     given()
       .headers(headers())
-      .queryParam("username", account().getUsername())
+      .queryParam("username", "admin@email.com")
     .when()
       .post(ACCOUNTS_ENDPOINT + "me/forgot")
     .then()
@@ -126,7 +126,7 @@ public class AccountEndpointIT extends IntegrationData {
 
   @Test
   public void shouldReturnOkWhenResetPassword() {
-    accountService.forgot(account().getUsername());
+    accountService.forgot("admin@email.com");
     var captor = ArgumentCaptor.forClass(Account.class);
     verify(emailService, atLeastOnce()).sendForgottenPassword(captor.capture());
     var actual = captor.getValue();
@@ -134,12 +134,11 @@ public class AccountEndpointIT extends IntegrationData {
     assertThat(actual.getPasswordResetToken(), is(not(emptyString())));
     assertThat(diffMinutes, is(1439L)); // 23 hours and 59 minutes
 
-    var account = account();
-    account.setPassword("newpassword");
+    var request = accountResetRequest();
     given()
       .headers(headers())
       .contentType(JSON)
-      .body(account)
+      .body(request)
       .queryParam("token", actual.getPasswordResetToken())
     .when()
       .post(ACCOUNTS_ENDPOINT + "me/reset")
