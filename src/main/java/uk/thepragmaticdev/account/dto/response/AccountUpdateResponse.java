@@ -1,7 +1,6 @@
 package uk.thepragmaticdev.account.dto.response;
 
 import java.time.OffsetDateTime;
-import javax.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AccountUpdateResponse {
 
-  @Email(message = "Username is not a valid email.")
   private String username;
 
   private String fullName;

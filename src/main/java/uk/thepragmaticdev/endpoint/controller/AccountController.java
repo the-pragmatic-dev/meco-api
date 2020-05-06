@@ -30,8 +30,8 @@ import uk.thepragmaticdev.account.dto.response.AccountMeResponse;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
 import uk.thepragmaticdev.account.dto.response.AccountUpdateResponse;
-import uk.thepragmaticdev.log.billing.BillingLog;
-import uk.thepragmaticdev.log.security.SecurityLog;
+import uk.thepragmaticdev.log.dto.BillingLogResponse;
+import uk.thepragmaticdev.log.dto.SecurityLogResponse;
 
 @RestController
 @RequestMapping("/accounts")
@@ -133,8 +133,12 @@ public class AccountController {
    * @return A page of the latest billing logs
    */
   @GetMapping(value = "/me/billing/logs", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Page<BillingLog> billingLogs(Pageable pageable, Principal principal) {
-    return accountService.billingLogs(pageable, principal.getName());
+  public Page<BillingLogResponse> billingLogs(Pageable pageable, Principal principal) {
+    var billingLogs = accountService.billingLogs(pageable, principal.getName());
+    // TODO: unit test
+    return billingLogs.map(log -> {
+      return new BillingLogResponse(log.getAction(), log.getCreatedDate(), log.getAmount());
+    });
   }
 
   /**
@@ -159,8 +163,12 @@ public class AccountController {
    * @return A page of the latest security logs
    */
   @GetMapping(value = "/me/security/logs", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Page<SecurityLog> securityLogs(Pageable pageable, Principal principal) {
-    return accountService.securityLogs(pageable, principal.getName());
+  public Page<SecurityLogResponse> securityLogs(Pageable pageable, Principal principal) {
+    var securityLogs = accountService.securityLogs(pageable, principal.getName());
+    // TODO: unit test
+    return securityLogs.map(log -> {
+      return new SecurityLogResponse(log.getAction(), log.getCreatedDate(), log.getRequestMetadata());
+    });
   }
 
   /**
