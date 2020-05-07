@@ -1,16 +1,20 @@
 package uk.thepragmaticdev.email;
 
+import java.net.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.email.EmailProperties.Template;
+import uk.thepragmaticdev.exception.ApiException;
+import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.security.request.RequestMetadata;
@@ -18,68 +22,26 @@ import uk.thepragmaticdev.security.request.RequestMetadata;
 @Service
 public class EmailService {
 
-  private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
+
+  private static final String WEBCLIENT_INFO = "webclient:send: to={}, template={}, formData={}";
+
+  private static final String WEBCLIENT_ERROR = "webclient:error: status={}, body={}";
+
+  private final EmailProperties properties;
 
   private final WebClient webClient;
-  private final String domain;
-  private final String fromName;
-  private final String fromEmail; // TODO: might be used
-  private final String accountCreatedName;
-  private final String accountCreatedSubject;
-  private final String accountForgottenPasswordName;
-  private final String accountForgottenPasswordSubject;
-  private final String accountResetPasswordName;
-  private final String accountResetPasswordSubject;
-  private final String accountUnrecognizedDeviceName;
-  private final String accountUnrecognizedDeviceSubject;
-  private final String keyCreatedName;
-  private final String keyCreatedSubject;
-  private final String keyDeletedName;
-  private final String keyDeletedSubject;
 
   /**
    * Service for sending emails. Provides default mailgun configuration.
    * 
-   * @param domain    The Mailgun domain
-   * @param secretKey The Mailgun api key
-   * @param fromName  The default sender name
-   * @param fromEmail The default sender email address
+   * @param properties       The email properties
+   * @param webClientBuilder The web client for building request
    */
-  public EmailService(//
-      @Value("${mailgun.domain}") String domain, //
-      @Value("${mailgun.secret-key}") String secretKey, //
-      @Value("${mailgun.from.name}") String fromName, //
-      @Value("${mailgun.from.email}") String fromEmail, //
-      @Value("${mailgun.template.account-created.name}") String accountCreatedName, //
-      @Value("${mailgun.template.account-created.subject}") String accountCreatedSubject, //
-      @Value("${mailgun.template.account-forgotten-password.name}") String accountForgottenPasswordName, //
-      @Value("${mailgun.template.account-forgotten-password.subject}") String accountForgottenPasswordSubject, //
-      @Value("${mailgun.template.account-reset-password.name}") String accountResetPasswordName, //
-      @Value("${mailgun.template.account-reset-password.subject}") String accountResetPasswordSubject, //
-      @Value("${mailgun.template.account-unrecognized-device.name}") String accountUnrecognizedDeviceName, //
-      @Value("${mailgun.template.account-unrecognized-device.subject}") String accountUnrecognizedDeviceSubject, //
-      @Value("${mailgun.template.key-created.name}") String keyCreatedName, //
-      @Value("${mailgun.template.key-created.subject}") String keyCreatedSubject, //
-      @Value("${mailgun.template.key-deleted.name}") String keyDeletedName, //
-      @Value("${mailgun.template.key-deleted.subject}") String keyDeletedSubject, //
-      WebClient.Builder webClientBuilder) {
-    this.domain = domain;
-    this.fromName = fromName;
-    this.fromEmail = fromEmail;
-    this.accountCreatedName = accountCreatedName;
-    this.accountCreatedSubject = accountCreatedSubject;
-    this.accountForgottenPasswordName = accountForgottenPasswordName;
-    this.accountForgottenPasswordSubject = accountForgottenPasswordSubject;
-    this.accountResetPasswordName = accountResetPasswordName;
-    this.accountResetPasswordSubject = accountResetPasswordSubject;
-    this.accountUnrecognizedDeviceName = accountUnrecognizedDeviceName;
-    this.accountUnrecognizedDeviceSubject = accountUnrecognizedDeviceSubject;
-    this.keyCreatedName = keyCreatedName;
-    this.keyCreatedSubject = keyCreatedSubject;
-    this.keyDeletedName = keyDeletedName;
-    this.keyDeletedSubject = keyDeletedSubject;
-    this.webClient = webClientBuilder.baseUrl(String.format("https://api.mailgun.net/v3/%s.mailgun.org", domain))//
-        .defaultHeaders(header -> header.setBasicAuth("api", secretKey))//
+  public EmailService(EmailProperties properties, WebClient.Builder webClientBuilder) {
+    this.properties = properties;
+    this.webClient = webClientBuilder.baseUrl(String.format(properties.getUrl(), properties.getDomain()))//
+        .defaultHeaders(header -> header.setBasicAuth("api", properties.getSecretKey()))//
         .build();
   }
 
@@ -89,7 +51,7 @@ public class EmailService {
    * @param account The newly created account
    */
   public void sendAccountCreated(Account account) {
-    send(account.getUsername(), accountCreatedName, accountCreatedSubject, new LinkedMultiValueMap<>());
+    send(account.getUsername(), "account-created", new LinkedMultiValueMap<>());
   }
 
   /**
@@ -101,7 +63,7 @@ public class EmailService {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:username", account.getUsername());
     formData.add("v:token", account.getPasswordResetToken());
-    send(account.getUsername(), accountForgottenPasswordName, accountForgottenPasswordSubject, formData);
+    send(account.getUsername(), "account-forgotten-password", formData);
   }
 
   /**
@@ -112,7 +74,7 @@ public class EmailService {
   public void sendResetPassword(Account account) {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:username", account.getUsername());
-    send(account.getUsername(), accountResetPasswordName, accountResetPasswordSubject, formData);
+    send(account.getUsername(), "account-reset-password", formData);
   }
 
   /**
@@ -131,7 +93,7 @@ public class EmailService {
     formData.add("v:subdivisionIsoCode", metadata.getGeoMetadata().getSubdivisionIsoCode());
     formData.add("v:operatingSystemFamily", metadata.getDeviceMetadata().getOperatingSystemFamily());
     formData.add("v:userAgentFamily", metadata.getDeviceMetadata().getUserAgentFamily());
-    send(account.getUsername(), accountUnrecognizedDeviceName, accountUnrecognizedDeviceSubject, formData);
+    send(account.getUsername(), "account-unrecognized-device", formData);
   }
 
   /**
@@ -143,7 +105,7 @@ public class EmailService {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:name", createdKey.getName());
     formData.add("v:prefix", createdKey.getPrefix());
-    send(account.getUsername(), keyCreatedName, keyCreatedSubject, formData);
+    send(account.getUsername(), "key-created", formData);
   }
 
   /**
@@ -155,26 +117,38 @@ public class EmailService {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:name", deletedKey.getName());
     formData.add("v:prefix", deletedKey.getPrefix());
-    send(account.getUsername(), keyDeletedName, keyDeletedSubject, formData);
+    send(account.getUsername(), "key-deleted", formData);
   }
 
-  private void send(String to, String subject, String template, MultiValueMap<String, String> formData) {
-    logger.info("webclient:send: to={}, subject={}, template={}, formData={}", to, subject, template, formData);
-    webClient.post()//
-        .uri(uriBuilder -> uriBuilder.path("/messages")//
-            .queryParam("from", String.format("%s <mailgun@%s.mailgun.org>", fromName, domain))//
-            .queryParam("to", to)//
-            .queryParam("subject", subject)//
-            .queryParam("template", template).build())
+  private void send(String to, String templateName, MultiValueMap<String, String> formData) {
+    var template = findEmailTemplate(templateName);
+    LOGGER.info(WEBCLIENT_INFO, to, template, formData);
+
+    webClient.post().uri(uriBuilder -> messagesUri(uriBuilder, to, template))//
         .body(BodyInserters.fromFormData(formData)).retrieve()//
         .onStatus(HttpStatus::is4xxClientError, error -> {
-          logger.error("webclient:error: status={}, body={}", error.statusCode(), error.bodyToMono(String.class));
+          LOGGER.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
           return Mono.empty();
         })//
         .onStatus(HttpStatus::is5xxServerError, error -> {
-          logger.error("webclient:error: status={}, body={}", error.statusCode(), error.bodyToMono(String.class));
+          LOGGER.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
           return Mono.empty();
         })//
         .toBodilessEntity().subscribe();
+  }
+
+  private URI messagesUri(UriBuilder builder, String to, Template template) {
+    return builder.path("/messages")//
+        .queryParam("from",
+            String.format("%s <mailgun@%s.mailgun.org>", properties.getFrom().getName(), properties.getDomain()))//
+        .queryParam("to", to)//
+        .queryParam("subject", template.getSubject())//
+        .queryParam("template", template.getName())//
+        .build();
+  }
+
+  private Template findEmailTemplate(String templateName) {
+    return properties.getTemplates().stream().filter(t -> t.getName().equals(templateName)).findFirst()
+        .orElseThrow(() -> new ApiException(CriticalCode.TEMPLATE_NOT_FOUND));
   }
 }

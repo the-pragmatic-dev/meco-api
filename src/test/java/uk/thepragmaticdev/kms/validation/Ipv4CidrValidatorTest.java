@@ -7,10 +7,13 @@ import static org.mockito.Mockito.mock;
 import java.util.List;
 import javax.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.boot.test.context.SpringBootTest;
 import uk.thepragmaticdev.kms.AccessPolicy;
 
+@SpringBootTest
 public class Ipv4CidrValidatorTest {
 
   private Ipv4CidrValidator sut;
@@ -24,6 +27,12 @@ public class Ipv4CidrValidatorTest {
   @MethodSource("validAccessPolicyProvider")
   public void shouldReturnIsValid(List<AccessPolicy> accessPolicy) {
     var ret = sut.isValid(accessPolicy, mock(ConstraintValidatorContext.class));
+    assertThat(ret, is(true));
+  }
+
+  @Test
+  public void shouldReturnIsValidIfNullPolicies() {
+    var ret = sut.isValid(null, mock(ConstraintValidatorContext.class));
     assertThat(ret, is(true));
   }
 

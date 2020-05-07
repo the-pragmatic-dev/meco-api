@@ -7,7 +7,8 @@ public enum CriticalCode implements ErrorCode {
 
   CSV_WRITING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occured while processing the csv file."),
   PRINT_WRITER_IO_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occured while processing the request."),
-  GEOLITE_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to load geolite database.");
+  GEOLITE_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to load geolite database."),
+  TEMPLATE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to find email template.");
 
   private final String message;
   private final HttpStatus status;

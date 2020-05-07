@@ -125,11 +125,6 @@ public abstract class IntegrationData {
 
   // @models:default
 
-  protected final Account account() {
-    return new Account(null, "admin@email.com", "password", null, null, null, true, false, null, null, null, null,
-        null);
-  }
-
   protected final AccountSigninRequest accountSigninRequest() {
     return new AccountSigninRequest("admin@email.com", "password");
   }
@@ -172,10 +167,6 @@ public abstract class IntegrationData {
   }
 
   // @models:dirty
-
-  protected final Account dirtyAccount() {
-    return podam(Account.class);
-  }
 
   protected final ApiKey dirtyKey() {
     var dirtyKey = podam(ApiKey.class);

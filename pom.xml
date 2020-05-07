@@ -43,6 +43,7 @@
     <maven.failsafe.plugin.version>3.0.0-M1</maven.failsafe.plugin.version>
     <maven.help.plugin.version>3.2.0</maven.help.plugin.version>
     <maven.surefire.plugin.version>3.0.0-M1</maven.surefire.plugin.version>
+    <okhttp3.version>4.0.1</okhttp3.version>
     <opencsv.version>5.1</opencsv.version>
     <podam.version>7.2.3.RELEASE</podam.version>
     <reactor.version>1.0.1.RELEASE</reactor.version>
@@ -294,6 +295,19 @@
       <groupId>uk.co.jemos.podam</groupId>
       <artifactId>podam</artifactId>
       <version>${podam.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- test webclient -->
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>${okhttp3.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <version>${okhttp3.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
