@@ -58,30 +58,25 @@ stripe:
     secret-key: ${STRIPE_SECRET_KEY:secret_key}
 
 mailgun:
+    url: ${MAILGUN_URL:https://api.mailgun.net/v3/%s.mailgun.org}
     domain: ${MAILGUN_DOMAIN:domain}
     secret-key: ${MAILGUN_SECRET_KEY:secret_key}
     from:
         name: ${MAILGUN_FROM_NAME:name}
         email: ${MAILGUN_FROM_EMAIL:email}
-    template:
-        account-created:
-            name: 'account-created'
-            subject: 'Welcome to MECO!'
-        account-forgotten-password:
-            name: 'account-forgotten-password'
-            subject: 'Reset your MECO password'
-        account-reset-password:
-            name: 'account-reset-password'
-            subject: 'Your MECO password has been changed'
-        account-unrecognized-device:
-            name: 'account-unrecognized-device'
-            subject: 'Unrecognized device signed in to your MECO account'
-        key-created:
-            name: 'key-created'
-            subject: 'A new key was added to your account'
-        key-deleted:
-            name: 'key-deleted'
-            subject: 'A key was deleted from your account'
+    templates:
+      - name: 'account-created'
+        subject: 'Welcome to MECO!'
+      - name: 'account-forgotten-password'
+        subject: 'Reset your MECO password'
+      - name: 'account-reset-password'
+        subject: 'Your MECO password has been changed'
+      - name: 'account-unrecognized-device'
+        subject: 'Unrecognized device signed in to your MECO account'
+      - name: 'key-created'
+        subject: 'A new key was added to your account'
+      - name: 'key-deleted'
+        subject: 'A key was deleted from your account'
             
 kms:
     api-key-limit: ${API_KEY_LIMIT:10}
