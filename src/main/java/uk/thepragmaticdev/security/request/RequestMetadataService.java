@@ -32,7 +32,7 @@ import uk.thepragmaticdev.log.security.SecurityLogService;
 @Service
 public class RequestMetadataService {
 
-  private static final Logger logger = LoggerFactory.getLogger(RequestMetadataService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RequestMetadataService.class);
 
   private final EmailService emailService;
 
@@ -79,9 +79,9 @@ public class RequestMetadataService {
     try {
       var database = fetchDatabase().orElseThrow(() -> new ApiException(CriticalCode.GEOLITE_DOWNLOAD_ERROR));
       this.databaseReader = new DatabaseReader.Builder(database.toFile()).build();
-      logger.info("GeoLite2 database loaded");
+      LOGGER.info("GeoLite2 database loaded");
     } catch (IOException ex) {
-      logger.error("Failed to load GeoLite2 database: {}", ex.getMessage());
+      LOGGER.error("Failed to load GeoLite2 database: {}", ex.getMessage());
       return false;
     }
     return true;
@@ -92,7 +92,7 @@ public class RequestMetadataService {
     final var readTimeout = 10000;
     var localDatabase = findLocalDatabase();
     if (!localDatabase.isPresent()) {
-      logger.info("Downloading GeoLite2 database from remote");
+      LOGGER.info("Downloading GeoLite2 database from remote");
       var extension = ".tar.gz";
       var destination = Paths.get(databaseDirectory.concat(databaseName).concat(extension));
       FileUtils.copyURLToFile(new URL(databaseUrl), destination.toFile(), connectionTimeout, readTimeout);
@@ -114,7 +114,7 @@ public class RequestMetadataService {
     ArchiveEntry entry;
     while ((entry = stream.getNextEntry()) != null) {
       if (entry.getName().contains(databaseName)) {
-        logger.info("Found database: {}", entry.getName());
+        LOGGER.info("Found database: {}", entry.getName());
         entry.extract(destination.getParent().toFile());
         return Optional.of(destination.getParent().resolve(entry.getName()));
       }
@@ -139,7 +139,7 @@ public class RequestMetadataService {
     if (!matchesExistingRequestMetadata(account, requestMetadata)) {
       var log = securityLogService.unrecognizedDevice(account, requestMetadata);
       emailService.sendUnrecognizedDevice(account, log);
-      logger.warn("Unrecognized device {} detected for account {}", requestMetadata, account.getId());
+      LOGGER.warn("Unrecognized device {} detected for account {}", requestMetadata, account.getId());
     } else {
       securityLogService.signin(account);
     }
@@ -178,13 +178,13 @@ public class RequestMetadataService {
           geoMetadata, //
           deviceMetadata));
     } catch (AddressNotFoundException ex) {
-      logger.warn("IP address not present in the database: {0}", ex.getMessage());
+      LOGGER.warn("IP address not present in the database: {0}", ex.getMessage());
     } catch (GeoIp2Exception ex) {
-      logger.warn("Generic GeoIp2 error: {0}", ex.getMessage());
+      LOGGER.warn("Generic GeoIp2 error: {0}", ex.getMessage());
     } catch (UnknownHostException ex) {
-      logger.warn("IP address of host could not be determined: {0}", ex.getMessage());
+      LOGGER.warn("IP address of host could not be determined: {0}", ex.getMessage());
     } catch (IOException ex) {
-      logger.warn("IO error when extracting request metadata: {0}", ex.getMessage());
+      LOGGER.warn("IO error when extracting request metadata: {0}", ex.getMessage());
     }
     return Optional.empty();
   }

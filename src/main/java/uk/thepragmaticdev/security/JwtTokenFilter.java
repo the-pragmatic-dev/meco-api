@@ -17,7 +17,7 @@ import uk.thepragmaticdev.exception.code.AccountCode;
 
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-  private static final Logger logger = LoggerFactory.getLogger(JwtTokenFilter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenFilter.class);
 
   private final JwtTokenProvider jwtTokenProvider;
 
@@ -43,7 +43,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
           AccountCode.INVALID_EXPIRED_TOKEN.getStatus(), //
           AccountCode.INVALID_EXPIRED_TOKEN.getMessage() //
       );
-      logger.warn("{}", responseBody);
+      LOGGER.warn("{}", responseBody);
       httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
       httpServletResponse.setStatus(AccountCode.INVALID_EXPIRED_TOKEN.getStatus().value());
       httpServletResponse.getWriter().write(responseBody.toString());

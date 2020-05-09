@@ -1,24 +1,26 @@
 package uk.thepragmaticdev;
 
 import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import uk.thepragmaticdev.exception.ApiException;
+import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
 public class Application {
 
-  private final ConfigurableApplicationContext context;
+  private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
 
   private final RequestMetadataService requestMetadataService;
 
   @Autowired
-  public Application(ConfigurableApplicationContext context, RequestMetadataService requestMetadataService) {
-    this.context = context;
+  public Application(RequestMetadataService requestMetadataService) {
     this.requestMetadataService = requestMetadataService;
   }
 
@@ -38,7 +40,8 @@ public class Application {
   @PostConstruct
   public void init() {
     if (!requestMetadataService.loadDatabase()) {
-      System.exit(SpringApplication.exit(context));
+      LOGGER.error(CriticalCode.GEOLITE_DOWNLOAD_ERROR.getMessage());
+      throw new ApiException(CriticalCode.GEOLITE_DOWNLOAD_ERROR);
     }
   }
 }
