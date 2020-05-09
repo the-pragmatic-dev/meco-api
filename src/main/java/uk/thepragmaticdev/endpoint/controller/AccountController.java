@@ -133,9 +133,7 @@ public class AccountController {
   @GetMapping(value = "/me/billing/logs", produces = MediaType.APPLICATION_JSON_VALUE)
   public Page<BillingLogResponse> billingLogs(Pageable pageable, Principal principal) {
     var billingLogs = accountService.billingLogs(pageable, principal.getName());
-    return billingLogs.map(log -> {
-      return new BillingLogResponse(log.getAction(), log.getCreatedDate(), log.getAmount());
-    });
+    return billingLogs.map(log -> new BillingLogResponse(log.getAction(), log.getCreatedDate(), log.getAmount()));
   }
 
   /**
@@ -162,9 +160,8 @@ public class AccountController {
   @GetMapping(value = "/me/security/logs", produces = MediaType.APPLICATION_JSON_VALUE)
   public Page<SecurityLogResponse> securityLogs(Pageable pageable, Principal principal) {
     var securityLogs = accountService.securityLogs(pageable, principal.getName());
-    return securityLogs.map(log -> {
-      return new SecurityLogResponse(log.getAction(), log.getCreatedDate(), log.getRequestMetadata());
-    });
+    return securityLogs
+        .map(log -> new SecurityLogResponse(log.getAction(), log.getCreatedDate(), log.getRequestMetadata()));
   }
 
   /**

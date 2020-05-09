@@ -22,7 +22,7 @@ import uk.thepragmaticdev.security.request.RequestMetadata;
 @Service
 public class EmailService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
 
   private static final String WEBCLIENT_INFO = "webclient:send: to={}, template={}, formData={}";
 
@@ -122,16 +122,16 @@ public class EmailService {
 
   private void send(String to, String templateName, MultiValueMap<String, String> formData) {
     var template = findEmailTemplate(templateName);
-    LOGGER.info(WEBCLIENT_INFO, to, template, formData);
+    LOG.info(WEBCLIENT_INFO, to, template, formData);
 
     webClient.post().uri(uriBuilder -> messagesUri(uriBuilder, to, template))//
         .body(BodyInserters.fromFormData(formData)).retrieve()//
         .onStatus(HttpStatus::is4xxClientError, error -> {
-          LOGGER.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
+          LOG.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
           return Mono.empty();
         })//
         .onStatus(HttpStatus::is5xxServerError, error -> {
-          LOGGER.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
+          LOG.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
           return Mono.empty();
         })//
         .toBodilessEntity().subscribe();

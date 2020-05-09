@@ -18,7 +18,7 @@ import uk.thepragmaticdev.exception.ApiException;
 @ControllerAdvice
 public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RestResponseExceptionHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RestResponseExceptionHandler.class);
 
   /**
    * Handles any api error exceptions thrown thoughout application.
@@ -33,7 +33,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
         ex.getErrorCode().getStatus(), //
         ex.getErrorCode().getMessage() //
     );
-    LOGGER.warn("{}", responseBody);
+    LOG.warn("{}", responseBody);
     return handleExceptionInternal(ex, responseBody, headers(), ex.getErrorCode().getStatus(), request);
   }
 
@@ -48,7 +48,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
       WebRequest request) {
     var responseBody = new ApiError(HttpStatus.BAD_REQUEST, "Validation errors");
     responseBody.addValidationErrors(ex.getBindingResult().getFieldErrors());
-    LOGGER.warn("{}", responseBody);
+    LOG.warn("{}", responseBody);
     return handleExceptionInternal(ex, responseBody, headers(), HttpStatus.BAD_REQUEST, request);
   }
 
@@ -61,7 +61,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
    */
   @ExceptionHandler(Exception.class)
   protected ResponseEntity<Object> exception(Exception ex, WebRequest request) {
-    LOGGER.error("{}", new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex)));
+    LOG.error("{}", new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex)));
     return handleExceptionInternal(//
         ex, //
         new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, null), //

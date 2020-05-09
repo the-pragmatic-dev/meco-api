@@ -15,7 +15,7 @@ import uk.thepragmaticdev.security.request.RequestMetadataService;
 @EnableAspectJAutoProxy
 public class Application {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
   private final RequestMetadataService requestMetadataService;
 
@@ -40,7 +40,7 @@ public class Application {
   @PostConstruct
   public void init() {
     if (!requestMetadataService.loadDatabase()) {
-      LOGGER.error(CriticalCode.GEOLITE_DOWNLOAD_ERROR.getMessage());
+      LOG.error(CriticalCode.GEOLITE_DOWNLOAD_ERROR.getMessage());
       throw new ApiException(CriticalCode.GEOLITE_DOWNLOAD_ERROR);
     }
   }

@@ -20,7 +20,7 @@ import uk.thepragmaticdev.endpoint.Model;
 @Component
 public class MetricLoggerAspect {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MetricLoggerAspect.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MetricLoggerAspect.class);
 
   /**
    * Advice that surrounds the join point of a methods invocation. This performs
@@ -38,7 +38,7 @@ public class MetricLoggerAspect {
     var result = joinPoint.proceed();
     stopWatch.stop();
     var metric = createMetric(joinPoint, stopWatch);
-    LOGGER.info("{}", metric);
+    LOG.info("{}", metric);
     return result;
   }
 
@@ -70,7 +70,7 @@ public class MetricLoggerAspect {
     try {
       return new ObjectMapper().writeValueAsString(model);
     } catch (JsonProcessingException ex) {
-      LOGGER.info("Error serialising model");
+      LOG.info("Error serialising model");
       return "";
     }
   }
