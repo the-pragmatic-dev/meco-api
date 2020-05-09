@@ -15,11 +15,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
-import uk.thepragmaticdev.TestConfig;
 import uk.thepragmaticdev.exception.code.AccountCode;
 
-@Import(TestConfig.class)
+@Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 public class AccountEndpointIT extends IntegrationData {

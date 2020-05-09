@@ -31,7 +31,6 @@ import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.co.jemos.podam.api.PodamFactoryImpl;
-import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.dto.request.AccountResetRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;

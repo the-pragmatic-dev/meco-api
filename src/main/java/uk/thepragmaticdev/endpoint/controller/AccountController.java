@@ -83,7 +83,6 @@ public class AccountController {
   @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
   public AccountMeResponse findAuthenticatedAccount(Principal principal) {
     var account = accountService.findAuthenticatedAccount(principal.getName());
-    // TODO: unit test
     return modelMapper.map(account, AccountMeResponse.class);
   }
 
@@ -98,7 +97,6 @@ public class AccountController {
   public AccountUpdateResponse update(Principal principal, @Valid @RequestBody AccountUpdateRequest request) {
     var account = accountService.update(principal.getName(), request.getFullName(),
         request.getEmailSubscriptionEnabled(), request.getBillingAlertEnabled());
-    // TODO: unit test
     return modelMapper.map(account, AccountUpdateResponse.class);
   }
 
@@ -135,7 +133,6 @@ public class AccountController {
   @GetMapping(value = "/me/billing/logs", produces = MediaType.APPLICATION_JSON_VALUE)
   public Page<BillingLogResponse> billingLogs(Pageable pageable, Principal principal) {
     var billingLogs = accountService.billingLogs(pageable, principal.getName());
-    // TODO: unit test
     return billingLogs.map(log -> {
       return new BillingLogResponse(log.getAction(), log.getCreatedDate(), log.getAmount());
     });
@@ -165,7 +162,6 @@ public class AccountController {
   @GetMapping(value = "/me/security/logs", produces = MediaType.APPLICATION_JSON_VALUE)
   public Page<SecurityLogResponse> securityLogs(Pageable pageable, Principal principal) {
     var securityLogs = accountService.securityLogs(pageable, principal.getName());
-    // TODO: unit test
     return securityLogs.map(log -> {
       return new SecurityLogResponse(log.getAction(), log.getCreatedDate(), log.getRequestMetadata());
     });

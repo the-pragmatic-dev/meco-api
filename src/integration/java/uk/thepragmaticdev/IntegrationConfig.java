@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Primary;
 import uk.thepragmaticdev.email.EmailService;
 
 @TestConfiguration
-public class TestConfig {
+public class IntegrationConfig {
 
   @Bean
   @Primary
