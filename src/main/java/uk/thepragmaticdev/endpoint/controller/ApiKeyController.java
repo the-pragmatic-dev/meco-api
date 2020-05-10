@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.kms.ApiKeyService;
+import uk.thepragmaticdev.kms.dto.response.ApiKeyResponse;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 
 @RestController
@@ -37,9 +40,12 @@ public class ApiKeyController {
 
   private final ApiKeyService apiKeyService;
 
+  private final ModelMapper modelMapper;
+
   @Autowired
-  public ApiKeyController(ApiKeyService apiKeyService) {
+  public ApiKeyController(ApiKeyService apiKeyService, ModelMapper modelMapper) {
     this.apiKeyService = apiKeyService;
+    this.modelMapper = modelMapper;
   }
 
   /**
@@ -50,8 +56,9 @@ public class ApiKeyController {
    */
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.OK)
-  public List<ApiKey> findAll(Principal principal) {
-    return apiKeyService.findAll(principal.getName());
+  public List<ApiKeyResponse> findAll(Principal principal) {
+    var apiKeys = apiKeyService.findAll(principal.getName());
+    return apiKeys.stream().map(key -> modelMapper.map(key, ApiKeyResponse.class)).collect(Collectors.toList());
   }
 
   /**
