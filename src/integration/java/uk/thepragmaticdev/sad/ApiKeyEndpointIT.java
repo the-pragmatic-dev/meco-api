@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
@@ -57,7 +57,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotCreateKeyWhenNameIsTooShort() {
     var shortName = "ab";
-    var key = key();
+    var key = apiKeyCreateRequest();
     key.setName(shortName);
 
     given()
@@ -72,7 +72,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
         .body("message", is("Validation errors"))
         .body("subErrors", hasSize(1))
         .root("subErrors[0]")
-          .body("object", is("apiKey"))
+          .body("object", is("apiKeyCreateRequest"))
           .body("field", is("name"))
           .body("rejectedValue", is(shortName))
           .body("message", is("size must be between 3 and 20"))
@@ -82,7 +82,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotCreateKeyWhenNameIsTooLong() {
     var longName = "abcdefghijklmnopqrstu";
-    var key = key();
+    var key = apiKeyCreateRequest();
     key.setName(longName);
 
     given()
@@ -97,7 +97,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
         .body("message", is("Validation errors"))
         .body("subErrors", hasSize(1))
         .root("subErrors[0]")
-          .body("object", is("apiKey"))
+          .body("object", is("apiKeyCreateRequest"))
           .body("field", is("name"))
           .body("rejectedValue", is(longName))
           .body("message", is("size must be between 3 and 20"))
@@ -106,7 +106,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateKeyWithNoScope() {
-    var key = key();
+    var key = apiKeyCreateRequest();
     key.setScope(null);
 
     given()
@@ -121,7 +121,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
         .body("message", is("Validation errors"))
         .body("subErrors", hasSize(1))
         .root("subErrors[0]")
-          .body("object", is("apiKey"))
+          .body("object", is("apiKeyCreateRequest"))
           .body("field", is("scope"))
           .body("rejectedValue", is(nullValue()))
           .body("message", is("must not be null"))
@@ -130,10 +130,10 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldNotCreateKeyWithInvalidIpv4Cidr() {
-    var key = key();
-    var dirtyAccessPolicy = dirtyAccessPolicy();
-    dirtyAccessPolicy.setRange("invalidRange");
-    key.setAccessPolicies(Arrays.asList(dirtyAccessPolicy));
+    var key = apiKeyCreateRequest();
+    var accessPolicy = accessPolicyRequest();
+    accessPolicy.setRange("invalidRange");
+    key.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
@@ -147,11 +147,11 @@ public class ApiKeyEndpointIT extends IntegrationData {
         .body("message", is("Validation errors"))
         .body("subErrors", hasSize(1))
         .root("subErrors[0]")
-          .body("object", is("apiKey"))
+          .body("object", is("apiKeyCreateRequest"))
           .body("field", is("accessPolicies"))
           .body("rejectedValue", hasSize(1))
-          .body("rejectedValue[0].name", is(dirtyAccessPolicy.getName()))
-          .body("rejectedValue[0].range", is(dirtyAccessPolicy.getRange()))
+          .body("rejectedValue[0].name", is(accessPolicy.getName()))
+          .body("rejectedValue[0].range", is(accessPolicy.getRange()))
           .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
         .statusCode(400);
   } 
@@ -165,7 +165,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key())
+      .body(apiKeyCreateRequest())
     .when()
       .post(API_KEY_ENDPOINT)
     .then()

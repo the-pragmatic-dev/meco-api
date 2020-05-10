@@ -4,12 +4,12 @@ import java.util.Collection;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.net.util.SubnetUtils;
-import uk.thepragmaticdev.kms.AccessPolicy;
+import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 
-public class Ipv4CidrValidator implements ConstraintValidator<Ipv4Cidr, Collection<AccessPolicy>> {
+public class Ipv4CidrValidator implements ConstraintValidator<Ipv4Cidr, Collection<AccessPolicyRequest>> {
 
   @Override
-  public boolean isValid(Collection<AccessPolicy> values, ConstraintValidatorContext context) {
+  public boolean isValid(Collection<AccessPolicyRequest> values, ConstraintValidatorContext context) {
     // Return valid if no access policies exist
     if (values == null) {
       return true;

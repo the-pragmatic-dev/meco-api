@@ -98,14 +98,14 @@ public class ApiKeyService {
   public ApiKey create(String username, ApiKey apiKey) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     if (apiKeyRepository.countByAccountId(authenticatedAccount.getId()) < apiKeyLimit) {
-      apiKey.setId(null);
       apiKey.setAccount(authenticatedAccount);
       apiKey.setName(apiKey.getName());
       apiKey.setPrefix(generatePrefix());
       apiKey.setKey(apiKey.getPrefix().concat(".").concat(generateApiKey()));
       apiKey.setHash(encodeApiKey(apiKey.getKey()));
       apiKey.setCreatedDate(OffsetDateTime.now());
-      apiKey.setEnabled(true);
+      apiKey.setEnabled(apiKey.getEnabled());
+      apiKey.getScope().setApiKey(apiKey);
       setAccessPolicies(apiKey);
       var persistedApiKey = apiKeyRepository.save(apiKey);
       apiKeyLogService.created(persistedApiKey);

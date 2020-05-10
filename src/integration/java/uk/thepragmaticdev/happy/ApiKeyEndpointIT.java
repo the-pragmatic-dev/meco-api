@@ -24,7 +24,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
-import uk.thepragmaticdev.kms.ApiKey;
+import uk.thepragmaticdev.kms.dto.response.ApiKeyCreateResponse;
 
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
@@ -96,13 +96,12 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldCreateKey() {
-    var key = key();
-
+    var request = apiKeyCreateRequest();
     var response = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin())
           .contentType(JSON)
-          .body(key)
+          .body(request)
         .when()
           .post(API_KEY_ENDPOINT)
         .then()
@@ -123,8 +122,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
             .body("name", is("name"))
             .body("range", is("127.0.0.1/32"))
           .statusCode(201)
-        .extract().as(ApiKey.class);
-
+        .extract().as(ApiKeyCreateResponse.class);
     assertValidKey(response);
   }
 
@@ -240,7 +238,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
         .statusCode(200);
   }
   
-  private void assertValidKey(ApiKey response) {
+  private void assertValidKey(ApiKeyCreateResponse response) {
     var key = response.getKey();
     assertThat(key, startsWith(String.format("%s.", response.getPrefix())));
     assertThat(key.substring(key.lastIndexOf(".") + 1).length(), is(48));

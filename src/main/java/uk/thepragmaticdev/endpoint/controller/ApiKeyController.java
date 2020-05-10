@@ -1,8 +1,5 @@
 package uk.thepragmaticdev.endpoint.controller;
 
-import com.monitorjbl.json.JsonResult;
-import com.monitorjbl.json.JsonView;
-import com.monitorjbl.json.Match;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
@@ -29,6 +26,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.kms.ApiKeyService;
+import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
+import uk.thepragmaticdev.kms.dto.response.ApiKeyCreateResponse;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyResponse;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 
@@ -57,8 +56,8 @@ public class ApiKeyController {
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.OK)
   public List<ApiKeyResponse> findAll(Principal principal) {
-    var apiKeys = apiKeyService.findAll(principal.getName());
-    return apiKeys.stream().map(key -> modelMapper.map(key, ApiKeyResponse.class)).collect(Collectors.toList());
+    var keys = apiKeyService.findAll(principal.getName());
+    return keys.stream().map(key -> modelMapper.map(key, ApiKeyResponse.class)).collect(Collectors.toList());
   }
 
   /**
@@ -66,15 +65,14 @@ public class ApiKeyController {
    * response for security purposes.
    * 
    * @param principal The currently authenticated principal user
-   * @param apiKey    The new key to be created
+   * @param request   The new key request to be created
    * @return A newly created key
    */
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.CREATED)
-  public ApiKey create(Principal principal, @Valid @RequestBody ApiKey apiKey) {
-    var key = apiKeyService.create(principal.getName(), apiKey);
-    return JsonResult.instance().use(JsonView.with(key).onClass(ApiKey.class, Match.match().include("key")))
-        .returnValue();
+  public ApiKeyCreateResponse create(Principal principal, @Valid @RequestBody ApiKeyCreateRequest request) {
+    var key = apiKeyService.create(principal.getName(), modelMapper.map(request, ApiKey.class));
+    return modelMapper.map(key, ApiKeyCreateResponse.class);
   }
 
   /**

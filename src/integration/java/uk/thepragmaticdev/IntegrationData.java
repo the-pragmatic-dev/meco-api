@@ -21,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.cactoos.io.ResourceOf;
 import org.cactoos.text.FormattedText;
@@ -39,6 +40,9 @@ import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.kms.AccessPolicy;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.kms.Scope;
+import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
+import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
+import uk.thepragmaticdev.kms.dto.request.ScopeRequest;
 import uk.thepragmaticdev.security.request.DeviceMetadata;
 import uk.thepragmaticdev.security.request.GeoMetadata;
 import uk.thepragmaticdev.security.request.RequestMetadata;
@@ -138,6 +142,18 @@ public abstract class IntegrationData {
 
   protected final AccountResetRequest accountResetRequest() {
     return new AccountResetRequest("newpassword");
+  }
+
+  protected final ApiKeyCreateRequest apiKeyCreateRequest() {
+    return new ApiKeyCreateRequest("name", true, scopeRequest(), List.of(accessPolicyRequest()));
+  }
+
+  protected final ScopeRequest scopeRequest() {
+    return new ScopeRequest(true, true, false, false);
+  }
+
+  protected final AccessPolicyRequest accessPolicyRequest() {
+    return new AccessPolicyRequest("name", "127.0.0.1/32");
   }
 
   protected final ApiKey key() {

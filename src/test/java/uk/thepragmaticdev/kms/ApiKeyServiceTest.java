@@ -60,6 +60,7 @@ public class ApiKeyServiceTest {
     var encodedString = "anEncodedString";
     var apiKey = new ApiKey();
     apiKey.setName(keyName);
+    apiKey.setScope(new Scope());
 
     when(passwordEncoder.encode(anyString())).thenReturn(encodedString);
     when(apiKeyRepository.countByAccountId(anyLong())).thenReturn(0L);
