@@ -54,6 +54,10 @@ public class EmailServiceTest {
     mockBackEnd.shutdown();
   }
 
+  /**
+   * Called before each test. Builds the system under test and stubs email
+   * property endpoints.
+   */
   @BeforeEach
   public void initEach() {
     var mockFrom = mock(From.class);

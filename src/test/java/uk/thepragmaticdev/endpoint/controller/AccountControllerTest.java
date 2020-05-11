@@ -10,12 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import uk.thepragmaticdev.UnitData;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
@@ -50,7 +48,7 @@ import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class AccountControllerTest {
+public class AccountControllerTest extends UnitData {
 
   @Autowired
   private ObjectMapper mapper;
@@ -65,6 +63,10 @@ public class AccountControllerTest {
 
   private AccountController sut;
 
+  /**
+   * Called before each test. Builds the system under test, mocks and mvc endpoint
+   * and creates a test principal for authentication.
+   */
   @BeforeEach
   public void initEach() {
     sut = new AccountController(accountService, new ModelMapper());
@@ -197,17 +199,6 @@ public class AccountControllerTest {
       assertThat(actual.get(i).getRequestMetadata(), is(expected.get(i).getRequestMetadata()));
       assertThat(actual.get(i).getCreatedDate(), is(expected.get(i).getCreatedDate()));
     }
-  }
-
-  private <T> List<T> pageToList(String body, Class<T> type) throws Exception {
-    var object = new JsonParser().parse(body).getAsJsonObject();
-    var elements = object.getAsJsonArray("content");
-    var logs = new ArrayList<T>();
-    for (JsonElement element : elements) {
-      T log = mapper.readValue(element.toString(), type);
-      logs.add(log);
-    }
-    return logs;
   }
 
   private Account account() {
