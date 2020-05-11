@@ -30,7 +30,7 @@ import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyUpdateRequest;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyCreateResponse;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyResponse;
-import uk.thepragmaticdev.log.key.ApiKeyLog;
+import uk.thepragmaticdev.log.dto.ApiKeyLogResponse;
 
 @RestController
 @RequestMapping("/api-keys")
@@ -114,8 +114,9 @@ public class ApiKeyController {
    */
   @GetMapping(value = "/{id}/logs", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.OK)
-  public Page<ApiKeyLog> log(Pageable pageable, Principal principal, @PathVariable long id) {
-    return apiKeyService.log(pageable, principal.getName(), id);
+  public Page<ApiKeyLogResponse> log(Pageable pageable, Principal principal, @PathVariable long id) {
+    var keyLogs = apiKeyService.log(pageable, principal.getName(), id);
+    return keyLogs.map(log -> new ApiKeyLogResponse(log.getAction(), log.getCreatedDate(), log.getRequestMetadata()));
   }
 
   /**

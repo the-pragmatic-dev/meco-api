@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,15 +29,11 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.co.jemos.podam.api.PodamFactoryImpl;
 import uk.thepragmaticdev.account.dto.request.AccountResetRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
-import uk.thepragmaticdev.kms.AccessPolicy;
-import uk.thepragmaticdev.kms.ApiKey;
-import uk.thepragmaticdev.kms.Scope;
 import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyUpdateRequest;
@@ -163,19 +157,6 @@ public abstract class IntegrationData {
     return new AccessPolicyRequest(name, range);
   }
 
-  protected final ApiKey key() {
-    return new ApiKey(null, "name", null, null, null, null, null, null, true, scope(), Arrays.asList(accessPolicy()),
-        null, null);
-  }
-
-  protected final AccessPolicy accessPolicy() {
-    return new AccessPolicy(null, "name", "127.0.0.1/32", null);
-  }
-
-  protected final Scope scope() {
-    return new Scope(null, true, true, false, false, null);
-  }
-
   protected final RequestMetadata requestMetadata() {
     return new RequestMetadata("196.245.163.202", geoMetadata(), deviceMetadata());
   }
@@ -186,27 +167,6 @@ public abstract class IntegrationData {
 
   protected final DeviceMetadata deviceMetadata() {
     return new DeviceMetadata("Mac OS X", "10", "14", "Chrome", "71", "0");
-  }
-
-  // @models:dirty
-
-  protected final ApiKey dirtyKey() {
-    var dirtyKey = podam(ApiKey.class);
-    dirtyKey.setAccessPolicies(Arrays.asList(dirtyAccessPolicy()));
-    return dirtyKey;
-  }
-
-  protected final AccessPolicy dirtyAccessPolicy() {
-    var dirtyAccessPolicy = podam(AccessPolicy.class);
-    dirtyAccessPolicy.setRange("89.1.2.3/32");
-    return dirtyAccessPolicy;
-  }
-
-  private <T> T podam(Class<T> pojoClass) {
-    var factory = new PodamFactoryImpl();
-    factory.getStrategy().setDefaultNumberOfCollectionElements(0);
-    factory.getStrategy().addOrReplaceTypeManufacturer(Date.class, new DateManufacturer());
-    return factory.manufacturePojo(pojoClass);
   }
 
   // @helpers:formatting
