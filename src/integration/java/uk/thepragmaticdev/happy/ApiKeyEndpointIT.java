@@ -130,32 +130,31 @@ public class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   public void shouldUpdateOnlyMutableKeyFields() {
-    var key = dirtyKey();
-
+    var request = apiKeyUpdateRequest();
     given()
       .contentType(JSON)
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
-      .body(key)
+      .body(request)
     .when()
       .put(API_KEY_ENDPOINT + "1")
       .then()
         .body("id", is(1))
-        .body("name", is(key.getName()))
+        .body("name", is(request.getName()))
         .body("prefix", is("zaCELgL"))
         .body("key", is(nullValue()))
         .body("createdDate", is("2020-02-25T13:38:58.232Z"))
         .body("lastUsedDate", is(nullValue()))
         .body("modifiedDate", is(withinLast(5, ChronoUnit.SECONDS)))
-        .body("enabled", is(key.getEnabled()))
-        .body("scope.image", is(key.getScope().getImage()))
-        .body("scope.gif", is(key.getScope().getGif()))
-        .body("scope.text", is(key.getScope().getText()))
-        .body("scope.video", is(key.getScope().getVideo()))
-        .body("accessPolicies.size()", is(key.getAccessPolicies().size()))
+        .body("enabled", is(request.getEnabled()))
+        .body("scope.image", is(request.getScope().getImage()))
+        .body("scope.gif", is(request.getScope().getGif()))
+        .body("scope.text", is(request.getScope().getText()))
+        .body("scope.video", is(request.getScope().getVideo()))
+        .body("accessPolicies.size()", is(request.getAccessPolicies().size()))
         .root("accessPolicies[0]")
-          .body("name", is(key.getAccessPolicies().get(0).getName()))
-          .body("range", is(key.getAccessPolicies().get(0).getRange()))
+          .body("name", is(request.getAccessPolicies().get(0).getName()))
+          .body("range", is(request.getAccessPolicies().get(0).getRange()))
         .statusCode(200);
   }
 

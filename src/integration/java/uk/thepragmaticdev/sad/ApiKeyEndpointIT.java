@@ -131,8 +131,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   @Test
   public void shouldNotCreateKeyWithInvalidIpv4Cidr() {
     var key = apiKeyCreateRequest();
-    var accessPolicy = accessPolicyRequest();
-    accessPolicy.setRange("invalidRange");
+    var accessPolicy = accessPolicyRequest("name", "invalidRange");
     key.setAccessPolicies(List.of(accessPolicy));
 
     given()

@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.kms.ApiKeyService;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
+import uk.thepragmaticdev.kms.dto.request.ApiKeyUpdateRequest;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyCreateResponse;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyResponse;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
@@ -80,13 +81,15 @@ public class ApiKeyController {
    * 
    * @param principal The currently authenticated principal user
    * @param id        The id of the key to be updated
-   * @param apiKey    A key with the desired values
+   * @param request   A key request with the desired values
    * @return The updated key
    */
   @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.OK)
-  public ApiKey update(Principal principal, @PathVariable long id, @Valid @RequestBody ApiKey apiKey) {
-    return apiKeyService.update(principal.getName(), id, apiKey);
+  public ApiKeyResponse update(Principal principal, @PathVariable long id,
+      @Valid @RequestBody ApiKeyUpdateRequest request) {
+    var key = apiKeyService.update(principal.getName(), id, modelMapper.map(request, ApiKey.class));
+    return modelMapper.map(key, ApiKeyResponse.class);
   }
 
   /**

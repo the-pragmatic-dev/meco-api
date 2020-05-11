@@ -42,6 +42,7 @@ import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.kms.Scope;
 import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
+import uk.thepragmaticdev.kms.dto.request.ApiKeyUpdateRequest;
 import uk.thepragmaticdev.kms.dto.request.ScopeRequest;
 import uk.thepragmaticdev.security.request.DeviceMetadata;
 import uk.thepragmaticdev.security.request.GeoMetadata;
@@ -145,15 +146,21 @@ public abstract class IntegrationData {
   }
 
   protected final ApiKeyCreateRequest apiKeyCreateRequest() {
-    return new ApiKeyCreateRequest("name", true, scopeRequest(), List.of(accessPolicyRequest()));
+    return new ApiKeyCreateRequest("name", true, scopeRequest(true, true, false, false),
+        List.of(accessPolicyRequest("name", "127.0.0.1/32")));
   }
 
-  protected final ScopeRequest scopeRequest() {
-    return new ScopeRequest(true, true, false, false);
+  protected final ApiKeyUpdateRequest apiKeyUpdateRequest() {
+    return new ApiKeyUpdateRequest("newname", false, scopeRequest(false, false, true, true),
+        List.of(accessPolicyRequest("newname", "66.0.0.1/16")));
   }
 
-  protected final AccessPolicyRequest accessPolicyRequest() {
-    return new AccessPolicyRequest("name", "127.0.0.1/32");
+  protected final ScopeRequest scopeRequest(boolean image, boolean gif, boolean text, boolean video) {
+    return new ScopeRequest(image, gif, text, video);
+  }
+
+  protected final AccessPolicyRequest accessPolicyRequest(String name, String range) {
+    return new AccessPolicyRequest(name, range);
   }
 
   protected final ApiKey key() {
