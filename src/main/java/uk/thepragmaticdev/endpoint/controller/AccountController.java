@@ -1,15 +1,14 @@
 package uk.thepragmaticdev.endpoint.controller;
 
+import com.opencsv.bean.StatefulBeanToCsv;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,8 +29,10 @@ import uk.thepragmaticdev.account.dto.response.AccountMeResponse;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
 import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
 import uk.thepragmaticdev.account.dto.response.AccountUpdateResponse;
+import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.dto.BillingLogResponse;
 import uk.thepragmaticdev.log.dto.SecurityLogResponse;
+import uk.thepragmaticdev.log.security.SecurityLog;
 
 @RestController
 @RequestMapping("/accounts")
@@ -43,21 +44,37 @@ public class AccountController {
 
   private final ModelMapper modelMapper;
 
+  private final StatefulBeanToCsv<BillingLog> billingLogWriter;
+
+  private final StatefulBeanToCsv<SecurityLog> securityLogWriter;
+
+  /**
+   * Endpoint for accounts.
+   * 
+   * @param accountService    The service for retrieving account information
+   * @param modelMapper       An entity to domain mapper
+   * @param billingLogWriter  A csv writer for billing logs
+   * @param securityLogWriter A csv writer for billing logs
+   */
   @Autowired
-  public AccountController(AccountService accountService, ModelMapper modelMapper) {
+  public AccountController(AccountService accountService, ModelMapper modelMapper,
+      StatefulBeanToCsv<BillingLog> billingLogWriter, StatefulBeanToCsv<SecurityLog> securityLogWriter) {
     this.accountService = accountService;
     this.modelMapper = modelMapper;
+    this.billingLogWriter = billingLogWriter;
+    this.securityLogWriter = securityLogWriter;
   }
 
   /**
    * Authorize an account.
    * 
-   * @param request The account details for signing in
+   * @param request The request information for HTTP servlets
+   * @param signin  The account details for signing in
    * @return An authentication token
    */
   @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public AccountSigninResponse signin(@Valid @RequestBody AccountSigninRequest request) {
-    var token = accountService.signin(request.getUsername(), request.getPassword());
+  public AccountSigninResponse signin(HttpServletRequest request, @Valid @RequestBody AccountSigninRequest signin) {
+    var token = accountService.signin(signin.getUsername(), signin.getPassword(), request);
     return new AccountSigninResponse(token);
   }
 
@@ -139,15 +156,11 @@ public class AccountController {
   /**
    * Download all billing logs for the account as a CSV file.
    * 
-   * @param response  The servlet response
    * @param principal The currently authenticated principal user
    */
   @GetMapping(value = "/me/billing/logs/download")
-  public void downloadBillingLogs(HttpServletResponse response, Principal principal) {
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
-    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "billing.csv" + "\"");
-    accountService.downloadBillingLogs(response, principal.getName());
+  public void downloadBillingLogs(Principal principal) {
+    accountService.downloadBillingLogs(billingLogWriter, principal.getName());
   }
 
   /**
@@ -167,14 +180,10 @@ public class AccountController {
   /**
    * Download all security logs for the account as a CSV file.
    * 
-   * @param response  The servlet response
    * @param principal The currently authenticated principal user
    */
   @GetMapping(value = "/me/security/logs/download")
-  public void downloadSecurityLogs(HttpServletResponse response, Principal principal) {
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
-    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "security.csv" + "\"");
-    accountService.downloadSecurityLogs(response, principal.getName());
+  public void downloadSecurityLogs(Principal principal) {
+    accountService.downloadSecurityLogs(securityLogWriter, principal.getName());
   }
 }

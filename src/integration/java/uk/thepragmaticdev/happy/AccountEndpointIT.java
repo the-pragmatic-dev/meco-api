@@ -57,16 +57,6 @@ public class AccountEndpointIT extends IntegrationData {
   public void initEach() {
   }
 
-  // @endpoint:signin
-
-  @Test
-  public String shouldSignin() {
-    var token = signin();
-    assertThat(token, is(not(emptyString())));
-    return token;
-
-  }
-
   // @endpoint:signup
 
   @Test

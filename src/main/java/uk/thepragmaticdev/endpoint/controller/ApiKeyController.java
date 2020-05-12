@@ -1,17 +1,15 @@
 package uk.thepragmaticdev.endpoint.controller;
 
+import com.opencsv.bean.StatefulBeanToCsv;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,6 +29,7 @@ import uk.thepragmaticdev.kms.dto.request.ApiKeyUpdateRequest;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyCreateResponse;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyResponse;
 import uk.thepragmaticdev.log.dto.ApiKeyLogResponse;
+import uk.thepragmaticdev.log.key.ApiKeyLog;
 
 @RestController
 @RequestMapping("/api-keys")
@@ -42,10 +41,21 @@ public class ApiKeyController {
 
   private final ModelMapper modelMapper;
 
+  private final StatefulBeanToCsv<ApiKeyLog> apiKeyLogCsvWriter;
+
+  /**
+   * Endpoint for api keys.
+   * 
+   * @param apiKeyService      Service for creating, updating and deleting keys
+   * @param modelMapper        An entity to domain mapper
+   * @param apiKeyLogCsvWriter A csv writer for api key logs
+   */
   @Autowired
-  public ApiKeyController(ApiKeyService apiKeyService, ModelMapper modelMapper) {
+  public ApiKeyController(ApiKeyService apiKeyService, ModelMapper modelMapper,
+      StatefulBeanToCsv<ApiKeyLog> apiKeyLogCsvWriter) {
     this.apiKeyService = apiKeyService;
     this.modelMapper = modelMapper;
+    this.apiKeyLogCsvWriter = apiKeyLogCsvWriter;
   }
 
   /**
@@ -122,17 +132,13 @@ public class ApiKeyController {
   /**
    * Download all logs for the requested key id as a CSV file.
    * 
-   * @param response  The servlet response
    * @param principal The currently authenticated principal user
    * @param id        The id of the key requesting logs
    */
   @GetMapping(value = "/{id}/logs/download", produces = "text/csv")
   @ResponseStatus(value = HttpStatus.OK)
-  public void downloadLog(HttpServletResponse response, Principal principal, @PathVariable long id) {
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION);
-    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "api-key.csv" + "\"");
-    apiKeyService.downloadLog(response, principal.getName(), id);
+  public void downloadLog(Principal principal, @PathVariable long id) {
+    apiKeyService.downloadLog(apiKeyLogCsvWriter, principal.getName(), id);
   }
 
   /**

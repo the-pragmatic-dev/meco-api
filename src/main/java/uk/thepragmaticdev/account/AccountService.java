@@ -1,15 +1,12 @@
 package uk.thepragmaticdev.account;
 
-import com.opencsv.ICSVWriter;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,8 +29,6 @@ import uk.thepragmaticdev.security.request.RequestMetadataService;
 @Service
 public class AccountService {
 
-  private final HttpServletRequest request;
-
   private final AccountRepository accountRepository;
 
   private final BillingLogService billingLogService;
@@ -54,7 +49,6 @@ public class AccountService {
    * Service for creating, authorizing and updating accounts. Billing and security
    * logs related to an authorised account may also be downloaded.
    * 
-   * @param request                The request information for HTTP servlets
    * @param accountRepository      The data access repository for accounts
    * @param billingLogService      The service for accessing billing logs
    * @param securityLogService     The service for accessing security logs
@@ -67,7 +61,6 @@ public class AccountService {
    */
   @Autowired
   public AccountService(//
-      HttpServletRequest request, //
       AccountRepository accountRepository, //
       BillingLogService billingLogService, //
       SecurityLogService securityLogService, //
@@ -76,7 +69,6 @@ public class AccountService {
       PasswordEncoder passwordEncoder, //
       JwtTokenProvider jwtTokenProvider, //
       AuthenticationManager authenticationManager) {
-    this.request = request;
     this.accountRepository = accountRepository;
     this.billingLogService = billingLogService;
     this.securityLogService = securityLogService;
@@ -95,7 +87,7 @@ public class AccountService {
    * @param password The password of an account attemping to signin
    * @return An authentication token
    */
-  public String signin(String username, String password) {
+  public String signin(String username, String password, HttpServletRequest request) {
     String token;
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -232,21 +224,16 @@ public class AccountService {
   /**
    * Download the latest billing logs for the account as a CSV file.
    * 
-   * @param response The servlet response
+   * @param writer   The csv writer
    * @param username The authenticated account username
    */
-  public void downloadBillingLogs(HttpServletResponse response, String username) {
+  public void downloadBillingLogs(StatefulBeanToCsv<BillingLog> writer, String username) {
     var authenticatedAccount = findAuthenticatedAccount(username);
     try {
-      var writer = new StatefulBeanToCsvBuilder<BillingLog>(response.getWriter())
-          .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
-          .withOrderedResults(true).build();
       writer.write(billingLogService.findAllByAccountId(authenticatedAccount));
       securityLogService.downloadBillingLogs(authenticatedAccount);
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
-    } catch (IOException ex) {
-      throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
 
@@ -265,21 +252,16 @@ public class AccountService {
   /**
    * Download the latest security logs for the account as a CSV file.
    * 
-   * @param response The servlet response
+   * @param writer   The csv writer
    * @param username The authenticated account username
    */
-  public void downloadSecurityLogs(HttpServletResponse response, String username) {
+  public void downloadSecurityLogs(StatefulBeanToCsv<SecurityLog> writer, String username) {
     var authenticatedAccount = findAuthenticatedAccount(username);
     try {
-      var writer = new StatefulBeanToCsvBuilder<SecurityLog>(response.getWriter())
-          .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
-          .withOrderedResults(true).build();
       writer.write(securityLogService.findAllByAccountId(authenticatedAccount));
       securityLogService.downloadSecurityLogs(authenticatedAccount);
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
-    } catch (IOException ex) {
-      throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
 

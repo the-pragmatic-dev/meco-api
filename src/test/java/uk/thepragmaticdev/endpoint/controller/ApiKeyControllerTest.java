@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.opencsv.bean.StatefulBeanToCsv;
 import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -61,6 +62,9 @@ public class ApiKeyControllerTest extends UnitData {
   @Mock
   private ApiKeyService apiKeyService;
 
+  @Mock
+  private StatefulBeanToCsv<ApiKeyLog> apiKeyLogWriter;
+
   private Principal principal;
 
   private ApiKeyController sut;
@@ -71,7 +75,7 @@ public class ApiKeyControllerTest extends UnitData {
    */
   @BeforeEach
   public void initEach() {
-    sut = new ApiKeyController(apiKeyService, new ModelMapper());
+    sut = new ApiKeyController(apiKeyService, new ModelMapper(), apiKeyLogWriter);
     mvc = MockMvcBuilders.standaloneSetup(sut)//
         .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())//
         .build();

@@ -4,11 +4,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +27,8 @@ import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
+import uk.thepragmaticdev.exception.code.CriticalCode;
+import uk.thepragmaticdev.log.key.ApiKeyLog;
 import uk.thepragmaticdev.log.key.ApiKeyLogService;
 import uk.thepragmaticdev.log.security.SecurityLogService;
 
@@ -45,8 +53,14 @@ public class ApiKeyServiceTest {
   @Mock
   private PasswordEncoder passwordEncoder;
 
+  @Mock
+  private StatefulBeanToCsv<ApiKeyLog> apiKeyLogWriter;
+
   private ApiKeyService sut;
 
+  /**
+   * Called before each test, builds the system under test.
+   */
   @BeforeEach
   public void initEach() {
     // defaulting key allowance to 10
@@ -86,5 +100,29 @@ public class ApiKeyServiceTest {
       sut.create("username", apiKey);
     });
     assertThat(ex.getErrorCode(), is(ApiKeyCode.API_KEY_LIMIT));
+  }
+
+  @Test
+  public void shouldThrowExceptionDownloadingApiKeyLogsIfInvalidCsvDataType() throws Exception {
+    when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
+    when(apiKeyRepository.findOneByIdAndAccountId(anyLong(), anyLong())).thenReturn(Optional.of(mock(ApiKey.class)));
+    doThrow(CsvDataTypeMismatchException.class).when(apiKeyLogWriter).write(anyList());
+
+    var ex = Assertions.assertThrows(ApiException.class, () -> {
+      sut.downloadLog(apiKeyLogWriter, "username", 1);
+    });
+    assertThat(ex.getErrorCode(), is(CriticalCode.CSV_WRITING_ERROR));
+  }
+
+  @Test
+  public void shouldThrowExceptionDownloadingApiKeyLogsIfRequiredFieldIsEmpty() throws Exception {
+    when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
+    when(apiKeyRepository.findOneByIdAndAccountId(anyLong(), anyLong())).thenReturn(Optional.of(mock(ApiKey.class)));
+    doThrow(CsvRequiredFieldEmptyException.class).when(apiKeyLogWriter).write(anyList());
+
+    var ex = Assertions.assertThrows(ApiException.class, () -> {
+      sut.downloadLog(apiKeyLogWriter, "username", 1);
+    });
+    assertThat(ex.getErrorCode(), is(CriticalCode.CSV_WRITING_ERROR));
   }
 }

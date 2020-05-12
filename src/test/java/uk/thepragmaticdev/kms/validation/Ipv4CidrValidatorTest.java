@@ -18,6 +18,9 @@ public class Ipv4CidrValidatorTest {
 
   private Ipv4CidrValidator sut;
 
+  /**
+   * Called before each test, builds the system under test.
+   */
   @BeforeEach
   public void initEach() {
     sut = new Ipv4CidrValidator();

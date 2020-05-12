@@ -1,16 +1,13 @@
 package uk.thepragmaticdev.kms;
 
-import com.opencsv.ICSVWriter;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +44,7 @@ public class ApiKeyService {
   private final int apiKeyLimit;
 
   /**
-   * Service for creating, updating and deleting accounts. Activity logs related
+   * Service for creating, updating and deleting api keys. Activity logs related
    * to an authorised key may also be downloaded.
    * 
    * @param accountService     The service for retrieving account information
@@ -237,24 +234,19 @@ public class ApiKeyService {
   /**
    * Download all logs for the requested key id as a CSV file.
    * 
-   * @param response The servlet response
+   * @param writer   The csv writer
    * @param username The authenticated account username
    * @param id       The id of the key requesting logs
    */
-  public void downloadLog(HttpServletResponse response, String username, long id) {
+  public void downloadLog(StatefulBeanToCsv<ApiKeyLog> writer, String username, long id) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
     try {
-      var writer = new StatefulBeanToCsvBuilder<ApiKeyLog>(response.getWriter())
-          .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER).withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
-          .withOrderedResults(true).build();
       writer.write(apiKeyLogService.findAllByApiKeyId(persistedApiKey));
       apiKeyLogService.downloadLogs(persistedApiKey);
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
-    } catch (IOException ex) {
-      throw new ApiException(CriticalCode.PRINT_WRITER_IO_ERROR);
     }
   }
 

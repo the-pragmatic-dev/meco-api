@@ -3,9 +3,12 @@ package uk.thepragmaticdev;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.thepragmaticdev.account.Account;
 
 public abstract class UnitData {
 
@@ -21,7 +24,7 @@ public abstract class UnitData {
    * @return A list of objects of type T
    * @throws Exception If invalid json string
    */
-  public <T> List<T> pageToList(String body, Class<T> type) throws Exception {
+  protected <T> List<T> pageToList(String body, Class<T> type) throws Exception {
     var object = new JsonParser().parse(body).getAsJsonObject();
     var elements = object.getAsJsonArray("content");
     var logs = new ArrayList<T>();
@@ -31,4 +34,15 @@ public abstract class UnitData {
     }
     return logs;
   }
+
+  protected Account account() {
+    var account = new Account();
+    account.setUsername("username");
+    account.setFullName("fullName");
+    account.setEmailSubscriptionEnabled(true);
+    account.setBillingAlertEnabled(false);
+    account.setCreatedDate(OffsetDateTime.now(ZoneOffset.UTC));
+    return account;
+  }
+
 }

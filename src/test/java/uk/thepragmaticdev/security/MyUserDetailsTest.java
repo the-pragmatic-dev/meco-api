@@ -27,6 +27,9 @@ public class MyUserDetailsTest {
 
   private MyUserDetails sut;
 
+  /**
+   * Called before each test, builds the system under test.
+   */
   @BeforeEach
   public void initEach() {
     sut = new MyUserDetails(accountRepository);

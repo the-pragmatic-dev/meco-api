@@ -10,10 +10,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.opencsv.bean.StatefulBeanToCsv;
 import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -31,7 +33,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.thepragmaticdev.UnitData;
-import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
@@ -59,6 +60,12 @@ public class AccountControllerTest extends UnitData {
   @Mock
   private AccountService accountService;
 
+  @Mock
+  private StatefulBeanToCsv<BillingLog> billingLogWriter;
+
+  @Mock
+  private StatefulBeanToCsv<SecurityLog> securityLogWriter;
+
   private Principal principal;
 
   private AccountController sut;
@@ -69,7 +76,7 @@ public class AccountControllerTest extends UnitData {
    */
   @BeforeEach
   public void initEach() {
-    sut = new AccountController(accountService, new ModelMapper());
+    sut = new AccountController(accountService, new ModelMapper(), billingLogWriter, securityLogWriter);
     mvc = MockMvcBuilders.standaloneSetup(sut)//
         .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())//
         .build();
@@ -86,7 +93,7 @@ public class AccountControllerTest extends UnitData {
     var token = "token";
     var accountSigninRequest = new AccountSigninRequest("username@email.com", "password");
 
-    when(accountService.signin(anyString(), anyString())).thenReturn(token);
+    when(accountService.signin(anyString(), anyString(), any(HttpServletRequest.class))).thenReturn(token);
 
     var body = mvc.perform(//
         MockMvcRequestBuilders.post("/accounts/signin")//
@@ -199,16 +206,6 @@ public class AccountControllerTest extends UnitData {
       assertThat(actual.get(i).getRequestMetadata(), is(expected.get(i).getRequestMetadata()));
       assertThat(actual.get(i).getCreatedDate(), is(expected.get(i).getCreatedDate()));
     }
-  }
-
-  private Account account() {
-    var account = new Account();
-    account.setUsername("username");
-    account.setFullName("fullName");
-    account.setEmailSubscriptionEnabled(true);
-    account.setBillingAlertEnabled(false);
-    account.setCreatedDate(OffsetDateTime.now(ZoneOffset.UTC));
-    return account;
   }
 
   private Page<BillingLog> billingLogs() {
