@@ -195,7 +195,6 @@ public class RequestMetadataService {
    * @return The geolocation and device metadata
    */
   public Optional<RequestMetadata> extractRequestMetadata(HttpServletRequest request) {
-    // TODO: Unit test
     try {
       var geoMetadata = extractGeoMetadata(request);
       var deviceMetadata = extractDeviceMetadata(request);
@@ -222,7 +221,6 @@ public class RequestMetadataService {
 
   private DeviceMetadata extractDeviceMetadata(HttpServletRequest request) throws IOException {
     var client = new Parser().parse(request.getHeader("user-agent"));
-    // a clients os and userAgent will never be null
     return new DeviceMetadata(//
         client.os.family, //
         client.os.major, //
