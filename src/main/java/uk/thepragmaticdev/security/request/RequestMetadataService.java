@@ -1,12 +1,10 @@
 package uk.thepragmaticdev.security.request;
 
 import com.maxmind.geoip2.DatabaseReader;
-import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,6 +17,7 @@ import org.rauschig.jarchivelib.ArchiveEntry;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -34,17 +33,19 @@ public class RequestMetadataService {
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestMetadataService.class);
 
-  private final EmailService emailService;
-
-  private final SecurityLogService securityLogService;
-
   private final String databaseName;
 
   private final String databaseUrl;
 
   private final String databaseDirectory;
 
+  private final EmailService emailService;
+
+  private final SecurityLogService securityLogService;
+
   private DatabaseReader databaseReader;
+
+  private DatabaseReaderFactory databaseReaderFactory;
 
   /**
    * Service for extracting and verifying client geolocation and device metadata
@@ -56,17 +57,42 @@ public class RequestMetadataService {
    * @param emailService       The service for sending emails
    * @param securityLogService The service for finding security logs
    */
+  @Autowired(required = false)
   public RequestMetadataService(//
       @Value("${geolite2.name}") String databaseName, //
       @Value("${geolite2.permalink}") String databaseUrl, //
       @Value("${geolite2.directory}") String databaseDirectory, //
       EmailService emailService, //
       @Lazy SecurityLogService securityLogService) {
+    this(databaseName, databaseUrl, databaseDirectory, emailService, securityLogService,
+        db -> new DatabaseReader.Builder(db.toFile()).build());
+  }
+
+  /**
+   * Service for extracting and verifying client geolocation and device metadata
+   * from a given request.
+   * 
+   * @param databaseName          The GeoLite2 database name
+   * @param databaseUrl           The GeoLite2 database remote url
+   * @param databaseDirectory     The local directory of the GeoLite2 database
+   * @param emailService          The service for sending emails
+   * @param securityLogService    The service for finding security logs
+   * @param databaseReaderFactory A factory for creating a database reader
+   */
+  @Autowired(required = false)
+  RequestMetadataService(//
+      @Value("${geolite2.name}") String databaseName, //
+      @Value("${geolite2.permalink}") String databaseUrl, //
+      @Value("${geolite2.directory}") String databaseDirectory, //
+      EmailService emailService, //
+      @Lazy SecurityLogService securityLogService, //
+      DatabaseReaderFactory databaseReaderFactory) {
     this.databaseName = databaseName;
     this.databaseUrl = databaseUrl;
     this.databaseDirectory = databaseDirectory;
     this.emailService = emailService;
     this.securityLogService = securityLogService;
+    this.databaseReaderFactory = databaseReaderFactory;
   }
 
   /**
@@ -78,7 +104,7 @@ public class RequestMetadataService {
   public boolean loadDatabase() {
     try {
       var database = fetchDatabase().orElseThrow(() -> new ApiException(CriticalCode.GEOLITE_DOWNLOAD_ERROR));
-      this.databaseReader = new DatabaseReader.Builder(database.toFile()).build();
+      this.databaseReader = databaseReaderFactory.create(database);
       LOG.info("GeoLite2 database loaded");
     } catch (IOException ex) {
       LOG.error("Failed to load GeoLite2 database: {}", ex.getMessage());
@@ -177,14 +203,10 @@ public class RequestMetadataService {
           extractIp(request), //
           geoMetadata, //
           deviceMetadata));
-    } catch (AddressNotFoundException ex) {
-      LOG.warn("IP address not present in the database {}", ex.getMessage());
     } catch (GeoIp2Exception ex) {
-      LOG.warn("Generic GeoIp2 error {}", ex.getMessage());
-    } catch (UnknownHostException ex) {
-      LOG.warn("IP address of host could not be determined {}", ex.getMessage());
+      LOG.warn("IP address not present in the database {}", ex.getMessage());
     } catch (IOException ex) {
-      LOG.warn("IO error when extracting request metadata {}", ex.getMessage());
+      LOG.warn("IP address of host could not be determined {}", ex.getMessage());
     }
     return Optional.empty();
   }
