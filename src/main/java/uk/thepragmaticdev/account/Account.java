@@ -42,6 +42,11 @@ public class Account implements Model {
   private Long id;
 
   @Column(unique = true, nullable = false)
+  private String stripeCustomerId;
+
+  private String stripeSubscriptionId;
+
+  @Column(unique = true, nullable = false)
   @Email(message = "Username is not a valid email.")
   private String username;
 

@@ -72,7 +72,7 @@ public class AccountController {
    * @param signin  The account details for signing in
    * @return An authentication token
    */
-  @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public AccountSigninResponse signin(HttpServletRequest request, @Valid @RequestBody AccountSigninRequest signin) {
     var token = accountService.signin(signin.getUsername(), signin.getPassword(), request);
     return new AccountSigninResponse(token);
@@ -85,7 +85,7 @@ public class AccountController {
    * @return A newly created account
    */
   @ResponseStatus(value = HttpStatus.CREATED)
-  @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public AccountSignupResponse signup(@Valid @RequestBody AccountSignupRequest request) {
     var token = accountService.signup(request.getUsername(), request.getPassword());
     return new AccountSignupResponse(token);
@@ -122,7 +122,7 @@ public class AccountController {
    * 
    * @param username A valid account username
    */
-  @PostMapping(value = "/me/forgot", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/me/forgot")
   public void forgot(@RequestParam(value = "username", required = true) String username) {
     accountService.forgot(username);
   }
@@ -134,7 +134,7 @@ public class AccountController {
    * @param token   The generated password reset token from the /me/forgot
    *                endpoint
    */
-  @PostMapping(value = "/me/reset", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/me/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
   public void reset(@Valid @RequestBody AccountResetRequest request,
       @RequestParam(value = "token", required = true) String token) {
     accountService.reset(request.getPassword(), token);
@@ -158,7 +158,7 @@ public class AccountController {
    * 
    * @param principal The currently authenticated principal user
    */
-  @GetMapping(value = "/me/billing/logs/download")
+  @GetMapping(value = "/me/billing/logs/download", produces = "text/csv")
   public void downloadBillingLogs(Principal principal) {
     accountService.downloadBillingLogs(billingLogWriter, principal.getName());
   }
@@ -182,7 +182,7 @@ public class AccountController {
    * 
    * @param principal The currently authenticated principal user
    */
-  @GetMapping(value = "/me/security/logs/download")
+  @GetMapping(value = "/me/security/logs/download", produces = "text/csv")
   public void downloadSecurityLogs(Principal principal) {
     accountService.downloadSecurityLogs(securityLogWriter, principal.getName());
   }

@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import uk.thepragmaticdev.UnitData;
+import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
@@ -36,6 +37,9 @@ public class AccountServiceTest extends UnitData {
 
   @Mock
   private AccountRepository accountRepository;
+
+  @Mock
+  private BillingService billingService;
 
   @Mock
   private BillingLogService billingLogService;
@@ -71,7 +75,7 @@ public class AccountServiceTest extends UnitData {
    */
   @BeforeEach
   public void initEach() {
-    sut = new AccountService(accountRepository, billingLogService, securityLogService, emailService,
+    sut = new AccountService(accountRepository, billingService, billingLogService, securityLogService, emailService,
         requestMetadataService, passwordEncoder, jwtTokenProvider, authenticationManager);
   }
 

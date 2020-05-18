@@ -1,118 +1,107 @@
 package uk.thepragmaticdev.billing;
 
-import com.stripe.Stripe;
-import com.stripe.model.Coupon;
-import com.stripe.model.Customer;
-import com.stripe.model.Subscription;
-import java.util.HashMap;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PlanCollection;
+import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import uk.thepragmaticdev.account.AccountService;
+import uk.thepragmaticdev.exception.ApiException;
+import uk.thepragmaticdev.exception.code.BillingCode;
 
 @Service
 public class BillingService {
 
-  // TODO INSECURE! Static key should be kept on a config-server.
-  private final String stripeSecretKey;
+  private final AccountService accountService;
 
-  public BillingService(@Value("${stripe.secret-key}") String stripeSecretKey) {
-    this.stripeSecretKey = stripeSecretKey;
+  private final StripeService stripeService;
+
+  /**
+   * Service for creating stripe customers and handling subscriptions to non-free
+   * plans.
+   * 
+   * @param accountService  The service for retrieving account information
+   * @param stripeService   The service containing the stripe api
+   * @param stripeSecretKey The secret key for communicating with stripe
+   */
+  public BillingService(//
+      @Lazy AccountService accountService, //
+      StripeService stripeService, //
+      @Value("${stripe.secret-key}") String stripeSecretKey) {
+    this.accountService = accountService;
+    this.stripeService = stripeService;
+    stripeService.setApiKey(stripeSecretKey);
   }
 
   /**
-   * TODO.
+   * Find all active plans held by stripe.
    * 
-   * @param email TODO
-   * @param token TODO
-   * @return
+   * @return A list of all active plans held by stripe
    */
-  public String createCustomer(String email, String token) {
-    String id = null;
+  public PlanCollection findAllPlans() {
+    Map<String, Object> params = Map.of("active", true);
     try {
-      Stripe.apiKey = stripeSecretKey;
-      Map<String, Object> customerParams = new HashMap<>();
-      // add customer unique id here to track them in your web application
-      customerParams.put("description", "Customer for " + email);
-      customerParams.put("email", email);
-
-      customerParams.put("source", token); // ^ obtained with Stripe.js
-      // create a new customer
-      Customer customer = Customer.create(customerParams);
-      id = customer.getId();
-    } catch (Exception ex) {
-      ex.printStackTrace(); // TODO
+      return stripeService.findAllPlans(params);
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_FIND_ALL_PLANS_ERROR);
     }
-    return id;
   }
 
   /**
-   * TODO.
+   * Create a new stripe customer.
    * 
-   * @param customerId TODO
-   * @param plan       TODO
-   * @param coupon     TODO
-   * @return
+   * @param username The email address of the account
+   * @return The stripe customer id
    */
-  public String createSubscription(String customerId, String plan, String coupon) {
-    String id = null;
+  public String createCustomer(String username) {
+    Map<String, Object> params = Map.of("email", username, "description", "MECO Account", "metadata",
+        Map.of("username", username));
     try {
-      Stripe.apiKey = stripeSecretKey;
-      Map<String, Object> item = new HashMap<>();
-      item.put("plan", plan);
-
-      Map<String, Object> items = new HashMap<>();
-      items.put("0", item);
-
-      Map<String, Object> params = new HashMap<>();
-      params.put("customer", customerId);
-      params.put("items", items);
-
-      // add coupon if available
-      if (!coupon.isEmpty()) {
-        params.put("coupon", coupon);
-      }
-
-      Subscription sub = Subscription.create(params);
-      id = sub.getId();
-    } catch (Exception ex) {
-      ex.printStackTrace(); // TODO
+      return stripeService.createCustomer(params).getId();
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_CREATE_CUSTOMER_ERROR);
     }
-    return id;
   }
 
   /**
-   * TODO.
+   * Create a new stripe subscription for the given customer id to the given plan
+   * id.
    * 
-   * @param subscriptionId TODO
-   * @return
+   * @param username The authenticated account username
+   * @param plan     The plan id to subscribe to
    */
-  public boolean cancelSubscription(String subscriptionId) {
-    boolean status;
-    try {
-      Stripe.apiKey = stripeSecretKey;
-      Subscription sub = Subscription.retrieve(subscriptionId);
-      sub.cancel();
-      status = true;
-    } catch (Exception ex) {
-      ex.printStackTrace(); // TODO
-      status = false;
+  public void createSubscription(String username, String plan) {
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    if (findAllPlans().getData().stream().filter(p -> p.getId().equals(plan)).findFirst().isPresent()) {
+      throw new ApiException(BillingCode.STRIPE_PLAN_NOT_FOUND);
     }
-    return status;
+    Map<String, Object> params = Map.of("customer", authenticatedAccount.getStripeCustomerId(), "items",
+        List.of(Map.of("plan", plan)));
+    try {
+      var stripeSubscriptionId = stripeService.createSubscription(params).getId();
+      accountService.saveSubscription(authenticatedAccount, stripeSubscriptionId);
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_CREATE_SUBSCRIPTION_ERROR);
+    }
   }
 
   /**
-   * TODO.
+   * Cancel an active stripe subscription.
    * 
-   * @param code TODO
-   * @return
+   * @param username The authenticated account username
    */
-  public Coupon retrieveCoupon(String code) {
-    try {
-      Stripe.apiKey = stripeSecretKey;
-      return Coupon.retrieve(code);
-    } catch (Exception ex) {
-      ex.printStackTrace(); // TODO
+  public void cancelSubscription(String username) {
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    if (StringUtils.isBlank(authenticatedAccount.getStripeSubscriptionId())) {
+      throw new ApiException(BillingCode.STRIPE_SUBSCRIPTION_NOT_FOUND);
     }
-    return null;
+    try {
+      stripeService.cancelSubscription(authenticatedAccount.getStripeSubscriptionId()).getId();
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_ERROR);
+    }
   }
 }

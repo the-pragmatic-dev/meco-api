@@ -1,97 +1,78 @@
 package uk.thepragmaticdev.endpoint.controller;
 
-import com.stripe.model.Coupon;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.trace.http.HttpTrace.Principal;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.billing.BillingService;
-import uk.thepragmaticdev.endpoint.Response;
+import uk.thepragmaticdev.billing.dto.request.BillingCreateSubscriptionRequest;
+import uk.thepragmaticdev.billing.dto.response.BillingPlanResponse;
 
 @RestController
 @RequestMapping("/billing")
 @CrossOrigin("*")
-@Tag(name = "billing")
 public class BillingController {
 
   private final BillingService billingService;
 
+  private final ModelMapper modelMapper;
+
+  /**
+   * Endpoint for billing.
+   * 
+   * @param billingService The service for handling payments
+   * @param modelMapper    An entity to domain mapper
+   */
   @Autowired
-  public BillingController(BillingService billingService) {
+  public BillingController(BillingService billingService, ModelMapper modelMapper) {
     this.billingService = billingService;
+    this.modelMapper = modelMapper;
   }
 
   /**
-   * TODO.
+   * Find all active plans held by stripe.
    * 
-   * @param email  TODO
-   * @param token  TODO
-   * @param plan   TODO
-   * @param coupon TODO
-   * @return
+   * @return A list of all active plans held by stripe
    */
-  @PostMapping("/create-subscription")
-  public @ResponseBody Response createSubscription(String email, String token, String plan, String coupon) {
-    // validate data
-    if (token == null || plan.isEmpty()) {
-      return new Response(false, "Stripe payment token is missing. Please, try again later.");
-    }
-
-    // create customer first
-    String customerId = billingService.createCustomer(email, token);
-
-    if (customerId == null) {
-      return new Response(false, "An error occurred while trying to create a customer.");
-    }
-
-    // create subscription
-    String subscriptionId = billingService.createSubscription(customerId, plan, coupon);
-    if (subscriptionId == null) {
-      return new Response(false, "An error occurred while trying to create a subscription.");
-    }
-
-    // Ideally you should store customerId and subscriptionId along with customer
-    // object here.
-    // These values are required to update or cancel the subscription at later
-    // stage.
-
-    return new Response(true, "Success! Your subscription id is " + subscriptionId);
+  @GetMapping(value = "/plans", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(value = HttpStatus.OK)
+  public List<BillingPlanResponse> findAllPlans() {
+    var plans = billingService.findAllPlans().getData();
+    return plans.stream().map(plan -> modelMapper.map(plan, BillingPlanResponse.class)).collect(Collectors.toList());
   }
 
   /**
-   * TODO.
+   * Create a new stripe subscription for the given customer id to the given plan
+   * id.
    * 
-   * @param subscriptionId TODO
-   * @return
+   * @param principal The currently authenticated principal user
+   * @param request   A new subscription request with the desired plan
    */
-  @PostMapping("/cancel-subscription")
-  public @ResponseBody Response cancelSubscription(String subscriptionId) {
-    boolean status = billingService.cancelSubscription(subscriptionId);
-    if (!status) {
-      return new Response(false, "Failed to cancel the subscription. Please, try later.");
-    }
-    return new Response(true, "Subscription cancelled successfully.");
+  @PostMapping(value = "/subscriptions", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(value = HttpStatus.CREATED)
+  public void createSubscription(Principal principal, @Valid @RequestBody BillingCreateSubscriptionRequest request) {
+    billingService.createSubscription(principal.getName(), request.getPlan());
   }
 
   /**
-   * TODO.
+   * Cancel an active stripe subscription.
    * 
-   * @param code TODO
-   * @return
+   * @param principal The currently authenticated principal user
    */
-  @PostMapping("/coupon-validator")
-  public @ResponseBody Response couponValidator(String code) {
-    Coupon coupon = billingService.retrieveCoupon(code);
-    if (coupon != null && coupon.getValid()) {
-      String details = (coupon.getPercentOff() == null ? "$" + (coupon.getAmountOff() / 100)
-          : coupon.getPercentOff() + "%") + " OFF " + coupon.getDuration();
-      return new Response(true, details);
-    } else {
-      return new Response(false, "This coupon code is not available. This may be because it has expired or has "
-          + "already been applied to your account.");
-    }
+  @DeleteMapping("/subscriptions")
+  public void cancelSubscription(Principal principal) {
+    billingService.cancelSubscription(principal.getName());
   }
 }

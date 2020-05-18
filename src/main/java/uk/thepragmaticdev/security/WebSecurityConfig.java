@@ -48,11 +48,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/v3/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
         // allow actuator endpoint
         .antMatchers("/actuator/**").permitAll()
-        // allow account signin and account signup endpoints
+        // allow public endpoints
         .antMatchers("/accounts/signin").permitAll()//
         .antMatchers("/accounts/signup").permitAll()//
         .antMatchers("/accounts/me/forgot").permitAll()//
-        .antMatchers("/accounts/me/reset").permitAll()
+        .antMatchers("/accounts/me/reset").permitAll()//
+        .antMatchers("/billing/plans").permitAll()
         // disallow everything else
         .anyRequest().authenticated();
 

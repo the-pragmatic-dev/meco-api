@@ -15,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
@@ -30,6 +31,8 @@ import uk.thepragmaticdev.security.request.RequestMetadataService;
 public class AccountService {
 
   private final AccountRepository accountRepository;
+
+  private final BillingService billingService;
 
   private final BillingLogService billingLogService;
 
@@ -50,6 +53,7 @@ public class AccountService {
    * logs related to an authorised account may also be downloaded.
    * 
    * @param accountRepository      The data access repository for accounts
+   * @param billingService         The service for handling payments
    * @param billingLogService      The service for accessing billing logs
    * @param securityLogService     The service for accessing security logs
    * @param emailService           The service for sending emails
@@ -62,6 +66,7 @@ public class AccountService {
   @Autowired
   public AccountService(//
       AccountRepository accountRepository, //
+      BillingService billingService, //
       BillingLogService billingLogService, //
       SecurityLogService securityLogService, //
       EmailService emailService, //
@@ -70,6 +75,7 @@ public class AccountService {
       JwtTokenProvider jwtTokenProvider, //
       AuthenticationManager authenticationManager) {
     this.accountRepository = accountRepository;
+    this.billingService = billingService;
     this.billingLogService = billingLogService;
     this.securityLogService = securityLogService;
     this.emailService = emailService;
@@ -114,6 +120,7 @@ public class AccountService {
       account.setPassword(passwordEncoder.encode(password));
       account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
       account.setCreatedDate(OffsetDateTime.now());
+      account.setStripeCustomerId(billingService.createCustomer(username));
       var persistedAccount = accountRepository.save(account);
       securityLogService.created(persistedAccount);
       emailService.sendAccountCreated(persistedAccount);
@@ -263,6 +270,17 @@ public class AccountService {
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
     }
+  }
+
+  /**
+   * Persists the accounts new stripe subscription.
+   * 
+   * @param persistedAccount     An authenticated account entity
+   * @param stripeSubscriptionId The id of the new stripe subscription
+   */
+  public void saveSubscription(Account persistedAccount, String stripeSubscriptionId) {
+    persistedAccount.setStripeSubscriptionId(stripeSubscriptionId);
+    accountRepository.save(persistedAccount);
   }
 
   // TODO: unused method yet to be implemented
