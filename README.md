@@ -232,6 +232,17 @@ curl -X GET "http://localhost:8080/api-keys" -H "accept: application/json" -H "A
 
 JWT claims contain both the account username and given roles.
 
+## Travis CI
+
+The following environment variables need to be set within Travis CI:
+
+
+| Name              | Value           |
+| ----------------- | --------------- |
+| GEOLITE_URL       | https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key={YOUR_LICENSE_KEY}&suffix=tar.gz |
+| SONAR_TOKEN       | {YOUR_SONAR_TOKEN}            |
+| STRIPE_SECRET_KEY | {YOUR_STRIPE_SECRET_TEST_KEY} |
+
 ## Monitoring
 
 Actuator endpoints are enabled by default to monitor and interact with the running service.
