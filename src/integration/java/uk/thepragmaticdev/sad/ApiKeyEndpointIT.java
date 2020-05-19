@@ -26,7 +26,7 @@ import uk.thepragmaticdev.exception.code.ApiKeyCode;
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-public class ApiKeyEndpointIT extends IntegrationData {
+class ApiKeyEndpointIT extends IntegrationData {
   // @formatter:off
 
   /**
@@ -40,7 +40,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:findAll
 
   @Test
-  public void shouldNotReturnAllKeysWithInvalidToken() {
+  void shouldNotReturnAllKeysWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -55,7 +55,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:create
 
   @Test
-  public void shouldNotCreateKeyWhenNameIsTooShort() {
+  void shouldNotCreateKeyWhenNameIsTooShort() {
     var shortName = "ab";
     var key = apiKeyCreateRequest();
     key.setName(shortName);
@@ -80,7 +80,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotCreateKeyWhenNameIsTooLong() {
+  void shouldNotCreateKeyWhenNameIsTooLong() {
     var longName = "abcdefghijklmnopqrstu";
     var key = apiKeyCreateRequest();
     key.setName(longName);
@@ -105,7 +105,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotCreateKeyWithNoScope() {
+  void shouldNotCreateKeyWithNoScope() {
     var key = apiKeyCreateRequest();
     key.setScope(null);
 
@@ -129,7 +129,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotCreateKeyWithInvalidIpv4Cidr() {
+  void shouldNotCreateKeyWithInvalidIpv4Cidr() {
     var key = apiKeyCreateRequest();
     var accessPolicy = accessPolicyRequest("name", "invalidRange");
     key.setAccessPolicies(List.of(accessPolicy));
@@ -156,7 +156,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   } 
 
   @Test
-  public void shouldNotCreateKeyWhenAtMaxKeyLimit() {
+  void shouldNotCreateKeyWhenAtMaxKeyLimit() {
     assertKeyCount(2);
     IntStream.range(0, 8).forEach(i -> createValidKey());
     assertKeyCount(10);
@@ -176,7 +176,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:update
 
   @Test
-  public void shouldNotUpdateKeyWithInvalidToken() {
+  void shouldNotUpdateKeyWithInvalidToken() {
     given()
       .contentType(JSON)
       .headers(headers())
@@ -191,7 +191,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   }
   
   @Test
-  public void shouldNotUpdateUnknownKey() {
+  void shouldNotUpdateUnknownKey() {
     given()
       .contentType(JSON)
       .headers(headers())
@@ -208,7 +208,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:delete
 
   @Test
-  public void shouldNotDeleteKeyWithInvalidToken() {
+  void shouldNotDeleteKeyWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -221,7 +221,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotDeleteUnknownKey() {
+  void shouldNotDeleteUnknownKey() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -236,7 +236,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:key-logs
 
   @Test
-  public void shouldNotReturnLatestKeyLogsWithInvalidToken() {
+  void shouldNotReturnLatestKeyLogsWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -249,7 +249,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotReturnLatestKeyLogsForUnknownKey() {
+  void shouldNotReturnLatestKeyLogsForUnknownKey() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -264,7 +264,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:key-logs-download
 
   @Test
-  public void shouldNotDownloadKeyLogsWithInvalidToken() {
+  void shouldNotDownloadKeyLogsWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -277,7 +277,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotDownloadKeyLogsForUnknownKey() {
+  void shouldNotDownloadKeyLogsForUnknownKey() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -292,7 +292,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:count
 
   @Test
-  public void shouldNotReturnKeyCountWithInvalidToken() {
+  void shouldNotReturnKeyCountWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)

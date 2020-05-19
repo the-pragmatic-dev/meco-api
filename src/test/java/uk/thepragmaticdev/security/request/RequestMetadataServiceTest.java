@@ -20,7 +20,7 @@ import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.log.security.SecurityLogService;
 
 @ExtendWith(MockitoExtension.class)
-public class RequestMetadataServiceTest {
+class RequestMetadataServiceTest {
 
   @Mock
   private EmailService emailService;
@@ -48,14 +48,14 @@ public class RequestMetadataServiceTest {
   }
 
   @Test
-  public void shouldReturnFalseIfDatabaseFileDoesNotExist() throws IOException {
+  void shouldReturnFalseIfDatabaseFileDoesNotExist() throws IOException {
     when(factory.create(any(Path.class))).thenThrow(IOException.class);
     boolean loaded = sut.loadDatabase();
     assertThat(loaded, is(false));
   }
 
   @Test
-  public void shouldReturnEmptyRequestMetadataIfGeoIp2ExceptionOccurs() throws IOException, GeoIp2Exception {
+  void shouldReturnEmptyRequestMetadataIfGeoIp2ExceptionOccurs() throws IOException, GeoIp2Exception {
     when(factory.create(any(Path.class))).thenReturn(reader);
     when(reader.city(any())).thenThrow(GeoIp2Exception.class);
 
@@ -65,7 +65,7 @@ public class RequestMetadataServiceTest {
   }
 
   @Test
-  public void shouldReturnEmptyRequestMetadataIfIoExceptionOccurs() throws IOException, GeoIp2Exception {
+  void shouldReturnEmptyRequestMetadataIfIoExceptionOccurs() throws IOException, GeoIp2Exception {
     when(factory.create(any(Path.class))).thenReturn(reader);
     when(reader.city(any())).thenThrow(IOException.class);
 

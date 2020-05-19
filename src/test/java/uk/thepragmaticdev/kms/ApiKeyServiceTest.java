@@ -33,7 +33,7 @@ import uk.thepragmaticdev.log.key.ApiKeyLogService;
 import uk.thepragmaticdev.log.security.SecurityLogService;
 
 @SpringBootTest
-public class ApiKeyServiceTest {
+class ApiKeyServiceTest {
 
   @Mock
   private AccountService accountService;
@@ -69,7 +69,7 @@ public class ApiKeyServiceTest {
   }
 
   @Test
-  public void shouldCreateValidKey() {
+  void shouldCreateValidKey() {
     var keyName = "testKey";
     var encodedString = "anEncodedString";
     var apiKey = new ApiKey();
@@ -91,7 +91,7 @@ public class ApiKeyServiceTest {
   }
 
   @Test()
-  public void shouldThrowExceptionWhenMaxKeysReached() {
+  void shouldThrowExceptionWhenMaxKeysReached() {
     var apiKey = new ApiKey();
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
     when(apiKeyRepository.countByAccountId(anyLong())).thenReturn(10L); // max keys
@@ -103,7 +103,7 @@ public class ApiKeyServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionDownloadingApiKeyLogsIfInvalidCsvDataType() throws Exception {
+  void shouldThrowExceptionDownloadingApiKeyLogsIfInvalidCsvDataType() throws Exception {
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
     when(apiKeyRepository.findOneByIdAndAccountId(anyLong(), anyLong())).thenReturn(Optional.of(mock(ApiKey.class)));
     doThrow(CsvDataTypeMismatchException.class).when(apiKeyLogWriter).write(anyList());
@@ -115,7 +115,7 @@ public class ApiKeyServiceTest {
   }
 
   @Test
-  public void shouldThrowExceptionDownloadingApiKeyLogsIfRequiredFieldIsEmpty() throws Exception {
+  void shouldThrowExceptionDownloadingApiKeyLogsIfRequiredFieldIsEmpty() throws Exception {
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
     when(apiKeyRepository.findOneByIdAndAccountId(anyLong(), anyLong())).thenReturn(Optional.of(mock(ApiKey.class)));
     doThrow(CsvRequiredFieldEmptyException.class).when(apiKeyLogWriter).write(anyList());

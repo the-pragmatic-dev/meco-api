@@ -33,7 +33,7 @@ import uk.thepragmaticdev.security.JwtTokenProvider;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @SpringBootTest
-public class AccountServiceTest extends UnitData {
+class AccountServiceTest extends UnitData {
 
   @Mock
   private AccountRepository accountRepository;
@@ -80,7 +80,7 @@ public class AccountServiceTest extends UnitData {
   }
 
   @Test
-  public void shouldThrowExceptionIfTokenHasExpired() {
+  void shouldThrowExceptionIfTokenHasExpired() {
     var account = account();
     account.setPasswordResetTokenExpire(OffsetDateTime.now().minusMinutes(1));
     when(accountRepository.findByPasswordResetToken(anyString())).thenReturn(Optional.of(account));
@@ -92,7 +92,7 @@ public class AccountServiceTest extends UnitData {
   }
 
   @Test
-  public void shouldThrowExceptionDownloadingBillingLogsIfInvalidCsvDataType() throws Exception {
+  void shouldThrowExceptionDownloadingBillingLogsIfInvalidCsvDataType() throws Exception {
     when(accountRepository.findByUsername(anyString())).thenReturn(Optional.of(account()));
     doThrow(CsvDataTypeMismatchException.class).when(billingLogWriter).write(anyList());
 
@@ -103,7 +103,7 @@ public class AccountServiceTest extends UnitData {
   }
 
   @Test
-  public void shouldThrowExceptionDownloadingBillingLogsIfRequiredFieldIsEmpty() throws Exception {
+  void shouldThrowExceptionDownloadingBillingLogsIfRequiredFieldIsEmpty() throws Exception {
     when(accountRepository.findByUsername(anyString())).thenReturn(Optional.of(account()));
     doThrow(CsvRequiredFieldEmptyException.class).when(billingLogWriter).write(anyList());
 
@@ -114,7 +114,7 @@ public class AccountServiceTest extends UnitData {
   }
 
   @Test
-  public void shouldThrowExceptionDownloadingSecurityLogsIfInvalidCsvDataType() throws Exception {
+  void shouldThrowExceptionDownloadingSecurityLogsIfInvalidCsvDataType() throws Exception {
     when(accountRepository.findByUsername(anyString())).thenReturn(Optional.of(account()));
     doThrow(CsvDataTypeMismatchException.class).when(securityLogWriter).write(anyList());
 
@@ -125,7 +125,7 @@ public class AccountServiceTest extends UnitData {
   }
 
   @Test
-  public void shouldThrowExceptionDownloadingSecurityLogsIfRequiredFieldIsEmpty() throws Exception {
+  void shouldThrowExceptionDownloadingSecurityLogsIfRequiredFieldIsEmpty() throws Exception {
     when(accountRepository.findByUsername(anyString())).thenReturn(Optional.of(account()));
     doThrow(CsvRequiredFieldEmptyException.class).when(securityLogWriter).write(anyList());
 

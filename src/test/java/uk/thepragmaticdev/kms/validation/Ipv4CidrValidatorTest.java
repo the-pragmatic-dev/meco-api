@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 
 @SpringBootTest
-public class Ipv4CidrValidatorTest {
+class Ipv4CidrValidatorTest {
 
   private Ipv4CidrValidator sut;
 
@@ -28,20 +28,20 @@ public class Ipv4CidrValidatorTest {
 
   @ParameterizedTest
   @MethodSource("validAccessPolicyProvider")
-  public void shouldReturnIsValid(List<AccessPolicyRequest> accessPolicy) {
+  void shouldReturnIsValid(List<AccessPolicyRequest> accessPolicy) {
     var ret = sut.isValid(accessPolicy, mock(ConstraintValidatorContext.class));
     assertThat(ret, is(true));
   }
 
   @Test
-  public void shouldReturnIsValidIfNullPolicies() {
+  void shouldReturnIsValidIfNullPolicies() {
     var ret = sut.isValid(null, mock(ConstraintValidatorContext.class));
     assertThat(ret, is(true));
   }
 
   @ParameterizedTest
   @MethodSource("invalidAccessPolicyProvider")
-  public void shouldReturnInvalid(List<AccessPolicyRequest> accessPolicy) {
+  void shouldReturnInvalid(List<AccessPolicyRequest> accessPolicy) {
     var ret = sut.isValid(accessPolicy, mock(ConstraintValidatorContext.class));
     assertThat(ret, is(false));
   }

@@ -17,7 +17,7 @@ import uk.thepragmaticdev.log.security.SecurityLog;
 @Configuration
 public class CsvWriterConfig {
 
-  private final String attachmentPrefix = "attachment; filename=\"";
+  private static final String ATTACHEMENT_PREFIX = "attachment; filename=\"";
 
   /**
    * A stateful bean to csv writer for billing logs.
@@ -30,7 +30,7 @@ public class CsvWriterConfig {
   @RequestScope
   public StatefulBeanToCsv<BillingLog> billingLogCsvWriter(HttpServletResponse response) throws IOException {
     updateResponse(response);
-    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentPrefix + "billing.csv" + "\"");
+    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ATTACHEMENT_PREFIX + "billing.csv" + "\"");
     return new StatefulBeanToCsvBuilder<BillingLog>(response.getWriter()).withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
         .withSeparator(ICSVWriter.DEFAULT_SEPARATOR).withOrderedResults(true).build();
   }
@@ -46,7 +46,7 @@ public class CsvWriterConfig {
   @RequestScope
   public StatefulBeanToCsv<ApiKeyLog> apiKeyLogCsvWriter(HttpServletResponse response) throws IOException {
     updateResponse(response);
-    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentPrefix + "api-key.csv" + "\"");
+    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ATTACHEMENT_PREFIX + "api-key.csv" + "\"");
     return new StatefulBeanToCsvBuilder<ApiKeyLog>(response.getWriter()).withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
         .withSeparator(ICSVWriter.DEFAULT_SEPARATOR).withOrderedResults(true).build();
   }
@@ -62,7 +62,7 @@ public class CsvWriterConfig {
   @RequestScope
   public StatefulBeanToCsv<SecurityLog> securityLogCsvWriter(HttpServletResponse response) throws IOException {
     updateResponse(response);
-    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, attachmentPrefix + "security.csv" + "\"");
+    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ATTACHEMENT_PREFIX + "security.csv" + "\"");
     return new StatefulBeanToCsvBuilder<SecurityLog>(response.getWriter()).withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
         .withSeparator(ICSVWriter.DEFAULT_SEPARATOR).withOrderedResults(true).build();
   }

@@ -51,7 +51,7 @@ import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class ApiKeyControllerTest extends UnitData {
+class ApiKeyControllerTest extends UnitData {
 
   @Autowired
   private ObjectMapper mapper;
@@ -88,7 +88,7 @@ public class ApiKeyControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToListOfApiKeyResponse() throws Exception {
+  void shouldMapToListOfApiKeyResponse() throws Exception {
     var expected = apiKey();
     when(apiKeyService.findAll(anyString())).thenReturn(List.of(expected));
 
@@ -105,7 +105,7 @@ public class ApiKeyControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToApiKeyCreateResponse() throws Exception {
+  void shouldMapToApiKeyCreateResponse() throws Exception {
     var key = apiKey();
     var request = new ApiKeyCreateRequest(key.getName(), key.getEnabled(), scopeRequest(),
         List.of(accessPolicyRequest()));
@@ -123,7 +123,7 @@ public class ApiKeyControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToApiKeyResponse() throws Exception {
+  void shouldMapToApiKeyResponse() throws Exception {
     var key = apiKey();
     var request = new ApiKeyUpdateRequest(key.getName(), key.getEnabled(), scopeRequest(),
         List.of(accessPolicyRequest()));
@@ -142,7 +142,7 @@ public class ApiKeyControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToPageOfApiKeyLogResponses() throws Exception {
+  void shouldMapToPageOfApiKeyLogResponses() throws Exception {
     var logs = apiKeyLogs();
     when(apiKeyService.log(any(Pageable.class), anyString(), anyLong())).thenReturn(logs);
 

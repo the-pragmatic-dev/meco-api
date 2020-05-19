@@ -22,7 +22,7 @@ import uk.thepragmaticdev.exception.code.AccountCode;
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-public class AccountEndpointIT extends IntegrationData {
+class AccountEndpointIT extends IntegrationData {
   // @formatter:off
 
   /**
@@ -36,7 +36,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:signin
 
   @Test
-  public void shouldNotSigninWhenUsernameDoesNotExist() {
+  void shouldNotSigninWhenUsernameDoesNotExist() {
     var request = accountSigninRequest();
     request.setUsername("random@email.com");
 
@@ -53,7 +53,7 @@ public class AccountEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotSigninWhenPasswordIsInvalid() {
+  void shouldNotSigninWhenPasswordIsInvalid() {
     var request = accountSigninRequest();
     request.setPassword("invalidPassword");
 
@@ -72,7 +72,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:signup
 
   @Test
-  public void shouldNotCreateAccountWhenUsernameAlreadyExists() {
+  void shouldNotCreateAccountWhenUsernameAlreadyExists() {
     var request = accountSignupRequest();
 
     given()
@@ -88,7 +88,7 @@ public class AccountEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotCreateAccountWhenUsernameIsInvalidEmail() {
+  void shouldNotCreateAccountWhenUsernameIsInvalidEmail() {
     var request = accountSignupRequest();
     request.setUsername("invalid@");
 
@@ -111,7 +111,7 @@ public class AccountEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotCreateAccountWhenPasswordIsTooShort() {
+  void shouldNotCreateAccountWhenPasswordIsTooShort() {
     var request = accountSignupRequest();
     request.setPassword("1234567");
 
@@ -136,7 +136,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:me
 
   @Test
-  public void shouldNotReturnAuthenticatedAccountWithInvalidToken() {
+  void shouldNotReturnAuthenticatedAccountWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -151,7 +151,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:me/forgot
 
   @Test
-  public void shouldNotReturnOkWhenForgottenPasswordForUnknownUsername() {
+  void shouldNotReturnOkWhenForgottenPasswordForUnknownUsername() {
     given()
       .headers(headers())
       .queryParam("username", "garbage@username.com")
@@ -166,7 +166,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:me/reset
 
   @Test
-  public void shouldNotResetPasswordWithInvalidToken() {
+  void shouldNotResetPasswordWithInvalidToken() {
     var request = accountResetRequest();
     
     given()
@@ -183,7 +183,7 @@ public class AccountEndpointIT extends IntegrationData {
   }
 
   @Test
-  public void shouldNotResetPasswordWhenPasswordIsTooShort() {
+  void shouldNotResetPasswordWhenPasswordIsTooShort() {
     var request = accountResetRequest();
     request.setPassword("1234567");
     
@@ -209,7 +209,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:update
 
   @Test
-  public void shouldNotUpdateAccountWithInvalidToken() {
+  void shouldNotUpdateAccountWithInvalidToken() {
     var request = accountUpdateRequest();
 
     given()
@@ -228,7 +228,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:billing-logs
 
   @Test
-  public void shouldNotReturnLatestBillingLogsWithInvalidToken() {
+  void shouldNotReturnLatestBillingLogsWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -243,7 +243,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:billing-logs-download
 
   @Test
-  public void shouldNotDownloadBillingLogsWithInvalidToken() {
+  void shouldNotDownloadBillingLogsWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -258,7 +258,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:security-logs
 
   @Test
-  public void shouldNotReturnLatestSecurityLogsWithInvalidToken() {
+  void shouldNotReturnLatestSecurityLogsWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -273,7 +273,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:security-logs-download
 
   @Test
-  public void shouldNotDownloadSecurityLogsWithInvalidToken() {
+  void shouldNotDownloadSecurityLogsWithInvalidToken() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)

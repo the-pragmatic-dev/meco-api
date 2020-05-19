@@ -15,7 +15,7 @@ import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @ExtendWith(MockitoExtension.class)
-public class ApplicationTest {
+class ApplicationTest {
 
   @Mock
   private RequestMetadataService requestMetadataService;
@@ -28,7 +28,7 @@ public class ApplicationTest {
   }
 
   @Test
-  public void shouldThrowExceptionIfDatabaseFailsToLoad() {
+  void shouldThrowExceptionIfDatabaseFailsToLoad() {
     when(requestMetadataService.loadDatabase()).thenReturn(false);
     var ex = Assertions.assertThrows(ApiException.class, () -> {
       sut.init();

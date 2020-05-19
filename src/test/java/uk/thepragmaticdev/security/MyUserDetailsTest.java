@@ -20,7 +20,7 @@ import uk.thepragmaticdev.account.AccountRepository;
 import uk.thepragmaticdev.account.Role;
 
 @SpringBootTest
-public class MyUserDetailsTest {
+class MyUserDetailsTest {
 
   @Mock
   private AccountRepository accountRepository;
@@ -36,7 +36,7 @@ public class MyUserDetailsTest {
   }
 
   @Test
-  public void shouldLoadUserByUsername() {
+  void shouldLoadUserByUsername() {
     var username = "username";
     var password = "password";
     var account = new Account();
@@ -56,7 +56,7 @@ public class MyUserDetailsTest {
   }
 
   @Test()
-  public void shouldThrowExceptionWhenUserNotFound() {
+  void shouldThrowExceptionWhenUserNotFound() {
     var username = "username";
     when(accountRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 

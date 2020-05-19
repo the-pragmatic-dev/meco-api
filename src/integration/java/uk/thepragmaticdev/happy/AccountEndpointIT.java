@@ -41,7 +41,7 @@ import uk.thepragmaticdev.log.security.SecurityLog;
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-public class AccountEndpointIT extends IntegrationData {
+class AccountEndpointIT extends IntegrationData {
   // @formatter:off
 
   @Autowired
@@ -61,7 +61,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:signup
 
   @Test
-  public void shouldCreateAccount() throws StripeException {
+  void shouldCreateAccount() throws StripeException {
     var request = accountSignupRequest();
     request.setUsername("account@integration.test");
 
@@ -82,7 +82,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:me
 
   @Test
-  public void shouldReturnAuthenticatedAccount() {
+  void shouldReturnAuthenticatedAccount() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -109,7 +109,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:me/forgot
 
   @Test
-  public void shouldReturnOkWhenForgottenPassword() {
+  void shouldReturnOkWhenForgottenPassword() {
     given()
       .headers(headers())
       .queryParam("username", "admin@email.com")
@@ -122,7 +122,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:me/reset
 
   @Test
-  public void shouldReturnOkWhenResetPassword() {
+  void shouldReturnOkWhenResetPassword() {
     accountService.forgot("admin@email.com");
     var captor = ArgumentCaptor.forClass(Account.class);
     verify(emailService, atLeastOnce()).sendForgottenPassword(captor.capture());
@@ -146,7 +146,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:update
 
   @Test
-  public void shouldUpdateOnlyMutableAccountFields() {
+  void shouldUpdateOnlyMutableAccountFields() {
     var request = accountUpdateRequest();
 
     given()
@@ -174,7 +174,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:billing-logs
 
   @Test
-  public void shouldReturnLatestBillingLogs() {
+  void shouldReturnLatestBillingLogs() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -201,7 +201,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:billing-logs-download
 
   @Test
-  public void shouldDownloadBillingLogs() throws IOException {
+  void shouldDownloadBillingLogs() throws IOException {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -217,7 +217,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:security-logs
 
   @Test
-  public void shouldReturnLatestSecurityLogs() {
+  void shouldReturnLatestSecurityLogs() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -248,7 +248,7 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:security-logs-download
 
   @Test
-  public void shouldDownloadSecurityLogs() throws IOException {
+  void shouldDownloadSecurityLogs() throws IOException {
     var csv = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin())

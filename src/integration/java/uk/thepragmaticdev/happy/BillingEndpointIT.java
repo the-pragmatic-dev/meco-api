@@ -34,7 +34,7 @@ import uk.thepragmaticdev.billing.dto.response.BillingPriceResponse;
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-public class BillingEndpointIT extends IntegrationData {
+class BillingEndpointIT extends IntegrationData {
 
   private static final String TEST_USERNAME = "billing@integration.test";
 
@@ -70,7 +70,7 @@ public class BillingEndpointIT extends IntegrationData {
   // @endpoint:findAllPrices
 
   @Test
-  public void shouldReturnAllBillingPricesWithNoAuthentication() {
+  void shouldReturnAllBillingPricesWithNoAuthentication() {
     var billingPrices = given()
         .headers(headers())
         .when()
@@ -84,7 +84,7 @@ public class BillingEndpointIT extends IntegrationData {
   // @endpoint:internal->create-customer
 
   @Test
-  public void shouldCreateStripeCustomer() {
+  void shouldCreateStripeCustomer() {
     // account created within @BeforeEach
     var account = accountService.findAuthenticatedAccount(TEST_USERNAME);
     assertThat(account.getStripeCustomerId(), startsWith("cus_"));
@@ -93,7 +93,7 @@ public class BillingEndpointIT extends IntegrationData {
   // @endpoint:create-subscription
 
   @Test
-  public void shouldCreateStripeSubscription() {
+  void shouldCreateStripeSubscription() {
     // account created within @BeforeEach
     given()
       .headers(headers())
@@ -111,7 +111,7 @@ public class BillingEndpointIT extends IntegrationData {
   // @endpoint:cancel-subscription
 
   @Test
-  public void shouldCancelSubscription() {
+  void shouldCancelSubscription() {
     // account created within @BeforeEach
     billingService.createSubscription(TEST_USERNAME, TEST_PRICE);
     given()
@@ -130,7 +130,7 @@ public class BillingEndpointIT extends IntegrationData {
   // @endpoint:internal->create-usage-record
 
   @Test
-  public void shouldCreateUsageRecordForSubscription() {
+  void shouldCreateUsageRecordForSubscription() {
     // account created within @BeforeEach
     var operations = 10000;
     billingService.createSubscription(TEST_USERNAME, TEST_PRICE);
@@ -143,7 +143,7 @@ public class BillingEndpointIT extends IntegrationData {
   // @endpoint:internal->find-upcoming-invoice
 
   @Test
-  public void shouldReturnUpcomingInvoice() {
+  void shouldReturnUpcomingInvoice() {
     // account created within @BeforeEach
     var operations = 11000;
     billingService.createSubscription(TEST_USERNAME, TEST_PRICE);

@@ -34,7 +34,7 @@ import uk.thepragmaticdev.security.request.GeoMetadata;
 import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @SpringBootTest
-public class EmailServiceTest {
+class EmailServiceTest {
 
   private static MockWebServer mockBackEnd;
 
@@ -71,7 +71,7 @@ public class EmailServiceTest {
   }
 
   @Test()
-  public void shouldSendAccountCreatedEmail() throws InterruptedException, UnsupportedEncodingException {
+  void shouldSendAccountCreatedEmail() throws InterruptedException, UnsupportedEncodingException {
     var username = "ash@ketchum.com";
     var account = mock(Account.class);
     when(account.getUsername()).thenReturn(username);
@@ -84,7 +84,7 @@ public class EmailServiceTest {
   }
 
   @Test()
-  public void shouldSendForgotPasswordEmail() throws InterruptedException, UnsupportedEncodingException {
+  void shouldSendForgotPasswordEmail() throws InterruptedException, UnsupportedEncodingException {
     var username = "ash@ketchum.com";
     var token = "token";
     var account = mock(Account.class);
@@ -100,7 +100,7 @@ public class EmailServiceTest {
   }
 
   @Test()
-  public void shouldSendResetEmail() throws InterruptedException, UnsupportedEncodingException {
+  void shouldSendResetEmail() throws InterruptedException, UnsupportedEncodingException {
     var username = "ash@ketchum.com";
     var account = mock(Account.class);
     when(account.getUsername()).thenReturn(username);
@@ -114,7 +114,7 @@ public class EmailServiceTest {
   }
 
   @Test()
-  public void shouldUnrecognizedDeviceEmail() throws InterruptedException, UnsupportedEncodingException {
+  void shouldUnrecognizedDeviceEmail() throws InterruptedException, UnsupportedEncodingException {
     var username = "ash@ketchum.com";
     var account = mock(Account.class);
     when(account.getUsername()).thenReturn(username);
@@ -140,7 +140,7 @@ public class EmailServiceTest {
   }
 
   @Test()
-  public void shouldSendKeyCreatedEmail() throws InterruptedException, UnsupportedEncodingException {
+  void shouldSendKeyCreatedEmail() throws InterruptedException, UnsupportedEncodingException {
     var username = "ash@ketchum.com";
     var account = mock(Account.class);
     when(account.getUsername()).thenReturn(username);
@@ -158,7 +158,7 @@ public class EmailServiceTest {
   }
 
   @Test()
-  public void shouldSendKeyDeletedEmail() throws InterruptedException, UnsupportedEncodingException {
+  void shouldSendKeyDeletedEmail() throws InterruptedException, UnsupportedEncodingException {
     var username = "ash@ketchum.com";
     var account = mock(Account.class);
     when(account.getUsername()).thenReturn(username);

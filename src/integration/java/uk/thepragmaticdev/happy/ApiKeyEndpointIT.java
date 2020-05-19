@@ -29,7 +29,7 @@ import uk.thepragmaticdev.kms.dto.response.ApiKeyCreateResponse;
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-public class ApiKeyEndpointIT extends IntegrationData {
+class ApiKeyEndpointIT extends IntegrationData {
   // @formatter:off
 
   /**
@@ -43,7 +43,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:findAll
 
   @Test
-  public void shouldReturnAllKeysOwnedByAuthenticatedAccount() {
+  void shouldReturnAllKeysOwnedByAuthenticatedAccount() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -95,7 +95,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:create
 
   @Test
-  public void shouldCreateKey() {
+  void shouldCreateKey() {
     var request = apiKeyCreateRequest();
     var response = given()
           .headers(headers())
@@ -129,7 +129,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:update
 
   @Test
-  public void shouldUpdateOnlyMutableKeyFields() {
+  void shouldUpdateOnlyMutableKeyFields() {
     var request = apiKeyUpdateRequest();
     given()
       .contentType(JSON)
@@ -161,7 +161,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:delete
 
   @Test
-  public void shouldDeleteKey() {
+  void shouldDeleteKey() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -183,7 +183,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:key-logs
 
   @Test
-  public void shouldReturnLatestLogsForKey() {
+  void shouldReturnLatestLogsForKey() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -210,7 +210,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:key-logs-download
 
   @Test
-  public void shouldDownloadKeyLogs() throws IOException {
+  void shouldDownloadKeyLogs() throws IOException {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
@@ -226,7 +226,7 @@ public class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:count
 
   @Test
-  public void shouldReturnKeyCountOfAuthenticatedAccount() {
+  void shouldReturnKeyCountOfAuthenticatedAccount() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
