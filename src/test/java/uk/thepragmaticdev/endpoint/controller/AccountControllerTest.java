@@ -49,7 +49,7 @@ import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class AccountControllerTest extends UnitData {
+class AccountControllerTest extends UnitData {
 
   @Autowired
   private ObjectMapper mapper;
@@ -89,7 +89,7 @@ public class AccountControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToAccountSigninResponse() throws Exception {
+  void shouldMapToAccountSigninResponse() throws Exception {
     var token = "token";
     var accountSigninRequest = new AccountSigninRequest("username@email.com", "password");
 
@@ -107,7 +107,7 @@ public class AccountControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToAccountSignupResponse() throws Exception {
+  void shouldMapToAccountSignupResponse() throws Exception {
     var token = "token";
     var accountSignupRequest = new AccountSignupRequest("username@email.com", "password");
 
@@ -125,7 +125,7 @@ public class AccountControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToAccountMeResponse() throws Exception {
+  void shouldMapToAccountMeResponse() throws Exception {
     var account = account();
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
 
@@ -144,7 +144,7 @@ public class AccountControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToAccountUpdateResponse() throws Exception {
+  void shouldMapToAccountUpdateResponse() throws Exception {
     var account = account();
     var accountUpdateRequest = new AccountUpdateRequest(//
         account.getFullName(), //
@@ -169,7 +169,7 @@ public class AccountControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToPageOfBillingLogResponses() throws Exception {
+  void shouldMapToPageOfBillingLogResponses() throws Exception {
     var logs = billingLogs();
     when(accountService.billingLogs(any(Pageable.class), anyString())).thenReturn(logs);
 
@@ -189,7 +189,7 @@ public class AccountControllerTest extends UnitData {
   }
 
   @Test
-  public void shouldMapToPageOfSecurityLogResponses() throws Exception {
+  void shouldMapToPageOfSecurityLogResponses() throws Exception {
     var logs = securityLogs();
     when(accountService.securityLogs(any(Pageable.class), anyString())).thenReturn(logs);
 
