@@ -53,7 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/accounts/signup").permitAll()//
         .antMatchers("/accounts/me/forgot").permitAll()//
         .antMatchers("/accounts/me/reset").permitAll()//
-        .antMatchers("/billing/plans").permitAll()
+        .antMatchers("/billing/prices").permitAll()
         // disallow everything else
         .anyRequest().authenticated();
 

@@ -275,11 +275,24 @@ public class AccountService {
   /**
    * Persists the accounts new stripe subscription.
    * 
-   * @param persistedAccount     An authenticated account entity
-   * @param stripeSubscriptionId The id of the new stripe subscription
+   * @param persistedAccount         An authenticated account entity
+   * @param stripeSubscriptionId     The id of the new stripe subscription
+   * @param stripeSubscriptionItemId The id of the new stripe subscription item
    */
-  public void saveSubscription(Account persistedAccount, String stripeSubscriptionId) {
+  public void saveSubscription(Account persistedAccount, String stripeSubscriptionId, String stripeSubscriptionItemId) {
     persistedAccount.setStripeSubscriptionId(stripeSubscriptionId);
+    persistedAccount.setStripeSubscriptionItemId(stripeSubscriptionItemId);
+    accountRepository.save(persistedAccount);
+  }
+
+  /**
+   * Removes the accounts stripe subscription.
+   * 
+   * @param persistedAccount An authenticated account entity
+   */
+  public void cancelSubscription(Account persistedAccount) {
+    persistedAccount.setStripeSubscriptionId(null);
+    persistedAccount.setStripeSubscriptionItemId(null);
     accountRepository.save(persistedAccount);
   }
 

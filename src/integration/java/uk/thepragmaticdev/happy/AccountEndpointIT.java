@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
+import com.stripe.exception.StripeException;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -60,9 +61,9 @@ public class AccountEndpointIT extends IntegrationData {
   // @endpoint:signup
 
   @Test
-  public void shouldCreateAccount() {
+  public void shouldCreateAccount() throws StripeException {
     var request = accountSignupRequest();
-    request.setUsername("test@email.com");
+    request.setUsername("account@integration.test");
 
     given()
       .headers(headers())
@@ -73,6 +74,9 @@ public class AccountEndpointIT extends IntegrationData {
     .then()
         .body("token", not(emptyString()))
         .statusCode(201);
+    // clean up stripe customer created on account creation
+    var account = accountService.findAuthenticatedAccount("account@integration.test");
+    deleteStripeCustomer(account.getStripeCustomerId());
   }
 
   // @endpoint:me
@@ -88,6 +92,7 @@ public class AccountEndpointIT extends IntegrationData {
         .body("id", is(nullValue()))
         .body("stripeCustomerId", is(nullValue()))
         .body("stripeSubscriptionId", is(nullValue()))
+        .body("stripeSubscriptionItemId", is(nullValue()))
         .body("username", is("admin@email.com"))
         .body("password", is(nullValue()))
         .body("passwordResetToken", is(nullValue()))
@@ -154,6 +159,7 @@ public class AccountEndpointIT extends IntegrationData {
     .then()
         .body("stripeCustomerId", is(nullValue()))
         .body("stripeSubscriptionId", is(nullValue()))
+        .body("stripeSubscriptionItemId", is(nullValue()))
         .body("username", is("admin@email.com"))
         .body("password", is(nullValue()))
         .body("passwordResetToken", is(nullValue()))

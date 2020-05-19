@@ -1,11 +1,11 @@
 package uk.thepragmaticdev.endpoint.controller;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.trace.http.HttpTrace.Principal;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.billing.dto.request.BillingCreateSubscriptionRequest;
-import uk.thepragmaticdev.billing.dto.response.BillingPlanResponse;
+import uk.thepragmaticdev.billing.dto.response.BillingPriceResponse;
 
 @RestController
 @RequestMapping("/billing")
@@ -42,28 +42,29 @@ public class BillingController {
   }
 
   /**
-   * Find all active plans held by stripe.
+   * Find all active prices held by stripe.
    * 
-   * @return A list of all active plans held by stripe
+   * @return A list of all active prices held by stripe
    */
-  @GetMapping(value = "/plans", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/prices", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.OK)
-  public List<BillingPlanResponse> findAllPlans() {
-    var plans = billingService.findAllPlans().getData();
-    return plans.stream().map(plan -> modelMapper.map(plan, BillingPlanResponse.class)).collect(Collectors.toList());
+  public List<BillingPriceResponse> findAllPrices() {
+    var prices = billingService.findAllPrices().getData();
+    return prices.stream().map(price -> modelMapper.map(price, BillingPriceResponse.class))
+        .collect(Collectors.toList());
   }
 
   /**
-   * Create a new stripe subscription for the given customer id to the given plan
+   * Create a new stripe subscription for the given customer id to the given price
    * id.
    * 
    * @param principal The currently authenticated principal user
-   * @param request   A new subscription request with the desired plan
+   * @param request   A new subscription request with the desired price
    */
   @PostMapping(value = "/subscriptions", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.CREATED)
   public void createSubscription(Principal principal, @Valid @RequestBody BillingCreateSubscriptionRequest request) {
-    billingService.createSubscription(principal.getName(), request.getPlan());
+    billingService.createSubscription(principal.getName(), request.getPrice());
   }
 
   /**
@@ -72,6 +73,7 @@ public class BillingController {
    * @param principal The currently authenticated principal user
    */
   @DeleteMapping("/subscriptions")
+  @ResponseStatus(value = HttpStatus.NO_CONTENT)
   public void cancelSubscription(Principal principal) {
     billingService.cancelSubscription(principal.getName());
   }

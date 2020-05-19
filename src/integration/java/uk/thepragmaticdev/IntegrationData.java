@@ -9,6 +9,8 @@ import static org.hamcrest.Matchers.not;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
@@ -34,6 +36,7 @@ import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
 import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
+import uk.thepragmaticdev.billing.dto.request.BillingCreateSubscriptionRequest;
 import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyUpdateRequest;
@@ -50,6 +53,7 @@ public abstract class IntegrationData {
 
   protected static final String ACCOUNTS_ENDPOINT = "http://localhost:8080/accounts/";
   protected static final String API_KEY_ENDPOINT = "http://localhost:8080/api-keys/";
+  protected static final String BILLING_ENDPOINT = "http://localhost:8080/billing/";
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
 
   /**
@@ -102,15 +106,23 @@ public abstract class IntegrationData {
   // @formatter:off
 
   /**
-   * Authorize an account.
+   * Authorize an account with default credentials.
    * @return An authentication token
    */
   protected String signin() {
-    return String.format("Bearer %s", 
+    return signin(accountSigninRequest());
+  }
+
+  /**
+   * Authorize an account with given credentials.
+   * @return An authentication token
+   */
+  protected String signin(AccountSigninRequest request) {
+    return token(
       given()
         .headers(headers())
         .contentType(JSON)
-        .body(accountSigninRequest())
+        .body(request)
       .when()
         .post(ACCOUNTS_ENDPOINT + "signin")
       .then()
@@ -119,16 +131,28 @@ public abstract class IntegrationData {
       .extract().as(AccountSigninResponse.class).getToken());
   }
 
+  private String token(String token) {
+    return String.format("Bearer %s", token);
+  }
+
   // @formatter:on
 
   // @models:default
 
   protected final AccountSigninRequest accountSigninRequest() {
-    return new AccountSigninRequest("admin@email.com", "password");
+    return accountSigninRequest("admin@email.com", "password");
+  }
+
+  protected final AccountSigninRequest accountSigninRequest(String username, String password) {
+    return new AccountSigninRequest(username, password);
   }
 
   protected final AccountSignupRequest accountSignupRequest() {
-    return new AccountSignupRequest("admin@email.com", "password");
+    return accountSignupRequest("admin@email.com", "password");
+  }
+
+  protected final AccountSignupRequest accountSignupRequest(String username, String password) {
+    return new AccountSignupRequest(username, password);
   }
 
   protected final AccountUpdateRequest accountUpdateRequest() {
@@ -169,6 +193,10 @@ public abstract class IntegrationData {
     return new DeviceMetadata("Mac OS X", "10", "14", "Chrome", "71", "0");
   }
 
+  protected final BillingCreateSubscriptionRequest billingCreateSubscriptionRequest(String price) {
+    return new BillingCreateSubscriptionRequest(price);
+  }
+
   // @helpers:formatting
 
   protected String csv(String file) throws IOException {
@@ -192,5 +220,11 @@ public abstract class IntegrationData {
             OffsetDateTime.now().toString()));
       }
     };
+  }
+
+  // @helpers:clean-up
+
+  protected void deleteStripeCustomer(String stripeCustomerId) throws StripeException {
+    Customer.retrieve(stripeCustomerId).delete();
   }
 }

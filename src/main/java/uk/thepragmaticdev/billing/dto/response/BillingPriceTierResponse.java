@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BillingPlanTierResponse {
+public class BillingPriceTierResponse {
 
   private long flatAmount;
 

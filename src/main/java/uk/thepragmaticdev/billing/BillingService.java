@@ -1,7 +1,10 @@
 package uk.thepragmaticdev.billing;
 
 import com.stripe.exception.StripeException;
-import com.stripe.model.PlanCollection;
+import com.stripe.model.Invoice;
+import com.stripe.model.PriceCollection;
+import com.stripe.model.UsageRecordSummaryCollection;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +24,7 @@ public class BillingService {
 
   /**
    * Service for creating stripe customers and handling subscriptions to non-free
-   * plans.
+   * prices.
    * 
    * @param accountService  The service for retrieving account information
    * @param stripeService   The service containing the stripe api
@@ -37,16 +40,16 @@ public class BillingService {
   }
 
   /**
-   * Find all active plans held by stripe.
+   * Find all active prices held by stripe.
    * 
-   * @return A list of all active plans held by stripe
+   * @return A list of all active prices held by stripe
    */
-  public PlanCollection findAllPlans() {
+  public PriceCollection findAllPrices() {
     Map<String, Object> params = Map.of("active", true);
     try {
-      return stripeService.findAllPlans(params);
+      return stripeService.findAllPrices(params);
     } catch (StripeException ex) {
-      throw new ApiException(BillingCode.STRIPE_FIND_ALL_PLANS_ERROR);
+      throw new ApiException(BillingCode.STRIPE_FIND_ALL_PRICES_ERROR);
     }
   }
 
@@ -67,22 +70,24 @@ public class BillingService {
   }
 
   /**
-   * Create a new stripe subscription for the given customer id to the given plan
+   * Create a new stripe subscription for the given customer id to the given price
    * id.
    * 
    * @param username The authenticated account username
-   * @param plan     The plan id to subscribe to
+   * @param price    The price id to subscribe to
    */
-  public void createSubscription(String username, String plan) {
+  public void createSubscription(String username, String price) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    if (findAllPlans().getData().stream().filter(p -> p.getId().equals(plan)).findFirst().isPresent()) {
-      throw new ApiException(BillingCode.STRIPE_PLAN_NOT_FOUND);
+    if (findAllPrices().getData().stream().filter(p -> p.getId().equals(price)).findFirst().isEmpty()) {
+      throw new ApiException(BillingCode.STRIPE_PRICE_NOT_FOUND);
     }
     Map<String, Object> params = Map.of("customer", authenticatedAccount.getStripeCustomerId(), "items",
-        List.of(Map.of("plan", plan)));
+        List.of(Map.of("price", price)));
     try {
-      var stripeSubscriptionId = stripeService.createSubscription(params).getId();
-      accountService.saveSubscription(authenticatedAccount, stripeSubscriptionId);
+      var subscription = stripeService.createSubscription(params);
+      var subscriptionItem = subscription.getItems().getData().stream().findFirst()
+          .orElseThrow(() -> new ApiException(BillingCode.STRIPE_SUBSCRIPTION_ITEM_NOT_FOUND));
+      accountService.saveSubscription(authenticatedAccount, subscription.getId(), subscriptionItem.getId());
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CREATE_SUBSCRIPTION_ERROR);
     }
@@ -100,8 +105,56 @@ public class BillingService {
     }
     try {
       stripeService.cancelSubscription(authenticatedAccount.getStripeSubscriptionId()).getId();
+      accountService.cancelSubscription(authenticatedAccount);
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_ERROR);
+    }
+  }
+
+  /**
+   * Create a usage record event for an accounts subscription item.
+   * 
+   * @param username   The authenticated account username
+   * @param operations The new number of operations that have occured
+   */
+  public void createUsageRecord(String username, int operations) {
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    Map<String, Object> params = Map.of("quantity", operations, "timestamp", Instant.now().getEpochSecond());
+    try {
+      stripeService.createUsageRecord(authenticatedAccount.getStripeSubscriptionItemId(), params);
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_USAGE_RECORD_ERROR);
+    }
+  }
+
+  /**
+   * Find all usage records for subscriptio item held by stripe.
+   * 
+   * @param username The authenticated account username
+   * @return A list of all usage records for subscription item
+   */
+  public UsageRecordSummaryCollection findAllUsageRecords(String username) {
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    try {
+      return stripeService.findAllUsageRecords(authenticatedAccount.getStripeSubscriptionItemId());
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_FIND_ALL_USAGE_RECORDS_ERROR);
+    }
+  }
+
+  /**
+   * Find upcoming invoice for stripe customer.
+   * 
+   * @param username The authenticated account username
+   * @return An invoice coming up
+   */
+  public Invoice findUpcomingInvoice(String username) {
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    Map<String, Object> params = Map.of("customer", authenticatedAccount.getStripeCustomerId());
+    try {
+      return stripeService.findUpcomingInvoice(params);
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_FIND_UPCOMING_INVOICE_ERROR);
     }
   }
 }

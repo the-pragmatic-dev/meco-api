@@ -26,6 +26,7 @@ CREATE TABLE account (
     id BIGSERIAL PRIMARY KEY,
     stripe_customer_id TEXT UNIQUE NOT NULL,
     stripe_subscription_id TEXT,
+    stripe_subscription_item_id TEXT,
     username TEXT UNIQUE NOT NULL,
     password CHAR(60) NOT NULL,
     password_reset_token CHAR(36),
