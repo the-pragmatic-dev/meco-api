@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.account.AccountService;
@@ -26,17 +25,14 @@ public class BillingService {
    * Service for creating stripe customers and handling subscriptions to non-free
    * prices.
    * 
-   * @param accountService  The service for retrieving account information
-   * @param stripeService   The service containing the stripe api
-   * @param stripeSecretKey The secret key for communicating with stripe
+   * @param accountService The service for retrieving account information
+   * @param stripeService  The service containing the stripe api
    */
   public BillingService(//
       @Lazy AccountService accountService, //
-      StripeService stripeService, //
-      @Value("${stripe.secret-key}") String stripeSecretKey) {
+      StripeService stripeService) {
     this.accountService = accountService;
     this.stripeService = stripeService;
-    stripeService.setApiKey(stripeSecretKey);
   }
 
   /**
@@ -66,6 +62,21 @@ public class BillingService {
       return stripeService.createCustomer(params).getId();
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CREATE_CUSTOMER_ERROR);
+    }
+  }
+
+  /**
+   * Delete a stripe customer.
+   * 
+   * @param username The email address of the account
+   * @return The deleted stripe customer id
+   */
+  public String deleteCustomer(String username) {
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    try {
+      return stripeService.deleteCustomer(authenticatedAccount.getStripeCustomerId()).getId();
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_DELETE_CUSTOMER_ERROR);
     }
   }
 

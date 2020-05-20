@@ -38,7 +38,7 @@ class BillingServiceTest extends UnitData {
    */
   @BeforeEach
   public void initEach() {
-    sut = new BillingService(accountService, stripeService, "secret key");
+    sut = new BillingService(accountService, stripeService);
   }
 
   @Test
@@ -59,6 +59,19 @@ class BillingServiceTest extends UnitData {
       sut.createCustomer("username");
     });
     assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_CREATE_CUSTOMER_ERROR));
+  }
+
+  @Test
+  void shouldThrowExceptionOnStripeErrorWhenDeletingCustomer() throws Exception {
+    var account = mock(Account.class);
+    when(account.getStripeCustomerId()).thenReturn("id");
+    when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
+    doThrow(ApiConnectionException.class).when(stripeService).deleteCustomer(anyString());
+
+    var ex = Assertions.assertThrows(ApiException.class, () -> {
+      sut.deleteCustomer("username");
+    });
+    assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_DELETE_CUSTOMER_ERROR));
   }
 
   @Test

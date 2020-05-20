@@ -67,6 +67,17 @@ class BillingEndpointIT extends IntegrationData {
     .then().statusCode(201);
   }
 
+  /**
+   * Clean up stripe customer test data.
+   * 
+   * @throws StripeException if a stripe api error occurs
+   */
+  @AfterEach
+  public void cleanUpEach() throws StripeException {
+    var account = accountService.findAuthenticatedAccount(TEST_USERNAME);
+    billingService.deleteCustomer(account.getUsername());
+  }
+
   // @endpoint:findAllPrices
 
   @Test
@@ -153,17 +164,6 @@ class BillingEndpointIT extends IntegrationData {
   }
 
   // @formatter:on
-
-  /**
-   * Clean up stripe customer test data.
-   * 
-   * @throws StripeException if a stripe api error occurs
-   */
-  @AfterEach
-  public void cleanUpEach() throws StripeException {
-    var account = accountService.findAuthenticatedAccount(TEST_USERNAME);
-    deleteStripeCustomer(account.getStripeCustomerId());
-  }
 
   private void assertBillingPrices(List<BillingPriceResponse> billingPrices) {
     billingPrices.forEach(price -> {

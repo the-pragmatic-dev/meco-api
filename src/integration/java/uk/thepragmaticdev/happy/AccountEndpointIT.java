@@ -35,6 +35,7 @@ import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
+import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
@@ -49,6 +50,9 @@ class AccountEndpointIT extends IntegrationData {
 
   @Autowired
   private AccountService accountService;
+
+  @Autowired
+  private BillingService billingService;
 
   /**
    * Called before each integration test to reset database to default state.
@@ -76,7 +80,7 @@ class AccountEndpointIT extends IntegrationData {
         .statusCode(201);
     // clean up stripe customer created on account creation
     var account = accountService.findAuthenticatedAccount("account@integration.test");
-    deleteStripeCustomer(account.getStripeCustomerId());
+    billingService.deleteCustomer(account.getUsername());
   }
 
   // @endpoint:me

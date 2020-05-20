@@ -9,8 +9,6 @@ import static org.hamcrest.Matchers.not;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stripe.exception.StripeException;
-import com.stripe.model.Customer;
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
@@ -220,11 +218,5 @@ public abstract class IntegrationData {
             OffsetDateTime.now().toString()));
       }
     };
-  }
-
-  // @helpers:clean-up
-
-  protected void deleteStripeCustomer(String stripeCustomerId) throws StripeException {
-    Customer.retrieve(stripeCustomerId).delete();
   }
 }
