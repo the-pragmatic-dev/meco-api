@@ -98,8 +98,8 @@ public class ApiKeyService {
       apiKey.setAccount(authenticatedAccount);
       apiKey.setName(apiKey.getName());
       apiKey.setPrefix(generatePrefix());
-      apiKey.setKey(apiKey.getPrefix().concat(".").concat(generateApiKey()));
-      apiKey.setHash(encodeApiKey(apiKey.getKey()));
+      apiKey.setKey(apiKey.getPrefix().concat(".").concat(generateKey()));
+      apiKey.setHash(hash(apiKey.getKey()));
       apiKey.setCreatedDate(OffsetDateTime.now());
       apiKey.setEnabled(apiKey.getEnabled());
       apiKey.getScope().setApiKey(apiKey);
@@ -262,27 +262,27 @@ public class ApiKeyService {
   }
 
   /**
-   * TODO.
+   * Verify the encoded hashed key obtained from storage matches the submitted raw
+   * key after it too is encoded. The stored key itself is never decoded.
    * 
-   * @param rawApiKey     TODO
-   * @param encodedApiKey TODO
-   * @return
+   * @param rawKey    The raw, unencoded key from request
+   * @param hashedKey The encoded key from storage
+   * @return True if the keys match, false if they do not
    */
-  public boolean authenticate(String rawApiKey, String encodedApiKey) {
-    var apiKey = rawApiKey.substring(rawApiKey.indexOf('.') + 1);
-    return passwordEncoder.matches(apiKey, encodedApiKey);
+  public boolean isAuthentic(String rawKey, String hashedKey) {
+    return passwordEncoder.matches(rawKey, hashedKey);
   }
 
   private String generatePrefix() {
     return RandomStringUtils.randomAlphanumeric(7);
   }
 
-  private String generateApiKey() {
+  private String generateKey() {
     var uuid = UUID.randomUUID();
     return Base64.getEncoder().withoutPadding().encodeToString(uuid.toString().getBytes());
   }
 
-  private String encodeApiKey(String apiKey) {
-    return passwordEncoder.encode(apiKey);
+  private String hash(String key) {
+    return passwordEncoder.encode(key);
   }
 }

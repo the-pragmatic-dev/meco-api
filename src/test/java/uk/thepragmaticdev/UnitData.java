@@ -5,8 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.stripe.model.Price;
 import com.stripe.model.Price.Recurring;
-import com.stripe.model.Price.Tier;
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -56,7 +54,6 @@ public abstract class UnitData {
     price.setNickname("nickname");
     price.setProduct("id");
     price.setRecurring(recurring());
-    price.setTiers(List.of(tier()));
     return price;
   }
 
@@ -65,13 +62,5 @@ public abstract class UnitData {
     recurring.setInterval("interval");
     recurring.setIntervalCount(1L);
     return recurring;
-  }
-
-  private Tier tier() {
-    var tier = new Tier();
-    tier.setFlatAmount(1L);
-    tier.setUnitAmountDecimal(new BigDecimal(0.01));
-    tier.setUpTo(10L);
-    return tier;
   }
 }

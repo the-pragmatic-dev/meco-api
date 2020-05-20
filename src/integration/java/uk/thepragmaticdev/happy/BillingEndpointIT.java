@@ -172,9 +172,7 @@ class BillingEndpointIT extends IntegrationData {
       assertThat(price.getNickname(), anyOf(containsString("Monthly"), containsString("Yearly")));
       assertThat(price.getProduct(), startsWith("prod_"));
       assertThat(price.getRecurring().getInterval(), anyOf(is("month"), is("year")));
-      assertThat(price.getRecurring().getIntervalCount(), is(1));
-      assertThat(price.getTiers(), hasSize(2));
-      // TODO assert billing price tier responses
+      assertThat(price.getRecurring().getIntervalCount(), is(1L));
     });
   }
 }

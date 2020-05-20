@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.model.Price;
 import com.stripe.model.Price.Recurring;
-import com.stripe.model.Price.Tier;
 import com.stripe.model.PriceCollection;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +29,6 @@ import uk.thepragmaticdev.UnitData;
 import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.billing.dto.response.BillingPriceRecurringResponse;
 import uk.thepragmaticdev.billing.dto.response.BillingPriceResponse;
-import uk.thepragmaticdev.billing.dto.response.BillingPriceTierResponse;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -83,18 +81,10 @@ class BillingControllerTest extends UnitData {
     assertThat(actual.getNickname(), is(expected.getNickname()));
     assertThat(actual.getProduct(), is(expected.getProduct()));
     assertValidBillingPriceRecurringResponse(actual.getRecurring(), expected.getRecurring());
-    assertThat(actual.getTiers(), hasSize(1));
-    assertValidBillingPriceTierResponse(actual.getTiers().get(0), expected.getTiers().get(0));
   }
 
   private void assertValidBillingPriceRecurringResponse(BillingPriceRecurringResponse actual, Recurring expected) {
     assertThat(actual.getInterval(), is(expected.getInterval()));
     assertThat(actual.getIntervalCount(), is(expected.getIntervalCount()));
-  }
-
-  private void assertValidBillingPriceTierResponse(BillingPriceTierResponse actual, Tier expected) {
-    assertThat(actual.getFlatAmount(), is(expected.getFlatAmount()));
-    assertThat(actual.getUnitAmountDecimal(), is(expected.getUnitAmountDecimal()));
-    assertThat(actual.getUpTo(), is(expected.getUpTo()));
   }
 }

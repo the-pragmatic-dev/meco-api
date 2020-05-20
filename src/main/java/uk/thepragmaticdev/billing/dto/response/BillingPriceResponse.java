@@ -1,6 +1,5 @@
 package uk.thepragmaticdev.billing.dto.response;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +18,4 @@ public class BillingPriceResponse {
   private String product;
 
   private BillingPriceRecurringResponse recurring;
-
-  private List<BillingPriceTierResponse> tiers;
 }

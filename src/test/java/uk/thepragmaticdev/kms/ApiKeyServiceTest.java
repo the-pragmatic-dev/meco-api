@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
@@ -124,5 +125,23 @@ class ApiKeyServiceTest {
       sut.downloadLog(apiKeyLogWriter, "username", 1);
     });
     assertThat(ex.getErrorCode(), is(CriticalCode.CSV_WRITING_ERROR));
+  }
+
+  @Test
+  void shouldReturnTrueWhenRawKeyMatchesHashedKey() {
+    var passwordEncoderImpl = new BCryptPasswordEncoder(12);
+    var rawKey = "abcdefg.hijklmnopqrstuvwxyz";
+    var hashedKey = passwordEncoderImpl.encode(rawKey);
+    when(passwordEncoder.matches(rawKey, hashedKey)).thenReturn(passwordEncoderImpl.matches(rawKey, hashedKey));
+    assertThat(sut.isAuthentic(rawKey, hashedKey), is(true));
+  }
+
+  @Test
+  void shouldReturnFalseWhenRawKeyDoesNotMatchHashedKey() {
+    var passwordEncoderImpl = new BCryptPasswordEncoder(12);
+    var rawKey = "abcdefg.hijklmnopqrstuvwxyz";
+    var hashedKey = "aSuperSecretHashThatWillNotMatchTheRawKeyWhenHashed";
+    when(passwordEncoder.matches(rawKey, hashedKey)).thenReturn(passwordEncoderImpl.matches(rawKey, hashedKey));
+    assertThat(sut.isAuthentic(rawKey, hashedKey), is(false));
   }
 }
