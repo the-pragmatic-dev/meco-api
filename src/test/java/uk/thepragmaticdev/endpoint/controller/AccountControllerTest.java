@@ -71,7 +71,7 @@ class AccountControllerTest extends UnitData {
   private AccountController sut;
 
   /**
-   * Called before each test. Builds the system under test, mocks and mvc endpoint
+   * Called before each test. Builds the system under test, mocks the mvc endpoint
    * and creates a test principal for authentication.
    */
   @BeforeEach

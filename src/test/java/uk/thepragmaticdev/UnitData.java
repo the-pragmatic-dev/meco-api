@@ -3,6 +3,10 @@ package uk.thepragmaticdev;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.stripe.model.Price;
+import com.stripe.model.Price.Recurring;
+import com.stripe.model.Price.Tier;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -45,4 +49,29 @@ public abstract class UnitData {
     return account;
   }
 
+  protected Price price() {
+    var price = new Price();
+    price.setId("priceId");
+    price.setCurrency("currency");
+    price.setNickname("nickname");
+    price.setProduct("id");
+    price.setRecurring(recurring());
+    price.setTiers(List.of(tier()));
+    return price;
+  }
+
+  private Recurring recurring() {
+    var recurring = new Recurring();
+    recurring.setInterval("interval");
+    recurring.setIntervalCount(1L);
+    return recurring;
+  }
+
+  private Tier tier() {
+    var tier = new Tier();
+    tier.setFlatAmount(1L);
+    tier.setUnitAmountDecimal(new BigDecimal(0.01));
+    tier.setUpTo(10L);
+    return tier;
+  }
 }

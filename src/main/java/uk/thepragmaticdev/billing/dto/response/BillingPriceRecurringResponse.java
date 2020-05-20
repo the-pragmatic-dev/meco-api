@@ -11,5 +11,5 @@ public class BillingPriceRecurringResponse {
 
   private String interval;
 
-  private int intervalCount;
+  private long intervalCount;
 }
