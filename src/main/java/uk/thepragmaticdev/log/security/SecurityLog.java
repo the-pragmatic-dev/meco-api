@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.endpoint.Model;
@@ -17,6 +18,7 @@ import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = "id") })
 public class SecurityLog extends Log implements Model {
