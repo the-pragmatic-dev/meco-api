@@ -17,11 +17,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-  private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenService jwtTokenService;
 
   @Autowired
-  public WebSecurityConfig(JwtTokenProvider jwtTokenProvider) {
-    this.jwtTokenProvider = jwtTokenProvider;
+  public WebSecurityConfig(JwtTokenService jwtTokenService) {
+    this.jwtTokenService = jwtTokenService;
   }
 
   @Bean
@@ -58,7 +58,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     http.exceptionHandling().accessDeniedPage("/login");
 
     // apply jwt filter
-    http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));
+    http.apply(new JwtTokenFilterConfigurer(jwtTokenService));
   }
 
   @Bean

@@ -19,10 +19,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
   private static final Logger LOG = LoggerFactory.getLogger(JwtTokenFilter.class);
 
-  private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenService jwtTokenService;
 
-  public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
-    this.jwtTokenProvider = jwtTokenProvider;
+  public JwtTokenFilter(JwtTokenService jwtTokenService) {
+    this.jwtTokenService = jwtTokenService;
   }
 
   @Override
@@ -30,10 +30,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
       HttpServletRequest httpServletRequest, //
       HttpServletResponse httpServletResponse, //
       FilterChain filterChain) throws ServletException, IOException {
-    var token = jwtTokenProvider.resolveToken(httpServletRequest);
+    var token = jwtTokenService.resolveToken(httpServletRequest);
     try {
-      if (token != null && jwtTokenProvider.validateToken(token)) {
-        var auth = jwtTokenProvider.getAuthentication(token);
+      if (jwtTokenService.isValid(token)) {
+        var auth = jwtTokenService.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
       }
     } catch (ApiException ex) {

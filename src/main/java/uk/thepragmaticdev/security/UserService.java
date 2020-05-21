@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.account.AccountRepository;
 
 @Service
-public class MyUserDetails implements UserDetailsService {
+public class UserService implements UserDetailsService {
 
   private final AccountRepository accountRepository;
 
   @Autowired
-  public MyUserDetails(AccountRepository accountRepository) {
+  public UserService(AccountRepository accountRepository) {
     this.accountRepository = accountRepository;
   }
 

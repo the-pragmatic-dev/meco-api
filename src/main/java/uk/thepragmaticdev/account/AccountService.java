@@ -24,7 +24,7 @@ import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
-import uk.thepragmaticdev.security.JwtTokenProvider;
+import uk.thepragmaticdev.security.JwtTokenService;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Service
@@ -44,7 +44,7 @@ public class AccountService {
 
   private final PasswordEncoder passwordEncoder;
 
-  private final JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenService jwtTokenService;
 
   private final AuthenticationManager authenticationManager;
 
@@ -60,7 +60,7 @@ public class AccountService {
    * @param requestMetadataService The service for gathering ip and location
    *                               information
    * @param passwordEncoder        The service for encoding passwords
-   * @param jwtTokenProvider       The provider for creating, validating tokens
+   * @param jwtTokenService        The service for creating, validating tokens
    * @param authenticationManager  The manager for authentication providers
    */
   @Autowired
@@ -72,7 +72,7 @@ public class AccountService {
       EmailService emailService, //
       RequestMetadataService requestMetadataService, //
       PasswordEncoder passwordEncoder, //
-      JwtTokenProvider jwtTokenProvider, //
+      JwtTokenService jwtTokenService, //
       AuthenticationManager authenticationManager) {
     this.accountRepository = accountRepository;
     this.billingService = billingService;
@@ -81,7 +81,7 @@ public class AccountService {
     this.emailService = emailService;
     this.requestMetadataService = requestMetadataService;
     this.passwordEncoder = passwordEncoder;
-    this.jwtTokenProvider = jwtTokenProvider;
+    this.jwtTokenService = jwtTokenService;
     this.authenticationManager = authenticationManager;
   }
 
@@ -91,6 +91,7 @@ public class AccountService {
    * 
    * @param username The username of an account attemping to signin
    * @param password The password of an account attemping to signin
+   * @param request  The request information for HTTP servlets
    * @return An authentication token
    */
   public String signin(String username, String password, HttpServletRequest request) {
@@ -98,7 +99,7 @@ public class AccountService {
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
       var persistedAccount = findAuthenticatedAccount(username);
-      token = jwtTokenProvider.createToken(username, persistedAccount.getRoles());
+      token = jwtTokenService.createToken(username, persistedAccount.getRoles());
       requestMetadataService.verifyRequest(persistedAccount, request);
     } catch (AuthenticationException ex) {
       throw new ApiException(AccountCode.INVALID_CREDENTIALS);
@@ -124,7 +125,7 @@ public class AccountService {
       var persistedAccount = accountRepository.save(account);
       securityLogService.created(persistedAccount);
       emailService.sendAccountCreated(persistedAccount);
-      return jwtTokenProvider.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
+      return jwtTokenService.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
     } else {
       throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
     }
@@ -299,6 +300,6 @@ public class AccountService {
   // TODO: unused method yet to be implemented
   @SuppressWarnings("unused")
   private String refresh(String username) {
-    return jwtTokenProvider.createToken(username, findAuthenticatedAccount(username).getRoles());
+    return jwtTokenService.createToken(username, findAuthenticatedAccount(username).getRoles());
   }
 }

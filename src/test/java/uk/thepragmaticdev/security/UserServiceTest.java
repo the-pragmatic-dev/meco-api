@@ -20,19 +20,19 @@ import uk.thepragmaticdev.account.AccountRepository;
 import uk.thepragmaticdev.account.Role;
 
 @SpringBootTest
-class MyUserDetailsTest {
+class UserServiceTest {
 
   @Mock
   private AccountRepository accountRepository;
 
-  private MyUserDetails sut;
+  private UserService sut;
 
   /**
    * Called before each test, builds the system under test.
    */
   @BeforeEach
   public void initEach() {
-    sut = new MyUserDetails(accountRepository);
+    sut = new UserService(accountRepository);
   }
 
   @Test
