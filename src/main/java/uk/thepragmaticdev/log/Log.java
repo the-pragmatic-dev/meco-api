@@ -1,6 +1,5 @@
 package uk.thepragmaticdev.log;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvIgnore;
 import java.time.OffsetDateTime;
@@ -20,7 +19,6 @@ public class Log {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @JsonIgnore
   @CsvIgnore
   private Long id;
 

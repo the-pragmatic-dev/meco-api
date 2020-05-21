@@ -1,6 +1,5 @@
 package uk.thepragmaticdev.log.security;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opencsv.bean.CsvIgnore;
 import com.opencsv.bean.CsvRecurse;
 import java.time.OffsetDateTime;
@@ -23,7 +22,6 @@ import uk.thepragmaticdev.security.request.RequestMetadata;
 public class SecurityLog extends Log implements Model {
 
   @ManyToOne
-  @JsonIgnore
   @CsvIgnore
   private Account account;
 

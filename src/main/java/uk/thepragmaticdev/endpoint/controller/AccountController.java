@@ -1,7 +1,6 @@
 package uk.thepragmaticdev.endpoint.controller;
 
 import com.opencsv.bean.StatefulBeanToCsv;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -37,7 +36,6 @@ import uk.thepragmaticdev.log.security.SecurityLog;
 @RestController
 @RequestMapping("/accounts")
 @CrossOrigin("*")
-@Tag(name = "accounts")
 public class AccountController {
 
   private final AccountService accountService;

@@ -1,6 +1,5 @@
 package uk.thepragmaticdev.kms;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,7 +22,6 @@ public class Scope implements Model {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @JsonIgnore
   private Long id;
 
   @Column(columnDefinition = "boolean not null default false")
@@ -39,6 +37,5 @@ public class Scope implements Model {
   private boolean video;
 
   @OneToOne(mappedBy = "scope")
-  @JsonIgnore
   private ApiKey apiKey;
 }

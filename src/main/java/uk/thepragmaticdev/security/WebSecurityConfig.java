@@ -43,9 +43,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // entry points
     http.authorizeRequests()
-        // TODO: might remove swagger
-        // allow swagger api docs endpoint
-        .antMatchers("/v3/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
         // allow actuator endpoint
         .antMatchers("/actuator/**").permitAll()
         // allow public endpoints

@@ -1,8 +1,5 @@
 package uk.thepragmaticdev.account;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import java.time.OffsetDateTime;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -18,9 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,7 +32,6 @@ public class Account implements Model {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @JsonIgnore
   private Long id;
 
   @Column(unique = true, nullable = false)
@@ -49,19 +42,14 @@ public class Account implements Model {
   private String stripeSubscriptionItemId;
 
   @Column(unique = true, nullable = false)
-  @Email(message = "Username is not a valid email.")
   private String username;
 
-  @Size(min = 8, message = "Minimum password length: 8 characters.")
-  @JsonProperty(access = Access.WRITE_ONLY)
   @Column(columnDefinition = "bpchar")
   private String password;
 
   @Column(columnDefinition = "bpchar")
-  @JsonIgnore
   private String passwordResetToken;
 
-  @JsonIgnore
   private OffsetDateTime passwordResetTokenExpire;
 
   private String fullName;
@@ -77,19 +65,14 @@ public class Account implements Model {
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(name = "name")
   @Enumerated(EnumType.STRING)
-  @JsonIgnore
   private List<Role> roles;
 
-  @Valid
   @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL }, orphanRemoval = true)
-  @JsonIgnore
   private List<ApiKey> apiKeys;
 
   @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL }, orphanRemoval = true)
-  @JsonIgnore
   private List<BillingLog> billingLogs;
 
   @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL }, orphanRemoval = true)
-  @JsonIgnore
   private List<SecurityLog> securityLogs;
 }

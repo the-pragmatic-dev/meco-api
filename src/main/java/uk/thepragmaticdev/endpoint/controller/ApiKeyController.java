@@ -1,7 +1,6 @@
 package uk.thepragmaticdev.endpoint.controller;
 
 import com.opencsv.bean.StatefulBeanToCsv;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +33,6 @@ import uk.thepragmaticdev.log.key.ApiKeyLog;
 @RestController
 @RequestMapping("/api-keys")
 @CrossOrigin("*")
-@Tag(name = "api-keys")
 public class ApiKeyController {
 
   private final ApiKeyService apiKeyService;

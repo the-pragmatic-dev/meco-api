@@ -1,6 +1,5 @@
 package uk.thepragmaticdev.log.key;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opencsv.bean.CsvIgnore;
 import com.opencsv.bean.CsvRecurse;
 import java.time.OffsetDateTime;
@@ -23,7 +22,6 @@ import uk.thepragmaticdev.security.request.RequestMetadata;
 public class ApiKeyLog extends Log implements Model {
 
   @ManyToOne
-  @JsonIgnore
   @CsvIgnore
   private ApiKey apiKey;
 

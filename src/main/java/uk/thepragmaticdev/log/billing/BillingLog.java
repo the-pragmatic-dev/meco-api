@@ -1,6 +1,5 @@
 package uk.thepragmaticdev.log.billing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvIgnore;
 import java.time.OffsetDateTime;
@@ -21,7 +20,6 @@ import uk.thepragmaticdev.log.Log;
 public class BillingLog extends Log implements Model {
 
   @ManyToOne
-  @JsonIgnore
   @CsvIgnore
   private Account account;
 
