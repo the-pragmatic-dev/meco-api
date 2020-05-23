@@ -124,9 +124,10 @@ public abstract class IntegrationData {
       .when()
         .post(ACCOUNTS_ENDPOINT + "signin")
       .then()
-          .body("token", not(emptyString()))
+          .body("accessToken", not(emptyString()))
+          .body("refreshToken", not(emptyString()))
           .statusCode(200)
-      .extract().as(AccountSigninResponse.class).getToken());
+      .extract().as(AccountSigninResponse.class).getAccessToken());
   }
 
   private String token(String token) {

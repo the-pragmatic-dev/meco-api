@@ -63,7 +63,6 @@ public class ApiKeyController {
    * @return A list of all keys owned by the account
    */
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(value = HttpStatus.OK)
   public List<ApiKeyResponse> findAll(Principal principal) {
     var keys = apiKeyService.findAll(principal.getName());
     return keys.stream().map(key -> modelMapper.map(key, ApiKeyResponse.class)).collect(Collectors.toList());
@@ -93,7 +92,6 @@ public class ApiKeyController {
    * @return The updated key
    */
   @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(value = HttpStatus.OK)
   public ApiKeyResponse update(Principal principal, @PathVariable long id,
       @Valid @RequestBody ApiKeyUpdateRequest request) {
     var key = apiKeyService.update(principal.getName(), id, modelMapper.map(request, ApiKey.class));
@@ -121,7 +119,6 @@ public class ApiKeyController {
    * @return
    */
   @GetMapping(value = "/{id}/logs", produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(value = HttpStatus.OK)
   public Page<ApiKeyLogResponse> log(Pageable pageable, Principal principal, @PathVariable long id) {
     var keyLogs = apiKeyService.log(pageable, principal.getName(), id);
     return keyLogs.map(log -> new ApiKeyLogResponse(log.getAction(), log.getCreatedDate(), log.getRequestMetadata()));
@@ -134,7 +131,6 @@ public class ApiKeyController {
    * @param id        The id of the key requesting logs
    */
   @GetMapping(value = "/{id}/logs/download", produces = "text/csv")
-  @ResponseStatus(value = HttpStatus.OK)
   public void downloadLog(Principal principal, @PathVariable long id) {
     apiKeyService.downloadLog(apiKeyLogCsvWriter, principal.getName(), id);
   }
@@ -146,7 +142,6 @@ public class ApiKeyController {
    * @return A count of keys owned by the authenticated account
    */
   @GetMapping(value = "/count")
-  @ResponseStatus(value = HttpStatus.OK)
   public long count(Principal principal) {
     return apiKeyService.count(principal.getName());
   }

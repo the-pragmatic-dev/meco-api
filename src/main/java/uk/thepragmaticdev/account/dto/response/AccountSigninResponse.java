@@ -1,5 +1,6 @@
 package uk.thepragmaticdev.account.dto.response;
 
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,5 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AccountSigninResponse {
 
-  private String token;
+  private String accessToken;
+
+  private UUID refreshToken;
 }

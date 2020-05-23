@@ -15,6 +15,7 @@ import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,7 @@ import uk.thepragmaticdev.log.dto.BillingLogResponse;
 import uk.thepragmaticdev.log.dto.SecurityLogResponse;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.security.request.RequestMetadata;
+import uk.thepragmaticdev.security.token.TokenPair;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -90,10 +92,10 @@ class AccountControllerTest extends UnitData {
 
   @Test
   void shouldMapToAccountSigninResponse() throws Exception {
-    var token = "token";
+    var tokenPair = new TokenPair("access", UUID.randomUUID());
     var accountSigninRequest = new AccountSigninRequest("username@email.com", "password");
 
-    when(accountService.signin(anyString(), anyString(), any(HttpServletRequest.class))).thenReturn(token);
+    when(accountService.signin(anyString(), anyString(), any(HttpServletRequest.class))).thenReturn(tokenPair);
 
     var body = mvc.perform(//
         MockMvcRequestBuilders.post("/accounts/signin")//
@@ -103,15 +105,16 @@ class AccountControllerTest extends UnitData {
     ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
     var response = mapper.readValue(body, AccountSigninResponse.class);
 
-    assertThat(response.getToken(), is(token));
+    assertThat(response.getAccessToken(), is(tokenPair.getAccessToken()));
+    assertThat(response.getRefreshToken(), is(tokenPair.getRefreshToken()));
   }
 
   @Test
   void shouldMapToAccountSignupResponse() throws Exception {
-    var token = "token";
+    var tokenPair = new TokenPair("access", UUID.randomUUID());
     var accountSignupRequest = new AccountSignupRequest("username@email.com", "password");
 
-    when(accountService.signup(anyString(), anyString())).thenReturn(token);
+    when(accountService.signup(anyString(), anyString())).thenReturn(tokenPair);
 
     var body = mvc.perform(//
         MockMvcRequestBuilders.post("/accounts/signup")//
@@ -121,7 +124,8 @@ class AccountControllerTest extends UnitData {
     ).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
     var response = mapper.readValue(body, AccountSignupResponse.class);
 
-    assertThat(response.getToken(), is(token));
+    assertThat(response.getAccessToken(), is(tokenPair.getAccessToken()));
+    assertThat(response.getRefreshToken(), is(tokenPair.getRefreshToken()));
   }
 
   @Test

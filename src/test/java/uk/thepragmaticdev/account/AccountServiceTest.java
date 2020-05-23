@@ -29,8 +29,8 @@ import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
-import uk.thepragmaticdev.security.JwtTokenService;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
+import uk.thepragmaticdev.security.token.TokenService;
 
 @SpringBootTest
 class AccountServiceTest extends UnitData {
@@ -57,7 +57,7 @@ class AccountServiceTest extends UnitData {
   private PasswordEncoder passwordEncoder;
 
   @Mock
-  private JwtTokenService jwtTokenService;
+  private TokenService tokenService;
 
   @Mock
   private AuthenticationManager authenticationManager;
@@ -76,7 +76,7 @@ class AccountServiceTest extends UnitData {
   @BeforeEach
   public void initEach() {
     sut = new AccountService(accountRepository, billingService, billingLogService, securityLogService, emailService,
-        requestMetadataService, passwordEncoder, jwtTokenService, authenticationManager);
+        requestMetadataService, passwordEncoder, tokenService, authenticationManager);
   }
 
   @Test

@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.account.dto.response;
+package uk.thepragmaticdev.security.token;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountSignupResponse {
+public class TokenPair {
 
   private String accessToken;
 

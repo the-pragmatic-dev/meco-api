@@ -1,3 +1,4 @@
+delete from refresh_token;
 delete from api_key_log;
 delete from billing_log;
 delete from security_log;
@@ -15,4 +16,5 @@ select * from access_policy;
 select * from api_key_log;
 select * from billing_log;
 select * from security_log;
+select * from refresh_token;
 select * from flyway_schema_history;

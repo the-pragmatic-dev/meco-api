@@ -11,17 +11,19 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import uk.thepragmaticdev.security.token.TokenFilterConfigurer;
+import uk.thepragmaticdev.security.token.TokenService;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-  private final JwtTokenService jwtTokenService;
+  private final TokenService tokenService;
 
   @Autowired
-  public WebSecurityConfig(JwtTokenService jwtTokenService) {
-    this.jwtTokenService = jwtTokenService;
+  public WebSecurityConfig(TokenService tokenService) {
+    this.tokenService = tokenService;
   }
 
   @Bean
@@ -57,8 +59,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // if a user tries to access a resource without having enough permissions
     http.exceptionHandling().accessDeniedPage("/login");
 
-    // apply jwt filter
-    http.apply(new JwtTokenFilterConfigurer(jwtTokenService));
+    // apply token filter
+    http.apply(new TokenFilterConfigurer(tokenService));
   }
 
   @Bean

@@ -5,6 +5,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,9 @@ import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
-import uk.thepragmaticdev.security.JwtTokenService;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
+import uk.thepragmaticdev.security.token.TokenPair;
+import uk.thepragmaticdev.security.token.TokenService;
 
 @Service
 public class AccountService {
@@ -44,7 +46,7 @@ public class AccountService {
 
   private final PasswordEncoder passwordEncoder;
 
-  private final JwtTokenService jwtTokenService;
+  private final TokenService tokenService;
 
   private final AuthenticationManager authenticationManager;
 
@@ -60,7 +62,7 @@ public class AccountService {
    * @param requestMetadataService The service for gathering ip and location
    *                               information
    * @param passwordEncoder        The service for encoding passwords
-   * @param jwtTokenService        The service for creating, validating tokens
+   * @param tokenService           The service for creating, validating tokens
    * @param authenticationManager  The manager for authentication providers
    */
   @Autowired
@@ -72,7 +74,7 @@ public class AccountService {
       EmailService emailService, //
       RequestMetadataService requestMetadataService, //
       PasswordEncoder passwordEncoder, //
-      JwtTokenService jwtTokenService, //
+      TokenService tokenService, //
       AuthenticationManager authenticationManager) {
     this.accountRepository = accountRepository;
     this.billingService = billingService;
@@ -81,7 +83,7 @@ public class AccountService {
     this.emailService = emailService;
     this.requestMetadataService = requestMetadataService;
     this.passwordEncoder = passwordEncoder;
-    this.jwtTokenService = jwtTokenService;
+    this.tokenService = tokenService;
     this.authenticationManager = authenticationManager;
   }
 
@@ -92,19 +94,18 @@ public class AccountService {
    * @param username The username of an account attemping to signin
    * @param password The password of an account attemping to signin
    * @param request  The request information for HTTP servlets
-   * @return An authentication token
+   * @return An token pair containing an access authentication token and a refresh
+   *         token
    */
-  public String signin(String username, String password, HttpServletRequest request) {
-    String token;
+  public TokenPair signin(String username, String password, HttpServletRequest request) {
     try {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
       var persistedAccount = findAuthenticatedAccount(username);
-      token = jwtTokenService.createToken(username, persistedAccount.getRoles());
       requestMetadataService.verifyRequest(persistedAccount, request);
+      return createTokenPair(persistedAccount.getUsername(), persistedAccount.getRoles());
     } catch (AuthenticationException ex) {
       throw new ApiException(AccountCode.INVALID_CREDENTIALS);
     }
-    return token;
   }
 
   /**
@@ -112,9 +113,10 @@ public class AccountService {
    * 
    * @param username The username of an account attemping to signup
    * @param password The password of an account attemping to signup
-   * @return An authentication token
+   * @return An token pair containing an access authentication token and a refresh
+   *         token
    */
-  public String signup(String username, String password) {
+  public TokenPair signup(String username, String password) {
     if (!accountRepository.existsByUsername(username)) {
       var account = new Account();
       account.setUsername(username);
@@ -125,10 +127,20 @@ public class AccountService {
       var persistedAccount = accountRepository.save(account);
       securityLogService.created(persistedAccount);
       emailService.sendAccountCreated(persistedAccount);
-      return jwtTokenService.createToken(persistedAccount.getUsername(), persistedAccount.getRoles());
+      return createTokenPair(persistedAccount.getUsername(), persistedAccount.getRoles());
     } else {
       throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
     }
+  }
+
+  // TODO: unused method yet to be implemented
+  public String refresh(String username) {
+    // TODO
+    return null;
+  }
+
+  private TokenPair createTokenPair(String username, List<Role> roles) {
+    return new TokenPair(tokenService.createAccessToken(username, roles), tokenService.createRefreshToken());
   }
 
   /**
@@ -295,11 +307,5 @@ public class AccountService {
     persistedAccount.setStripeSubscriptionId(null);
     persistedAccount.setStripeSubscriptionItemId(null);
     accountRepository.save(persistedAccount);
-  }
-
-  // TODO: unused method yet to be implemented
-  @SuppressWarnings("unused")
-  private String refresh(String username) {
-    return jwtTokenService.createToken(username, findAuthenticatedAccount(username).getRoles());
   }
 }

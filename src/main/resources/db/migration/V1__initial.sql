@@ -131,3 +131,11 @@ CREATE TABLE security_log (
     created_date TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX security_log_account_id_idx ON security_log (account_id);
+-------------------------------------------------
+-- Refresh Token --------------------------------
+CREATE TABLE refresh_token (
+    token UUID PRIMARY KEY,
+    expiration_time TIMESTAMPTZ NOT NULL,
+    UNIQUE (token, expiration_time)
+);
+CREATE INDEX refresh_token_token_idx ON refresh_token (token);

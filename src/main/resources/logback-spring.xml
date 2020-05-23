@@ -57,7 +57,7 @@
     <appender-ref ref="EXCEPTIONS_LOG" />
   </logger>
 
-  <logger name="uk.thepragmaticdev.security.JwtTokenFilter" level="FATAL" additivity="true">
+  <logger name="uk.thepragmaticdev.security.TokenFilter" level="FATAL" additivity="true">
     <appender-ref ref="EXCEPTIONS_LOG" />
   </logger>
 

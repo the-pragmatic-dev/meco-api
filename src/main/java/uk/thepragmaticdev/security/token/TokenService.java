@@ -1,12 +1,14 @@
-package uk.thepragmaticdev.security;
+package uk.thepragmaticdev.security.token;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,45 +20,57 @@ import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.account.Role;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
+import uk.thepragmaticdev.security.UserService;
 
 @Service
-public class JwtTokenService {
-
-  private final long validityInMilliseconds;
+public class TokenService {
 
   private final UserService userService;
 
+  private final RefreshTokenRepository refreshTokenRepository;
+
   private String secretKey;
 
+  private final long accessTokenExpiration;
+
+  private final long refreshTokenExpiration;
+
   /**
-   * Service for creating, resolving, validating and parsing JWTs.
+   * Service for creating, resolving, validating and parsing access and refresh
+   * tokens.
    * 
-   * @param secretKey              Signing key to use to digitally sign the JWT
-   * @param validityInMilliseconds Sets the JWT claims expiration value
    * @param userService            The service for loading a user based on
    *                               username
+   * @param refreshTokenRepository The data access repository for refresh tokens
+   * @param secretKey              Signing key to use to digitally sign the JWT
+   * @param accessTokenExpiration  Sets the access token expiration minutes
+   * @param refreshTokenExpiration Sets the refresh token expiration days
    */
   @Autowired
-  public JwtTokenService(//
-      @Value("${security.jwt.token.secret-key}") String secretKey, //
-      @Value("${security.jwt.token.expire-length}") long validityInMilliseconds, //
-      UserService userService) {
-    this.secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-    this.validityInMilliseconds = validityInMilliseconds;
+  public TokenService(//
+      UserService userService, //
+      RefreshTokenRepository refreshTokenRepository, //
+      @Value("${security.token.secret-key}") String secretKey, //
+      @Value("${security.token.access-token-expiration-minutes}") long accessTokenExpiration, //
+      @Value("${security.token.refresh-token-expiration-days}") long refreshTokenExpiration) {
     this.userService = userService;
+    this.refreshTokenRepository = refreshTokenRepository;
+    this.secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+    this.accessTokenExpiration = accessTokenExpiration;
+    this.refreshTokenExpiration = refreshTokenExpiration;
   }
 
   /**
-   * Actually signs and builds the JWT and serializes it to a compact, URL-safe
-   * string according to the JWT Compact Serialization rules.
+   * Actually signs and builds the JWT access token and serializes it to a
+   * compact, URL-safe string according to the JWT Compact Serialization rules.
    * 
    * @param username The username of an account accessing resources
    * @param roles    The roles owned by the account
-   * @return A compact URL-safe JWT string.
+   * @return A compact URL-safe JWT string
    */
-  public String createToken(String username, List<Role> roles) {
+  public String createAccessToken(String username, List<Role> roles) {
     var now = new Date();
-    var validity = new Date(now.getTime() + validityInMilliseconds);
+    var expiration = new Date(OffsetDateTime.now().plusMinutes(accessTokenExpiration).toInstant().toEpochMilli());
     var claims = Jwts.claims().setSubject(username);
     // iterate account roles and add each one as a granted authority
     claims.put("auth", roles.stream().map(r -> new SimpleGrantedAuthority(r.getAuthority())).filter(Objects::nonNull)
@@ -64,9 +78,22 @@ public class JwtTokenService {
     return Jwts.builder() //
         .setClaims(claims) //
         .setIssuedAt(now) //
-        .setExpiration(validity) //
+        .setExpiration(expiration) //
         .signWith(SignatureAlgorithm.HS256, secretKey) //
         .compact();
+  }
+
+  /**
+   * Generates a universally unique refresh token. The refresh token is used to
+   * generate expired access tokens.
+   * 
+   * @return A universally unique refresh token
+   */
+  public UUID createRefreshToken() {
+    var token = UUID.randomUUID();
+    var refreshToken = new RefreshToken(token, OffsetDateTime.now().plusDays(refreshTokenExpiration));
+    refreshTokenRepository.save(refreshToken);
+    return refreshToken.getToken();
   }
 
   /**

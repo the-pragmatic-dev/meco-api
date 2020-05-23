@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.security;
+package uk.thepragmaticdev.security.token;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -15,14 +15,14 @@ import uk.thepragmaticdev.exception.ApiError;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
 
-public class JwtTokenFilter extends OncePerRequestFilter {
+public class TokenFilter extends OncePerRequestFilter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JwtTokenFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TokenFilter.class);
 
-  private final JwtTokenService jwtTokenService;
+  private final TokenService tokenService;
 
-  public JwtTokenFilter(JwtTokenService jwtTokenService) {
-    this.jwtTokenService = jwtTokenService;
+  public TokenFilter(TokenService tokenService) {
+    this.tokenService = tokenService;
   }
 
   @Override
@@ -30,10 +30,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
       HttpServletRequest httpServletRequest, //
       HttpServletResponse httpServletResponse, //
       FilterChain filterChain) throws ServletException, IOException {
-    var token = jwtTokenService.resolveToken(httpServletRequest);
+    var token = tokenService.resolveToken(httpServletRequest);
     try {
-      if (jwtTokenService.isValid(token)) {
-        var auth = jwtTokenService.getAuthentication(token);
+      if (tokenService.isValid(token)) {
+        var auth = tokenService.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
       }
     } catch (ApiException ex) {

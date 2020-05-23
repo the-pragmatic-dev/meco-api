@@ -47,7 +47,6 @@ public class BillingController {
    * @return A list of all active prices held by stripe
    */
   @GetMapping(value = "/prices", produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(value = HttpStatus.OK)
   public List<BillingPriceResponse> findAllPrices() {
     var prices = billingService.findAllPrices().getData();
     return prices.stream().map(price -> modelMapper.map(price, BillingPriceResponse.class))

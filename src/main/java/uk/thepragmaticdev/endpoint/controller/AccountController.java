@@ -72,8 +72,8 @@ public class AccountController {
    */
   @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public AccountSigninResponse signin(HttpServletRequest request, @Valid @RequestBody AccountSigninRequest signin) {
-    var token = accountService.signin(signin.getUsername(), signin.getPassword(), request);
-    return new AccountSigninResponse(token);
+    var tokenPair = accountService.signin(signin.getUsername(), signin.getPassword(), request);
+    return modelMapper.map(tokenPair, AccountSigninResponse.class);
   }
 
   /**
@@ -82,11 +82,24 @@ public class AccountController {
    * @param request The new account details to be created
    * @return A newly created account
    */
-  @ResponseStatus(value = HttpStatus.CREATED)
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(value = HttpStatus.CREATED)
   public AccountSignupResponse signup(@Valid @RequestBody AccountSignupRequest request) {
-    var token = accountService.signup(request.getUsername(), request.getPassword());
-    return new AccountSignupResponse(token);
+    var tokenPair = accountService.signup(request.getUsername(), request.getPassword());
+    return modelMapper.map(tokenPair, AccountSignupResponse.class);
+  }
+
+  /**
+   * TODO.
+   * 
+   * @param request TODO
+   * @return TODO
+   */
+  @PostMapping(value = "/refresh", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(value = HttpStatus.CREATED)
+  public AccountSignupResponse refresh(@Valid @RequestBody AccountSignupRequest request) {
+    // TODO
+    return null;
   }
 
   /**
