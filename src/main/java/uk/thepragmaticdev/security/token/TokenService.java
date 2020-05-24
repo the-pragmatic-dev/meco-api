@@ -19,7 +19,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.account.Role;
 import uk.thepragmaticdev.exception.ApiException;
-import uk.thepragmaticdev.exception.code.AccountCode;
+import uk.thepragmaticdev.exception.code.AuthCode;
 import uk.thepragmaticdev.security.UserService;
 import uk.thepragmaticdev.security.request.RequestMetadata;
 
@@ -114,24 +114,21 @@ public class TokenService {
 
   /**
    * Checks if a given token is present and valid by parsing the claims with the
-   * secret signing key and checking if the token has expired.
+   * secret signing key.
    * 
    * @param token A compact URL-safe JWT string
    * @return true if the token is valid otherwise false
    */
-  public boolean isValid(String token) {
+  public boolean validateToken(String token) {
     if (token == null) {
       return false;
     }
     try {
-      var claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-      if (claims.getBody().getExpiration().before(new Date())) {
-        return false;
-      }
-      return true;
-    } catch (JwtException | IllegalArgumentException ex) {
-      throw new ApiException(AccountCode.INVALID_EXPIRED_TOKEN);
+      Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+    } catch (JwtException ex) {
+      throw new ApiException(AuthCode.INVALID_EXPIRED_TOKEN);
     }
+    return true;
   }
 
   /**

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
+import uk.thepragmaticdev.exception.code.AuthCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
@@ -229,7 +230,6 @@ public class AccountService {
    * @return An account with a new password reset token
    */
   public Account createPasswordResetToken(String username) {
-    // TODO UNIT
     var authenticatedAccount = findAuthenticatedAccount(username);
     authenticatedAccount.setPasswordResetToken(UUID.randomUUID().toString());
     authenticatedAccount.setPasswordResetTokenExpire(OffsetDateTime.now().plusDays(1));
@@ -245,11 +245,10 @@ public class AccountService {
    * @return An account with no password reset token
    */
   public Account resetPasswordResetToken(String encodedPassword, String token) {
-    // TODO UNIT
     var persistedAccount = findByPasswordResetToken(token)
-        .orElseThrow(() -> new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN));
+        .orElseThrow(() -> new ApiException(AuthCode.INVALID_PASSWORD_RESET_TOKEN));
     if (OffsetDateTime.now().isAfter(persistedAccount.getPasswordResetTokenExpire())) {
-      throw new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN);
+      throw new ApiException(AuthCode.INVALID_PASSWORD_RESET_TOKEN);
     }
     persistedAccount.setPassword(encodedPassword);
     persistedAccount.setPasswordResetToken(null);

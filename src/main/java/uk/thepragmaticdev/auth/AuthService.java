@@ -16,6 +16,7 @@ import uk.thepragmaticdev.account.Role;
 import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
+import uk.thepragmaticdev.exception.code.AuthCode;
 import uk.thepragmaticdev.log.security.SecurityLogService;
 import uk.thepragmaticdev.security.request.RequestMetadata;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
@@ -86,7 +87,7 @@ public class AuthService {
       var requestMetadata = requestMetadataService.verifyRequest(persistedAccount, request);
       return createTokenPair(persistedAccount.getUsername(), persistedAccount.getRoles(), requestMetadata);
     } catch (AuthenticationException ex) {
-      throw new ApiException(AccountCode.INVALID_CREDENTIALS);
+      throw new ApiException(AuthCode.INVALID_CREDENTIALS);
     }
   }
 
@@ -160,7 +161,7 @@ public class AuthService {
   // TODO
   private TokenPair createTokenPair(String username, List<Role> roles, Optional<RequestMetadata> requestMetadata) {
     if (requestMetadata.isEmpty()) {
-      throw new ApiException(AccountCode.INVALID_REQUEST_METADATA);
+      throw new ApiException(AuthCode.INVALID_REQUEST_METADATA);
     }
     return new TokenPair(tokenService.createAccessToken(username, roles),
         tokenService.createRefreshToken(requestMetadata.get()));

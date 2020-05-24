@@ -17,6 +17,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
 import uk.thepragmaticdev.exception.code.AccountCode;
+import uk.thepragmaticdev.exception.code.AuthCode;
 
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
@@ -47,7 +48,7 @@ class AuthEndpointIT extends IntegrationData {
       .post(AUTH_ENDPOINT + "signin")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_CREDENTIALS.getMessage()))
+        .body("message", is(AuthCode.INVALID_CREDENTIALS.getMessage()))
         .statusCode(401);
   }
 
@@ -64,7 +65,7 @@ class AuthEndpointIT extends IntegrationData {
       .post(AUTH_ENDPOINT + "signin")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_CREDENTIALS.getMessage()))
+        .body("message", is(AuthCode.INVALID_CREDENTIALS.getMessage()))
         .statusCode(401);
   }
 
@@ -162,7 +163,7 @@ class AuthEndpointIT extends IntegrationData {
       .post(AUTH_ENDPOINT + "reset")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_PASSWORD_RESET_TOKEN.getMessage()))
+        .body("message", is(AuthCode.INVALID_PASSWORD_RESET_TOKEN.getMessage()))
         .statusCode(401);
   }
 

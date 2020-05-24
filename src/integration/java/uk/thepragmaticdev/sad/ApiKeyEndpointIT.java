@@ -20,8 +20,8 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
-import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
+import uk.thepragmaticdev.exception.code.AuthCode;
 
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
@@ -48,7 +48,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT)
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -186,7 +186,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .put(API_KEY_ENDPOINT + "1")
       .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
   
@@ -216,7 +216,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .delete(API_KEY_ENDPOINT + "1")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -244,7 +244,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "1/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -272,7 +272,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "1/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 
@@ -300,7 +300,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "count")
       .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AccountCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
         .statusCode(401);
   }
 

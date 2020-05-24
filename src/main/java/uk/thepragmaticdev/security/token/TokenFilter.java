@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uk.thepragmaticdev.exception.ApiError;
 import uk.thepragmaticdev.exception.ApiException;
-import uk.thepragmaticdev.exception.code.AccountCode;
+import uk.thepragmaticdev.exception.code.AuthCode;
 
 public class TokenFilter extends OncePerRequestFilter {
 
@@ -32,7 +32,7 @@ public class TokenFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException {
     var token = tokenService.resolveToken(httpServletRequest);
     try {
-      if (tokenService.isValid(token)) {
+      if (tokenService.validateToken(token)) {
         var auth = tokenService.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(auth);
       }
@@ -40,12 +40,12 @@ public class TokenFilter extends OncePerRequestFilter {
       SecurityContextHolder.clearContext();
 
       var responseBody = new ApiError(//
-          AccountCode.INVALID_EXPIRED_TOKEN.getStatus(), //
-          AccountCode.INVALID_EXPIRED_TOKEN.getMessage() //
+          AuthCode.INVALID_EXPIRED_TOKEN.getStatus(), //
+          AuthCode.INVALID_EXPIRED_TOKEN.getMessage() //
       );
       LOG.warn("{}", responseBody);
       httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-      httpServletResponse.setStatus(AccountCode.INVALID_EXPIRED_TOKEN.getStatus().value());
+      httpServletResponse.setStatus(AuthCode.INVALID_EXPIRED_TOKEN.getStatus().value());
       httpServletResponse.getWriter().write(responseBody.toString());
       return;
     }
