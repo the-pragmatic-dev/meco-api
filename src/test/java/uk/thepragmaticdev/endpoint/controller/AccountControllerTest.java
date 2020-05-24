@@ -15,8 +15,6 @@ import java.security.Principal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -35,19 +33,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.thepragmaticdev.UnitData;
 import uk.thepragmaticdev.account.AccountService;
-import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
-import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.account.dto.response.AccountMeResponse;
-import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
-import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
 import uk.thepragmaticdev.account.dto.response.AccountUpdateResponse;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.dto.BillingLogResponse;
 import uk.thepragmaticdev.log.dto.SecurityLogResponse;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.security.request.RequestMetadata;
-import uk.thepragmaticdev.security.token.TokenPair;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -88,44 +81,6 @@ class AccountControllerTest extends UnitData {
         return "principal";
       }
     };
-  }
-
-  @Test
-  void shouldMapToAccountSigninResponse() throws Exception {
-    var tokenPair = new TokenPair("access", UUID.randomUUID());
-    var accountSigninRequest = new AccountSigninRequest("username@email.com", "password");
-
-    when(accountService.signin(anyString(), anyString(), any(HttpServletRequest.class))).thenReturn(tokenPair);
-
-    var body = mvc.perform(//
-        MockMvcRequestBuilders.post("/accounts/signin")//
-            .contentType(MediaType.APPLICATION_JSON)//
-            .content(new Gson().toJson(accountSigninRequest)) //
-            .accept(MediaType.APPLICATION_JSON)//
-    ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-    var response = mapper.readValue(body, AccountSigninResponse.class);
-
-    assertThat(response.getAccessToken(), is(tokenPair.getAccessToken()));
-    assertThat(response.getRefreshToken(), is(tokenPair.getRefreshToken()));
-  }
-
-  @Test
-  void shouldMapToAccountSignupResponse() throws Exception {
-    var tokenPair = new TokenPair("access", UUID.randomUUID());
-    var accountSignupRequest = new AccountSignupRequest("username@email.com", "password");
-
-    when(accountService.signup(anyString(), anyString())).thenReturn(tokenPair);
-
-    var body = mvc.perform(//
-        MockMvcRequestBuilders.post("/accounts/signup")//
-            .contentType(MediaType.APPLICATION_JSON)//
-            .content(new Gson().toJson(accountSignupRequest)) //
-            .accept(MediaType.APPLICATION_JSON)//
-    ).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
-    var response = mapper.readValue(body, AccountSignupResponse.class);
-
-    assertThat(response.getAccessToken(), is(tokenPair.getAccessToken()));
-    assertThat(response.getRefreshToken(), is(tokenPair.getRefreshToken()));
   }
 
   @Test

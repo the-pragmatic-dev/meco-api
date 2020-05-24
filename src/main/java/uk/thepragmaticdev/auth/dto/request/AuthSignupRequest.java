@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.account.dto.request;
+package uk.thepragmaticdev.auth.dto.request;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountSignupRequest {
+public class AuthSignupRequest {
 
   @Email(message = "Username is not a valid email.")
   private String username;

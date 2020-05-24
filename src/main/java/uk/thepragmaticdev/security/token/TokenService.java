@@ -21,6 +21,7 @@ import uk.thepragmaticdev.account.Role;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.security.UserService;
+import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @Service
 public class TokenService {
@@ -85,13 +86,15 @@ public class TokenService {
 
   /**
    * Generates a universally unique refresh token. The refresh token is used to
-   * generate expired access tokens.
+   * generate expired access tokens. Request metadata is associated with the token
+   * to ensure refresh comes from the same client.
    * 
+   * @param requestMetadata The geolocation and device metadata
    * @return A universally unique refresh token
    */
-  public UUID createRefreshToken() {
+  public UUID createRefreshToken(RequestMetadata requestMetadata) {
     var token = UUID.randomUUID();
-    var refreshToken = new RefreshToken(token, OffsetDateTime.now().plusDays(refreshTokenExpiration));
+    var refreshToken = new RefreshToken(token, OffsetDateTime.now().plusDays(refreshTokenExpiration), requestMetadata);
     refreshTokenRepository.save(refreshToken);
     return refreshToken.getToken();
   }

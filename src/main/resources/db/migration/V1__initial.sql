@@ -136,6 +136,16 @@ CREATE INDEX security_log_account_id_idx ON security_log (account_id);
 CREATE TABLE refresh_token (
     token UUID PRIMARY KEY,
     expiration_time TIMESTAMPTZ NOT NULL,
+    ip TEXT,
+    city_name TEXT,
+    country_iso_code TEXT,
+    subdivision_iso_code TEXT,
+    operating_system_family TEXT,
+    operating_system_major TEXT,
+    operating_system_minor TEXT,
+    user_agent_family TEXT,
+    user_agent_major TEXT,
+    user_agent_minor TEXT,
     UNIQUE (token, expiration_time)
 );
 CREATE INDEX refresh_token_token_idx ON refresh_token (token);

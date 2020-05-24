@@ -29,11 +29,11 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.thepragmaticdev.account.dto.request.AccountResetRequest;
-import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
-import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
-import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
+import uk.thepragmaticdev.auth.dto.request.AuthResetRequest;
+import uk.thepragmaticdev.auth.dto.request.AuthSigninRequest;
+import uk.thepragmaticdev.auth.dto.request.AuthSignupRequest;
+import uk.thepragmaticdev.auth.dto.response.AuthSigninResponse;
 import uk.thepragmaticdev.billing.dto.request.BillingCreateSubscriptionRequest;
 import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
@@ -49,6 +49,7 @@ public abstract class IntegrationData {
   @Autowired
   private ObjectMapper objectMapper;
 
+  protected static final String AUTH_ENDPOINT = "http://localhost:8080/auth/";
   protected static final String ACCOUNTS_ENDPOINT = "http://localhost:8080/accounts/";
   protected static final String API_KEY_ENDPOINT = "http://localhost:8080/api-keys/";
   protected static final String BILLING_ENDPOINT = "http://localhost:8080/billing/";
@@ -108,26 +109,26 @@ public abstract class IntegrationData {
    * @return An authentication token
    */
   protected String signin() {
-    return signin(accountSigninRequest());
+    return signin(authSigninRequest());
   }
 
   /**
    * Authorize an account with given credentials.
    * @return An authentication token
    */
-  protected String signin(AccountSigninRequest request) {
+  protected String signin(AuthSigninRequest request) {
     return token(
       given()
         .headers(headers())
         .contentType(JSON)
         .body(request)
       .when()
-        .post(ACCOUNTS_ENDPOINT + "signin")
+        .post(AUTH_ENDPOINT + "signin")
       .then()
           .body("accessToken", not(emptyString()))
           .body("refreshToken", not(emptyString()))
           .statusCode(200)
-      .extract().as(AccountSigninResponse.class).getAccessToken());
+      .extract().as(AuthSigninResponse.class).getAccessToken());
   }
 
   private String token(String token) {
@@ -138,28 +139,28 @@ public abstract class IntegrationData {
 
   // @models:default
 
-  protected final AccountSigninRequest accountSigninRequest() {
-    return accountSigninRequest("admin@email.com", "password");
+  protected final AuthSigninRequest authSigninRequest() {
+    return authSigninRequest("admin@email.com", "password");
   }
 
-  protected final AccountSigninRequest accountSigninRequest(String username, String password) {
-    return new AccountSigninRequest(username, password);
+  protected final AuthSigninRequest authSigninRequest(String username, String password) {
+    return new AuthSigninRequest(username, password);
   }
 
-  protected final AccountSignupRequest accountSignupRequest() {
-    return accountSignupRequest("admin@email.com", "password");
+  protected final AuthSignupRequest authSignupRequest() {
+    return authSignupRequest("admin@email.com", "password");
   }
 
-  protected final AccountSignupRequest accountSignupRequest(String username, String password) {
-    return new AccountSignupRequest(username, password);
+  protected final AuthSignupRequest authSignupRequest(String username, String password) {
+    return new AuthSignupRequest(username, password);
   }
 
   protected final AccountUpdateRequest accountUpdateRequest() {
     return new AccountUpdateRequest("Ash", false, true);
   }
 
-  protected final AccountResetRequest accountResetRequest() {
-    return new AccountResetRequest("newpassword");
+  protected final AuthResetRequest authResetRequest() {
+    return new AuthResetRequest("newpassword");
   }
 
   protected final ApiKeyCreateRequest apiKeyCreateRequest() {

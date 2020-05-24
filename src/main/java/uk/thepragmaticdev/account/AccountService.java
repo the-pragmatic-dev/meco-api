@@ -4,20 +4,14 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.billing.BillingService;
-import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
@@ -25,9 +19,6 @@ import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
-import uk.thepragmaticdev.security.request.RequestMetadataService;
-import uk.thepragmaticdev.security.token.TokenPair;
-import uk.thepragmaticdev.security.token.TokenService;
 
 @Service
 public class AccountService {
@@ -40,107 +31,25 @@ public class AccountService {
 
   private final SecurityLogService securityLogService;
 
-  private final EmailService emailService;
-
-  private final RequestMetadataService requestMetadataService;
-
-  private final PasswordEncoder passwordEncoder;
-
-  private final TokenService tokenService;
-
-  private final AuthenticationManager authenticationManager;
-
   /**
-   * Service for creating, authorizing and updating accounts. Billing and security
-   * logs related to an authorised account may also be downloaded.
+   * Service for managing accounts. Billing and security logs related to an
+   * authorised account may also be downloaded.
    * 
-   * @param accountRepository      The data access repository for accounts
-   * @param billingService         The service for handling payments
-   * @param billingLogService      The service for accessing billing logs
-   * @param securityLogService     The service for accessing security logs
-   * @param emailService           The service for sending emails
-   * @param requestMetadataService The service for gathering ip and location
-   *                               information
-   * @param passwordEncoder        The service for encoding passwords
-   * @param tokenService           The service for creating, validating tokens
-   * @param authenticationManager  The manager for authentication providers
+   * @param accountRepository  The data access repository for accounts
+   * @param billingService     The service for handling payments
+   * @param billingLogService  The service for accessing billing logs
+   * @param securityLogService The service for accessing security logs
    */
   @Autowired
   public AccountService(//
       AccountRepository accountRepository, //
       BillingService billingService, //
       BillingLogService billingLogService, //
-      SecurityLogService securityLogService, //
-      EmailService emailService, //
-      RequestMetadataService requestMetadataService, //
-      PasswordEncoder passwordEncoder, //
-      TokenService tokenService, //
-      AuthenticationManager authenticationManager) {
+      SecurityLogService securityLogService) {
     this.accountRepository = accountRepository;
     this.billingService = billingService;
     this.billingLogService = billingLogService;
     this.securityLogService = securityLogService;
-    this.emailService = emailService;
-    this.requestMetadataService = requestMetadataService;
-    this.passwordEncoder = passwordEncoder;
-    this.tokenService = tokenService;
-    this.authenticationManager = authenticationManager;
-  }
-
-  /**
-   * Authorize an account. If signing in from an unfamiliar ip or device the user
-   * will be notified by email.
-   * 
-   * @param username The username of an account attemping to signin
-   * @param password The password of an account attemping to signin
-   * @param request  The request information for HTTP servlets
-   * @return An token pair containing an access authentication token and a refresh
-   *         token
-   */
-  public TokenPair signin(String username, String password, HttpServletRequest request) {
-    try {
-      authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-      var persistedAccount = findAuthenticatedAccount(username);
-      requestMetadataService.verifyRequest(persistedAccount, request);
-      return createTokenPair(persistedAccount.getUsername(), persistedAccount.getRoles());
-    } catch (AuthenticationException ex) {
-      throw new ApiException(AccountCode.INVALID_CREDENTIALS);
-    }
-  }
-
-  /**
-   * Create a new account.
-   * 
-   * @param username The username of an account attemping to signup
-   * @param password The password of an account attemping to signup
-   * @return An token pair containing an access authentication token and a refresh
-   *         token
-   */
-  public TokenPair signup(String username, String password) {
-    if (!accountRepository.existsByUsername(username)) {
-      var account = new Account();
-      account.setUsername(username);
-      account.setPassword(passwordEncoder.encode(password));
-      account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
-      account.setCreatedDate(OffsetDateTime.now());
-      account.setStripeCustomerId(billingService.createCustomer(username));
-      var persistedAccount = accountRepository.save(account);
-      securityLogService.created(persistedAccount);
-      emailService.sendAccountCreated(persistedAccount);
-      return createTokenPair(persistedAccount.getUsername(), persistedAccount.getRoles());
-    } else {
-      throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
-    }
-  }
-
-  // TODO: unused method yet to be implemented
-  public String refresh(String username) {
-    // TODO
-    return null;
-  }
-
-  private TokenPair createTokenPair(String username, List<Role> roles) {
-    return new TokenPair(tokenService.createAccessToken(username, roles), tokenService.createRefreshToken());
   }
 
   /**
@@ -152,6 +61,45 @@ public class AccountService {
   public Account findAuthenticatedAccount(String username) {
     return accountRepository.findByUsername(username)
         .orElseThrow(() -> new ApiException(AccountCode.USERNAME_NOT_FOUND));
+  }
+
+  /**
+   * Find and account by it's password reset token.
+   * 
+   * @param token The the password reset token
+   * @return A matching account or empty if not found
+   */
+  public Optional<Account> findByPasswordResetToken(String token) {
+    return accountRepository.findByPasswordResetToken(token);
+  }
+
+  /**
+   * Check to see if a username already exists.
+   * 
+   * @param username The account username
+   * @return True if the given username already exists
+   */
+  public boolean existsByUsername(String username) {
+    return accountRepository.existsByUsername(username);
+  }
+
+  /**
+   * Create a new account. A stripe customer is also created and associated with
+   * the account.
+   * 
+   * @param username        The account username
+   * @param encodedPassword An encoded password
+   * @param roles           A list of granted roles
+   * @return The newly created account
+   */
+  public Account create(String username, String encodedPassword, List<Role> roles) {
+    var account = new Account();
+    account.setUsername(username);
+    account.setPassword(encodedPassword);
+    account.setRoles(roles);
+    account.setCreatedDate(OffsetDateTime.now());
+    account.setStripeCustomerId(billingService.createCustomer(account.getUsername()));
+    return accountRepository.save(account);
   }
 
   /**
@@ -192,41 +140,6 @@ public class AccountService {
       securityLogService.emailSubscriptionEnabled(account, emailSubscriptionEnabled);
       account.setEmailSubscriptionEnabled(emailSubscriptionEnabled);
     }
-  }
-
-  /**
-   * Send a forgotten password email to the requested account. The reset token is
-   * valid for 24hours.
-   * 
-   * @param username A valid account username
-   */
-  public void forgot(String username) {
-    var authenticatedAccount = findAuthenticatedAccount(username);
-    authenticatedAccount.setPasswordResetToken(UUID.randomUUID().toString());
-    authenticatedAccount.setPasswordResetTokenExpire(OffsetDateTime.now().plusDays(1));
-    accountRepository.save(authenticatedAccount);
-    emailService.sendForgottenPassword(authenticatedAccount);
-  }
-
-  /**
-   * Reset old password to new password for the requested account.
-   * 
-   * @param password The accounts new password
-   * @param token    The generated password reset token from the /me/forgot
-   *                 endpoint
-   */
-  public void reset(String password, String token) {
-    var persistedAccount = accountRepository.findByPasswordResetToken(token)
-        .orElseThrow(() -> new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN));
-    if (OffsetDateTime.now().isAfter(persistedAccount.getPasswordResetTokenExpire())) {
-      throw new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN);
-    }
-    persistedAccount.setPassword(passwordEncoder.encode(password));
-    persistedAccount.setPasswordResetToken(null);
-    persistedAccount.setPasswordResetTokenExpire(null);
-    accountRepository.save(persistedAccount);
-    securityLogService.reset(persistedAccount);
-    emailService.sendResetPassword(persistedAccount);
   }
 
   /**
@@ -307,5 +220,40 @@ public class AccountService {
     persistedAccount.setStripeSubscriptionId(null);
     persistedAccount.setStripeSubscriptionItemId(null);
     accountRepository.save(persistedAccount);
+  }
+
+  /**
+   * Create a new password reset token which is valid for 24hours.
+   * 
+   * @param username A valid account username
+   * @return An account with a new password reset token
+   */
+  public Account createPasswordResetToken(String username) {
+    // TODO UNIT
+    var authenticatedAccount = findAuthenticatedAccount(username);
+    authenticatedAccount.setPasswordResetToken(UUID.randomUUID().toString());
+    authenticatedAccount.setPasswordResetTokenExpire(OffsetDateTime.now().plusDays(1));
+    return accountRepository.save(authenticatedAccount);
+  }
+
+  /**
+   * Reset old password to new password for the requested account.
+   * 
+   * @param encodedPassword The new encoded password
+   * @param token           The generated password reset token from the /forgot
+   *                        endpoint
+   * @return An account with no password reset token
+   */
+  public Account resetPasswordResetToken(String encodedPassword, String token) {
+    // TODO UNIT
+    var persistedAccount = findByPasswordResetToken(token)
+        .orElseThrow(() -> new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN));
+    if (OffsetDateTime.now().isAfter(persistedAccount.getPasswordResetTokenExpire())) {
+      throw new ApiException(AccountCode.INVALID_PASSWORD_RESET_TOKEN);
+    }
+    persistedAccount.setPassword(encodedPassword);
+    persistedAccount.setPasswordResetToken(null);
+    persistedAccount.setPasswordResetTokenExpire(null);
+    return accountRepository.save(persistedAccount);
   }
 }

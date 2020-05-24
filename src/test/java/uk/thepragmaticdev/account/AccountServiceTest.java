@@ -10,27 +10,20 @@ import static org.mockito.Mockito.when;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import uk.thepragmaticdev.UnitData;
 import uk.thepragmaticdev.billing.BillingService;
-import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
-import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
-import uk.thepragmaticdev.security.request.RequestMetadataService;
-import uk.thepragmaticdev.security.token.TokenService;
 
 @SpringBootTest
 class AccountServiceTest extends UnitData {
@@ -48,21 +41,6 @@ class AccountServiceTest extends UnitData {
   private SecurityLogService securityLogService;
 
   @Mock
-  private EmailService emailService;
-
-  @Mock
-  private RequestMetadataService requestMetadataService;
-
-  @Mock
-  private PasswordEncoder passwordEncoder;
-
-  @Mock
-  private TokenService tokenService;
-
-  @Mock
-  private AuthenticationManager authenticationManager;
-
-  @Mock
   private StatefulBeanToCsv<BillingLog> billingLogWriter;
 
   @Mock
@@ -75,20 +53,7 @@ class AccountServiceTest extends UnitData {
    */
   @BeforeEach
   public void initEach() {
-    sut = new AccountService(accountRepository, billingService, billingLogService, securityLogService, emailService,
-        requestMetadataService, passwordEncoder, tokenService, authenticationManager);
-  }
-
-  @Test
-  void shouldThrowExceptionIfTokenHasExpired() {
-    var account = account();
-    account.setPasswordResetTokenExpire(OffsetDateTime.now().minusMinutes(1));
-    when(accountRepository.findByPasswordResetToken(anyString())).thenReturn(Optional.of(account));
-
-    var ex = Assertions.assertThrows(ApiException.class, () -> {
-      sut.reset("password", "token");
-    });
-    assertThat(ex.getErrorCode(), is(AccountCode.INVALID_PASSWORD_RESET_TOKEN));
+    sut = new AccountService(accountRepository, billingService, billingLogService, securityLogService);
   }
 
   @Test

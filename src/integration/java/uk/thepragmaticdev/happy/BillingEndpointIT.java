@@ -61,9 +61,9 @@ class BillingEndpointIT extends IntegrationData {
     given()
       .headers(headers())
       .contentType(JSON)
-      .body(accountSignupRequest(TEST_USERNAME, TEST_PASSWORD))
+      .body(authSignupRequest(TEST_USERNAME, TEST_PASSWORD))
     .when()
-      .post(ACCOUNTS_ENDPOINT + "signup")
+      .post(AUTH_ENDPOINT + "signup")
     .then().statusCode(201);
   }
 
@@ -108,7 +108,7 @@ class BillingEndpointIT extends IntegrationData {
     // account created within @BeforeEach
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin(accountSigninRequest(TEST_USERNAME, TEST_PASSWORD)))
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD)))
       .contentType(JSON)
       .body(billingCreateSubscriptionRequest(TEST_PRICE))
     .when()
@@ -127,7 +127,7 @@ class BillingEndpointIT extends IntegrationData {
     billingService.createSubscription(TEST_USERNAME, TEST_PRICE);
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin(accountSigninRequest(TEST_USERNAME, TEST_PASSWORD)))
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD)))
       .contentType(JSON)
       .body(billingCreateSubscriptionRequest(TEST_PRICE))
     .when()

@@ -155,10 +155,13 @@ public class RequestMetadataService {
    * 
    * @param account The account in which to verify request
    * @param request The request information for HTTP servlets
+   * @return The geolocation and device metadata
    */
-  public void verifyRequest(Account account, HttpServletRequest request) {
+  public Optional<RequestMetadata> verifyRequest(Account account, HttpServletRequest request) {
     // TODO: Unit test
-    extractRequestMetadata(request).ifPresent(requestMetadata -> verifyRequestMetadata(account, requestMetadata));
+    var requestMetadata = extractRequestMetadata(request);
+    requestMetadata.ifPresent(r -> verifyRequestMetadata(account, r));
+    return requestMetadata;
   }
 
   private void verifyRequestMetadata(Account account, RequestMetadata requestMetadata) {

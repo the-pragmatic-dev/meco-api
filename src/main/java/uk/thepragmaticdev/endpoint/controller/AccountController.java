@@ -2,31 +2,21 @@ package uk.thepragmaticdev.endpoint.controller;
 
 import com.opencsv.bean.StatefulBeanToCsv;
 import java.security.Principal;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.account.AccountService;
-import uk.thepragmaticdev.account.dto.request.AccountResetRequest;
-import uk.thepragmaticdev.account.dto.request.AccountSigninRequest;
-import uk.thepragmaticdev.account.dto.request.AccountSignupRequest;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.account.dto.response.AccountMeResponse;
-import uk.thepragmaticdev.account.dto.response.AccountSigninResponse;
-import uk.thepragmaticdev.account.dto.response.AccountSignupResponse;
 import uk.thepragmaticdev.account.dto.response.AccountUpdateResponse;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.dto.BillingLogResponse;
@@ -64,45 +54,6 @@ public class AccountController {
   }
 
   /**
-   * Authorize an account.
-   * 
-   * @param request The request information for HTTP servlets
-   * @param signin  The account details for signing in
-   * @return An authentication token
-   */
-  @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public AccountSigninResponse signin(HttpServletRequest request, @Valid @RequestBody AccountSigninRequest signin) {
-    var tokenPair = accountService.signin(signin.getUsername(), signin.getPassword(), request);
-    return modelMapper.map(tokenPair, AccountSigninResponse.class);
-  }
-
-  /**
-   * Create a new account.
-   * 
-   * @param request The new account details to be created
-   * @return A newly created account
-   */
-  @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(value = HttpStatus.CREATED)
-  public AccountSignupResponse signup(@Valid @RequestBody AccountSignupRequest request) {
-    var tokenPair = accountService.signup(request.getUsername(), request.getPassword());
-    return modelMapper.map(tokenPair, AccountSignupResponse.class);
-  }
-
-  /**
-   * TODO.
-   * 
-   * @param request TODO
-   * @return TODO
-   */
-  @PostMapping(value = "/refresh", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(value = HttpStatus.CREATED)
-  public AccountSignupResponse refresh(@Valid @RequestBody AccountSignupRequest request) {
-    // TODO
-    return null;
-  }
-
-  /**
    * Find the currently authenticated account.
    * 
    * @param principal The currently authenticated principal user
@@ -126,29 +77,6 @@ public class AccountController {
     var account = accountService.update(principal.getName(), request.getFullName(),
         request.getEmailSubscriptionEnabled(), request.getBillingAlertEnabled());
     return modelMapper.map(account, AccountUpdateResponse.class);
-  }
-
-  /**
-   * Send a forgotten password email to the requested account.
-   * 
-   * @param username A valid account username
-   */
-  @PostMapping(value = "/me/forgot")
-  public void forgot(@RequestParam(value = "username", required = true) String username) {
-    accountService.forgot(username);
-  }
-
-  /**
-   * Reset old password to new password for the requested account.
-   * 
-   * @param request An request containing the new password
-   * @param token   The generated password reset token from the /me/forgot
-   *                endpoint
-   */
-  @PostMapping(value = "/me/reset", consumes = MediaType.APPLICATION_JSON_VALUE)
-  public void reset(@Valid @RequestBody AccountResetRequest request,
-      @RequestParam(value = "token", required = true) String token) {
-    accountService.reset(request.getPassword(), token);
   }
 
   /**

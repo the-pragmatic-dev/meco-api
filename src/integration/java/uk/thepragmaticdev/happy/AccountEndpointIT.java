@@ -4,16 +4,11 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
 
-import com.stripe.exception.StripeException;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -23,8 +18,6 @@ import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Import;
@@ -33,10 +26,6 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
-import uk.thepragmaticdev.account.Account;
-import uk.thepragmaticdev.account.AccountService;
-import uk.thepragmaticdev.billing.BillingService;
-import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
 @Import(IntegrationConfig.class)
@@ -45,42 +34,12 @@ import uk.thepragmaticdev.log.security.SecurityLog;
 class AccountEndpointIT extends IntegrationData {
   // @formatter:off
 
-  @Autowired
-  private EmailService emailService;
-
-  @Autowired
-  private AccountService accountService;
-
-  @Autowired
-  private BillingService billingService;
-
   /**
    * Called before each integration test to reset database to default state.
    */
   @BeforeEach
   @FlywayTest
   public void initEach() {
-  }
-
-  // @endpoint:signup
-
-  @Test
-  void shouldCreateAccount() throws StripeException {
-    var request = accountSignupRequest();
-    request.setUsername("account@integration.test");
-
-    given()
-      .headers(headers())
-      .contentType(JSON)
-      .body(request)
-    .when()
-      .post(ACCOUNTS_ENDPOINT + "signup")
-    .then()
-        .body("token", not(emptyString()))
-        .statusCode(201);
-    // clean up stripe customer created on account creation
-    var account = accountService.findAuthenticatedAccount("account@integration.test");
-    billingService.deleteCustomer(account.getUsername());
   }
 
   // @endpoint:me
@@ -107,43 +66,6 @@ class AccountEndpointIT extends IntegrationData {
         .body("createdDate", is("2020-02-25T10:30:44.232Z"))
         .body("roles", is(nullValue()))
         .body("apiKeys", is(nullValue()))
-        .statusCode(200);
-  }
-
-  // @endpoint:me/forgot
-
-  @Test
-  void shouldReturnOkWhenForgottenPassword() {
-    given()
-      .headers(headers())
-      .queryParam("username", "admin@email.com")
-    .when()
-      .post(ACCOUNTS_ENDPOINT + "me/forgot")
-    .then()
-        .statusCode(200);
-  }
-
-  // @endpoint:me/reset
-
-  @Test
-  void shouldReturnOkWhenResetPassword() {
-    accountService.forgot("admin@email.com");
-    var captor = ArgumentCaptor.forClass(Account.class);
-    verify(emailService, atLeastOnce()).sendForgottenPassword(captor.capture());
-    var actual = captor.getValue();
-    var diffMinutes = ChronoUnit.MINUTES.between(OffsetDateTime.now(), actual.getPasswordResetTokenExpire());
-    assertThat(actual.getPasswordResetToken(), is(not(emptyString())));
-    assertThat(diffMinutes, is(1439L)); // 23 hours and 59 minutes
-
-    var request = accountResetRequest();
-    given()
-      .headers(headers())
-      .contentType(JSON)
-      .body(request)
-      .queryParam("token", actual.getPasswordResetToken())
-    .when()
-      .post(ACCOUNTS_ENDPOINT + "me/reset")
-    .then()
         .statusCode(200);
   }
 
