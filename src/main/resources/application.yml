@@ -2,9 +2,6 @@ server:
    port: ${PORT:8080}
 
 spring:
-    jackson:
-        serialization:
-            write-dates-as-timestamps: false
     thymeleaf:
         cache: false
     output:
@@ -35,10 +32,10 @@ spring:
         clean-on-validation-error: ${FLYWAY_CLEAN_ON_VALIDATION_ERROR:true}
 
 security:
-    jwt:
-        token:
-            secret-key: ${JWT_SECRET_KEY:secret_key}
-            expire-length: ${JWT_EXPIRE_LENGTH:3600000} # 60 minutes duration by default: 60 minutes * 60 seconds * 1000 miliseconds
+    token:
+        secret-key: ${TOKEN_SECRET_KEY:secret-key}
+        access-token-expiration-minutes: ${ACCESS_TOKEN_EXPIRATION_MINUTES:5}
+        refresh-token-expiration-days: ${REFRESH_TOKEN_EXPIRATION_DAYS:7}
 
 management:
     endpoints:
