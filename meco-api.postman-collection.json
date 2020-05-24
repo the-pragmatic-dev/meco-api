@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "Account",
+			"name": "Auth",
 			"item": [
 				{
 					"name": "Signin",
@@ -25,7 +25,7 @@
 							},
 							{
 								"key": "X-FORWARDED-FOR",
-								"value": "196.245.163.202",
+								"value": "196.245.163.207",
 								"type": "text"
 							}
 						],
@@ -34,14 +34,14 @@
 							"raw": "{\n\t\"username\": \"admin@email.com\",\n\t\"password\": \"password\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/accounts/signin",
+							"raw": "http://localhost:8080/auth/signin",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
-								"accounts",
+								"auth",
 								"signin"
 							]
 						}
@@ -56,6 +56,16 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -63,14 +73,14 @@
 							"raw": "{\n\t\"username\": \"steve@email.com\",\n\t\"password\": \"password\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/accounts/signup",
+							"raw": "http://localhost:8080/auth/signup",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
-								"accounts",
+								"auth",
 								"signup"
 							]
 						}
@@ -78,26 +88,39 @@
 					"response": []
 				},
 				{
-					"name": "Me",
+					"name": "Refresh",
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [
 							{
-								"key": "Authorization",
-								"value": "Bearer TOKEN",
-								"type": "text"
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "User-Agent",
+								"type": "text",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"type": "text",
+								"value": "196.245.163.202"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"accessToken\": \"\",\n\t\"refreshToken\": \"\"\n}"
+						},
 						"url": {
-							"raw": "http://localhost:8080/accounts/me",
+							"raw": "http://localhost:8080/auth/refresh",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
-								"accounts",
-								"me"
+								"auth",
+								"refresh"
 							]
 						}
 					},
@@ -107,17 +130,27 @@
 					"name": "Forgot Password",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.202",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "http://localhost:8080/accounts/me/forgot?username=admin@email.com",
+							"raw": "http://localhost:8080/auth/forgot?username=admin@email.com",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
-								"accounts",
-								"me",
+								"auth",
 								"forgot"
 							],
 							"query": [
@@ -134,7 +167,18 @@
 					"name": "Reset Password",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.202",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\t\"password\": \"password\"\n}",
@@ -145,15 +189,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/accounts/me/reset?token=TOKEN",
+							"raw": "http://localhost:8080/auth/reset?token=TOKEN",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
-								"accounts",
-								"me",
+								"auth",
 								"reset"
 							],
 							"query": [
@@ -161,6 +204,48 @@
 									"key": "token",
 									"value": "TOKEN"
 								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Account",
+			"item": [
+				{
+					"name": "Me",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer TOKEN",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/accounts/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"accounts",
+								"me"
 							]
 						}
 					},
@@ -187,7 +272,7 @@
 							},
 							{
 								"key": "X-FORWARDED-FOR",
-								"value": "196.245.163.202",
+								"value": "196.245.163.207",
 								"type": "text"
 							}
 						],
@@ -219,6 +304,16 @@
 								"key": "Authorization",
 								"value": "Bearer TOKEN",
 								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -246,6 +341,16 @@
 							{
 								"key": "Authorization",
 								"value": "Bearer TOKEN",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
 								"type": "text"
 							}
 						],
@@ -276,6 +381,16 @@
 								"key": "Authorization",
 								"value": "Bearer TOKEN",
 								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -303,6 +418,16 @@
 							{
 								"key": "Authorization",
 								"value": "Bearer TOKEN",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
 								"type": "text"
 							}
 						],
@@ -339,6 +464,16 @@
 								"key": "Authorization",
 								"value": "Bearer TOKEN",
 								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -368,6 +503,16 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
 								"type": "text"
 							}
 						],
@@ -408,6 +553,16 @@
 								"key": "Content-Type",
 								"type": "text",
 								"value": "application/json"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -443,6 +598,16 @@
 								"key": "Authorization",
 								"type": "text",
 								"value": "Bearer TOKEN"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -481,6 +646,16 @@
 								"key": "Authorization",
 								"type": "text",
 								"value": "Bearer TOKEN"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -520,6 +695,16 @@
 								"key": "Authorization",
 								"type": "text",
 								"value": "Bearer TOKEN"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -543,6 +728,43 @@
 								"1",
 								"logs",
 								"download"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Billing",
+			"item": [
+				{
+					"name": "Find All Prices",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/billing/prices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"billing",
+								"prices"
 							]
 						}
 					},
