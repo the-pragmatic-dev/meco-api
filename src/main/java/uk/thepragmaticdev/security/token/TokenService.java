@@ -1,5 +1,7 @@
 package uk.thepragmaticdev.security.token;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -114,7 +116,7 @@ public class TokenService {
 
   /**
    * Checks if a given token is present and valid by parsing the claims with the
-   * secret signing key.
+   * secret signing key. An expired token is not valid.
    * 
    * @param token A compact URL-safe JWT string
    * @return true if the token is valid otherwise false
@@ -123,12 +125,29 @@ public class TokenService {
     if (token == null) {
       return false;
     }
+    return parseJwsClaims(token, false) != null;
+  }
+
+  /**
+   * Parse a JSON web signature using our secret key and retrieve its claims.
+   * Claims of an expired token can still be retrieved if allowExpired is set to
+   * true.
+   * 
+   * @param token        A compact URL-safe JWT string
+   * @param allowExpired Will allow returning of claims if token has expired
+   * @return A map of JWT claims
+   */
+  public Claims parseJwsClaims(String token, boolean allowExpired) {
     try {
-      Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+      return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+    } catch (ExpiredJwtException ex) {
+      if (allowExpired) {
+        return ex.getClaims();
+      }
+      throw new ApiException(AuthCode.INVALID_EXPIRED_TOKEN);
     } catch (JwtException ex) {
       throw new ApiException(AuthCode.INVALID_EXPIRED_TOKEN);
     }
-    return true;
   }
 
   /**

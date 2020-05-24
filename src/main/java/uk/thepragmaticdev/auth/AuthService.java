@@ -3,6 +3,7 @@ package uk.thepragmaticdev.auth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -77,7 +78,7 @@ public class AuthService {
    * @param username The username of an account attemping to signin
    * @param password The password of an account attemping to signin
    * @param request  The request information for HTTP servlets
-   * @return An token pair containing an access authentication token and a refresh
+   * @return A token pair containing an access authentication token and a refresh
    *         token
    */
   public TokenPair signin(String username, String password, HttpServletRequest request) {
@@ -96,7 +97,7 @@ public class AuthService {
    * 
    * @param username The username of an account attemping to signup
    * @param password The password of an account attemping to signup
-   * @return An token pair containing an access authentication token and a refresh
+   * @return A token pair containing an access authentication token and a refresh
    *         token
    */
   public TokenPair signup(String username, String password, HttpServletRequest request) {
@@ -139,23 +140,19 @@ public class AuthService {
     emailService.sendResetPassword(account);
   }
 
-  // TODO BELOW
-  // TODO: unused method yet to be implemented
   /**
-   * TODO.
+   * Refresh an expired access token. Uses the expired access token along with the
+   * refresh token and request metadata to generate a new token.
    * 
-   * @param username TODO.
-   * @return TODO
+   * @param accessToken  An expired access token
+   * @param refreshToken A refresh token generated on signin or signup
+   * @param request      The request information for HTTP servlets
+   * @return A valid access authentication token
    */
-  public TokenPair refresh(String username) {
-    var roles = List.of(Role.ROLE_ADMIN); // TODO
+  public String refresh(String accessToken, UUID refreshToken, HttpServletRequest request) {
     // TODO
-    return createTokenPair(username, roles);
-  }
 
-  // TODO
-  private TokenPair createTokenPair(String username, List<Role> roles) {
-    return new TokenPair(tokenService.createAccessToken(username, roles), null);
+    return tokenService.createAccessToken("username", List.of(Role.ROLE_ADMIN));
   }
 
   // TODO

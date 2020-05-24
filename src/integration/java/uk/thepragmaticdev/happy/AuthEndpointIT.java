@@ -6,12 +6,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 import com.stripe.exception.StripeException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,7 +74,8 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(AUTH_ENDPOINT + "signup")
     .then()
-        .body("token", not(emptyString()))
+        .body("accessToken", is(not(emptyString())))
+        .body("refreshToken", is(not(emptyString())))
         .statusCode(201);
     // clean up stripe customer created on account creation
     var account = accountService.findAuthenticatedAccount("account@integration.test");
@@ -115,4 +118,24 @@ class AuthEndpointIT extends IntegrationData {
     .then()
         .statusCode(200);
   }
+
+  // @endpoint:refresh
+
+  @Test
+  void shouldRefreshAccessToken() {
+    var request = authRefreshRequest(expiredToken(), UUID.randomUUID().toString());
+
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("accessToken", is(not(emptyString())))
+        .body("refreshToken", is(nullValue()))
+        .statusCode(201);
+  }
+
+  // @formatter:on
 }

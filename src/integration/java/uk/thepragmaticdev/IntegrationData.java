@@ -30,6 +30,7 @@ import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
+import uk.thepragmaticdev.auth.dto.request.AuthRefreshRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthResetRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthSigninRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthSignupRequest;
@@ -125,8 +126,8 @@ public abstract class IntegrationData {
       .when()
         .post(AUTH_ENDPOINT + "signin")
       .then()
-          .body("accessToken", not(emptyString()))
-          .body("refreshToken", not(emptyString()))
+          .body("accessToken", is(not(emptyString())))
+          .body("refreshToken", is(not(emptyString())))
           .statusCode(200)
       .extract().as(AuthSigninResponse.class).getAccessToken());
   }
@@ -161,6 +162,10 @@ public abstract class IntegrationData {
 
   protected final AuthResetRequest authResetRequest() {
     return new AuthResetRequest("newpassword");
+  }
+
+  protected final AuthRefreshRequest authRefreshRequest(String accessToken, String refreshToken) {
+    return new AuthRefreshRequest(accessToken, refreshToken);
   }
 
   protected final ApiKeyCreateRequest apiKeyCreateRequest() {
@@ -220,5 +225,28 @@ public abstract class IntegrationData {
             OffsetDateTime.now().toString()));
       }
     };
+  }
+
+  // @helpers:tokens
+
+  protected String futureToken() {
+    // generated with an expiration date of 30th September 3921
+    return "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdX"
+        + "Rob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1OTAzMTcxNTMsImV4cCI6NjE1OTAzMT"
+        + "cwOTN9.DX6oWfZ1tU3l7gssicEQfcEzyXQqphNyxwBnVcnSsaI";
+  }
+
+  protected String expiredToken() {
+    // generated with an expiration date of 24th May 2020
+    return "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdX"
+        + "Rob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1OTAzMTQ5MjQsImV4cCI6MTU5MDMxNT"
+        + "IyNH0.dPoby2Rew0Imq3giTk-K2uI_BG35HqkWJn43HU2iaIk";
+  }
+
+  protected String incorrectSignatureToken() {
+    // generated with an incorrect signing key
+    return "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBlbWFpbC5jb20iLCJhdXRoIjpbeyJhdX"
+        + "Rob3JpdHkiOiJST0xFX0FETUlOIn1dLCJpYXQiOjE1OTAzMzA3MDYsImV4cCI6MTU5MDMzMT"
+        + "AwNn0.F0sH-eM1vKlYgUO1ehwL-nxrQMQBRuQsK9WtUj2LvOI";
   }
 }

@@ -1,5 +1,6 @@
 package uk.thepragmaticdev.endpoint.controller;
 
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.auth.AuthService;
+import uk.thepragmaticdev.auth.dto.request.AuthRefreshRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthResetRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthSigninRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthSignupRequest;
+import uk.thepragmaticdev.auth.dto.response.AuthRefreshResponse;
 import uk.thepragmaticdev.auth.dto.response.AuthSigninResponse;
 import uk.thepragmaticdev.auth.dto.response.AuthSignupResponse;
 
@@ -47,7 +50,8 @@ public class AuthController {
    * 
    * @param request The request information for HTTP servlets
    * @param signin  The account details for signing in
-   * @return An authentication token
+   * @return A token pair containing an access authentication token and a refresh
+   *         token
    */
   @PostMapping(value = "/signin", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public AuthSigninResponse signin(HttpServletRequest request, @Valid @RequestBody AuthSigninRequest signin) {
@@ -59,7 +63,8 @@ public class AuthController {
    * Create a new account.
    * 
    * @param request The new account details to be created
-   * @return A newly created account
+   * @return A token pair containing an access authentication token and a refresh
+   *         token
    */
   @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.CREATED)
@@ -91,14 +96,17 @@ public class AuthController {
   }
 
   /**
-   * TODO.
+   * Refresh an expired access token. Uses the expired access token along with the
+   * refresh token and request metadata to generate a new token.
    * 
-   * @return TODO
+   * @return A valid access authentication token
    */
   @PostMapping(value = "/refresh", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(value = HttpStatus.CREATED)
-  public AuthSignupResponse refresh() {
-    // TODO
-    return null;
+  public AuthRefreshResponse refresh(HttpServletRequest request, @Valid @RequestBody AuthRefreshRequest refresh) {
+    var accessToken = authService.refresh(refresh.getAccessToken(), //
+        UUID.fromString(refresh.getRefreshToken()), //
+        request);
+    return modelMapper.map(accessToken, AuthRefreshResponse.class);
   }
 }

@@ -104,7 +104,7 @@ class BillingEndpointIT extends IntegrationData {
   // @endpoint:create-subscription
 
   @Test
-  void shouldCreateStripeSubscription() {
+  void shouldCreateSubscription() {
     // account created within @BeforeEach
     given()
       .headers(headers())
@@ -128,8 +128,6 @@ class BillingEndpointIT extends IntegrationData {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD)))
-      .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PRICE))
     .when()
       .delete(BILLING_ENDPOINT + "subscriptions")
     .then().statusCode(204);

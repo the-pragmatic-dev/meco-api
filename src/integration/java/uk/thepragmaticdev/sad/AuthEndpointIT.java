@@ -4,7 +4,9 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
+import java.util.UUID;
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -189,5 +191,162 @@ class AuthEndpointIT extends IntegrationData {
           .body("rejectedValue", is("[PROTECTED]"))
           .body("message", is("Minimum password length: 8 characters."))
         .statusCode(400);
-  }  
+  }
+
+  // @endpoint:refresh
+
+  @Test
+  void shouldNotRefreshIfAccessTokenHasNotExpired() {
+    var request = authRefreshRequest(futureToken(), UUID.randomUUID().toString());
+
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("subErrors", hasSize(1))
+        .root("subErrors[0]")
+          .body("object", is("authRefreshRequest"))
+          .body("field", is("accessToken"))
+          .body("rejectedValue", is(futureToken()))
+          .body("message", is("Must be a valid, expired access token."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotRefreshIfAccessTokenHasUnrecognizedSignature() {
+    var request = authRefreshRequest(incorrectSignatureToken(), UUID.randomUUID().toString());
+
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("subErrors", hasSize(1))
+        .root("subErrors[0]")
+          .body("object", is("authRefreshRequest"))
+          .body("field", is("accessToken"))
+          .body("rejectedValue", is(incorrectSignatureToken()))
+          .body("message", is("Must be a valid, expired access token."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotRefreshIfAccessTokenIsNull() {
+    var request = authRefreshRequest(null, UUID.randomUUID().toString());
+
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("subErrors", hasSize(1))
+        .root("subErrors[0]")
+          .body("object", is("authRefreshRequest"))
+          .body("field", is("accessToken"))
+          .body("rejectedValue", is(nullValue()))
+          .body("message", is("Must be a valid, expired access token."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotRefreshIfAccessTokenIsEmpty() {
+    var request = authRefreshRequest("", UUID.randomUUID().toString());
+
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("subErrors", hasSize(1))
+        .root("subErrors[0]")
+          .body("object", is("authRefreshRequest"))
+          .body("field", is("accessToken"))
+          .body("rejectedValue", is(""))
+          .body("message", is("Must be a valid, expired access token."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotRefreshIfRefreshTokenIsInvalid() {
+    var refreshToken = "invalid";
+    var request = authRefreshRequest(expiredToken(), refreshToken);
+
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("subErrors", hasSize(1))
+        .root("subErrors[0]")
+          .body("object", is("authRefreshRequest"))
+          .body("field", is("refreshToken"))
+          .body("rejectedValue", is(refreshToken))
+          .body("message", is("Must be a valid refresh token."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotRefreshIfRefreshTokenIsNull() {
+    var request = authRefreshRequest(expiredToken(), null);
+
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("subErrors", hasSize(1))
+        .root("subErrors[0]")
+          .body("object", is("authRefreshRequest"))
+          .body("field", is("refreshToken"))
+          .body("rejectedValue", is(nullValue()))
+          .body("message", is("Must be a valid refresh token."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotRefreshIfRefreshTokenIsEmpty() {
+    var request = authRefreshRequest(expiredToken(), "");
+
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("subErrors", hasSize(1))
+        .root("subErrors[0]")
+          .body("object", is("authRefreshRequest"))
+          .body("field", is("refreshToken"))
+          .body("rejectedValue", is(""))
+          .body("message", is("Must be a valid refresh token."))
+        .statusCode(400);
+  }
 }
