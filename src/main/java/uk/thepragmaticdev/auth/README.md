@@ -6,20 +6,20 @@ TODO
 
 ### Signin
 
-![auth-signin](../../../../../../diagrams/auth-signin.png)
+![auth-signin](../../../../../../diagrams/auth/auth-signin.png)
 
 ### Signup
 
-![auth-signup](../../../../../../diagrams/auth-signup.png)
+![auth-signup](../../../../../../diagrams/auth/auth-signup.png)
 
 ### Forgot
 
-![auth-refresh](../../../../../../diagrams/auth-forgot.png)
+![auth-refresh](../../../../../../diagrams/auth/auth-forgot.png)
 
 ### Reset
 
-![auth-refresh](../../../../../../diagrams/auth-reset.png)
+![auth-refresh](../../../../../../diagrams/auth/auth-reset.png)
 
 ### Refresh
 
-![auth-refresh](../../../../../../diagrams/auth-refresh.png)
+![auth-refresh](../../../../../../diagrams/auth/auth-refresh.png)
