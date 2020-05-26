@@ -272,6 +272,7 @@ Actuator endpoints are enabled by default to monitor and interact with the runni
 ## Documentation
 
 * [Account service](src/main/java/uk/thepragmaticdev/account/README.md) - Management of a users account.
+* [Auth service](src/main/java/uk/thepragmaticdev/auth/README.md) - Management of access and refresh tokens.
 * [Billing service](src/main/java/uk/thepragmaticdev/billing/README.md) - Management of account subscriptions.
 * [Email service](src/main/java/uk/thepragmaticdev/email/README.md) - Management of account email triggers.
 * [Key management service](src/main/java/uk/thepragmaticdev/kms/README.md) - Management of creating, updating and deleting API keys.
