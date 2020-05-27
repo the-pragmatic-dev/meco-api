@@ -246,9 +246,9 @@ public class AccountService {
    */
   public Account resetPasswordResetToken(String encodedPassword, String token) {
     var persistedAccount = findByPasswordResetToken(token)
-        .orElseThrow(() -> new ApiException(AuthCode.INVALID_PASSWORD_RESET_TOKEN));
+        .orElseThrow(() -> new ApiException(AuthCode.PASSWORD_RESET_TOKEN_NOT_FOUND));
     if (OffsetDateTime.now().isAfter(persistedAccount.getPasswordResetTokenExpire())) {
-      throw new ApiException(AuthCode.INVALID_PASSWORD_RESET_TOKEN);
+      throw new ApiException(AuthCode.PASSWORD_RESET_TOKEN_EXPIRED);
     }
     persistedAccount.setPassword(encodedPassword);
     persistedAccount.setPasswordResetToken(null);

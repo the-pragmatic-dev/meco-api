@@ -1,7 +1,7 @@
 package uk.thepragmaticdev.auth;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -86,7 +86,7 @@ public class AuthService {
       authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
       var persistedAccount = accountService.findAuthenticatedAccount(username);
       var requestMetadata = requestMetadataService.verifyRequest(persistedAccount, request);
-      return createTokenPair(persistedAccount.getUsername(), persistedAccount.getRoles(), requestMetadata);
+      return createTokenPair(persistedAccount, requestMetadata);
     } catch (AuthenticationException ex) {
       throw new ApiException(AuthCode.INVALID_CREDENTIALS);
     }
@@ -110,8 +110,7 @@ public class AuthService {
           Arrays.asList(Role.ROLE_ADMIN));
       securityLogService.created(persistedAccount);
       emailService.sendAccountCreated(persistedAccount);
-      return createTokenPair(persistedAccount.getUsername(), persistedAccount.getRoles(),
-          requestMetadataService.extractRequestMetadata(request));
+      return createTokenPair(persistedAccount, requestMetadataService.extractRequestMetadata(request));
     } else {
       throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
     }
@@ -150,17 +149,26 @@ public class AuthService {
    * @return A valid access authentication token
    */
   public String refresh(String accessToken, UUID refreshToken, HttpServletRequest request) {
-    // TODO
-
-    return tokenService.createAccessToken("username", List.of(Role.ROLE_ADMIN));
+    var username = tokenService.parseJwsClaims(accessToken, true).getSubject();
+    var account = accountService.findAuthenticatedAccount(username);
+    var persistedRefreshToken = account.getRefreshTokens().stream().filter(r -> r.getToken().equals(refreshToken))
+        .findFirst().orElseThrow(() -> new ApiException(AuthCode.REFRESH_TOKEN_NOT_FOUND));
+    if (persistedRefreshToken.getExpirationTime().isBefore(OffsetDateTime.now())) {
+      throw new ApiException(AuthCode.REFRESH_TOKEN_EXPIRED);
+    }
+    var requestMetadata = requestMetadataService.extractRequestMetadata(request)
+        .orElseThrow(() -> new ApiException(AuthCode.INVALID_REQUEST_METADATA));
+    if (!requestMetadata.equals(persistedRefreshToken.getRequestMetadata())) {
+      throw new ApiException(AuthCode.INVALID_REQUEST_METADATA);
+    }
+    return tokenService.createAccessToken(account.getUsername(), account.getRoles());
   }
 
-  // TODO
-  private TokenPair createTokenPair(String username, List<Role> roles, Optional<RequestMetadata> requestMetadata) {
+  private TokenPair createTokenPair(Account account, Optional<RequestMetadata> requestMetadata) {
     if (requestMetadata.isEmpty()) {
       throw new ApiException(AuthCode.INVALID_REQUEST_METADATA);
     }
-    return new TokenPair(tokenService.createAccessToken(username, roles),
-        tokenService.createRefreshToken(requestMetadata.get()));
+    return new TokenPair(tokenService.createAccessToken(account.getUsername(), account.getRoles()),
+        tokenService.createRefreshToken(account, requestMetadata.get()));
   }
 }

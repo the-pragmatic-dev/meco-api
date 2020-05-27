@@ -1,5 +1,6 @@
 -------------------------------------------------
 -- Drop Tables ----------------------------------
+DROP TABLE IF EXISTS refresh_token;
 DROP TABLE IF EXISTS api_key_log;
 DROP TABLE IF EXISTS security_log;
 DROP TABLE IF EXISTS billing_log;
@@ -10,6 +11,7 @@ DROP TABLE IF EXISTS scope;
 DROP TABLE IF EXISTS account;
 -------------------------------------------------
 -- Drop Indexes ---------------------------------
+DROP INDEX IF EXISTS refresh_token_token_idx;
 DROP INDEX IF EXISTS api_key_log_api_key_id_idx;
 DROP INDEX IF EXISTS security_log_account_id_idx;
 DROP INDEX IF EXISTS billing_log_account_id_idx;
@@ -135,6 +137,7 @@ CREATE INDEX security_log_account_id_idx ON security_log (account_id);
 -- Refresh Token --------------------------------
 CREATE TABLE refresh_token (
     token UUID PRIMARY KEY,
+    account_id BIGINT NOT NULL REFERENCES account (id),
     expiration_time TIMESTAMPTZ NOT NULL,
     ip TEXT,
     city_name TEXT,
@@ -146,6 +149,6 @@ CREATE TABLE refresh_token (
     user_agent_family TEXT,
     user_agent_major TEXT,
     user_agent_minor TEXT,
-    UNIQUE (token, expiration_time)
+    UNIQUE (token, account_id, expiration_time)
 );
 CREATE INDEX refresh_token_token_idx ON refresh_token (token);

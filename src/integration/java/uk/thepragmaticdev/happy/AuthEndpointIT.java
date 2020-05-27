@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import com.stripe.exception.StripeException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.UUID;
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +35,6 @@ import uk.thepragmaticdev.email.EmailService;
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-
 class AuthEndpointIT extends IntegrationData {
   // @formatter:off
 
@@ -65,7 +63,7 @@ class AuthEndpointIT extends IntegrationData {
   @Test
   void shouldCreateAccount() throws StripeException {
     var request = authSignupRequest();
-    request.setUsername("account@integration.test");
+    request.setUsername("auth@integration.test");
 
     given()
       .headers(headers())
@@ -78,7 +76,7 @@ class AuthEndpointIT extends IntegrationData {
         .body("refreshToken", is(not(emptyString())))
         .statusCode(201);
     // clean up stripe customer created on account creation
-    var account = accountService.findAuthenticatedAccount("account@integration.test");
+    var account = accountService.findAuthenticatedAccount("auth@integration.test");
     billingService.deleteCustomer(account.getUsername());
   }
 
@@ -123,8 +121,7 @@ class AuthEndpointIT extends IntegrationData {
 
   @Test
   void shouldRefreshAccessToken() {
-    var request = authRefreshRequest(expiredToken(), UUID.randomUUID().toString());
-
+    var request = authRefreshRequest(expiredToken(), "08fa878c-1d28-40d3-a3ef-5a52c649840c");
     given()
       .headers(headers())
       .contentType(JSON)

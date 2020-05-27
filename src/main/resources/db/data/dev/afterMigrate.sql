@@ -35,3 +35,5 @@ INSERT INTO security_log values (1, 1, 'account.created', '196.245.163.202', 'Lo
 INSERT INTO security_log values (2, 1, 'account.two_factor_successful_login', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0', '2020-02-25T15:40:19.111Z') ON CONFLICT DO NOTHING;
 INSERT INTO security_log values (3, 1, 'account.signin', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0', '2020-02-26T15:40:19.111Z') ON CONFLICT DO NOTHING;
 ALTER SEQUENCE security_log_id_seq RESTART WITH 4;
+-- Refresh Token
+INSERT INTO refresh_token values ('08fa878c-1d28-40d3-a3ef-5a52c649840c', 1, '3000-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0') ON CONFLICT DO NOTHING;

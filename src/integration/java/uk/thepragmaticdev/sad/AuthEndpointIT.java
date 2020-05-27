@@ -164,9 +164,9 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(AUTH_ENDPOINT + "reset")
     .then()
-        .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_PASSWORD_RESET_TOKEN.getMessage()))
-        .statusCode(401);
+        .body("status", is("NOT_FOUND"))
+        .body("message", is(AuthCode.PASSWORD_RESET_TOKEN_NOT_FOUND.getMessage()))
+        .statusCode(404);
   }
 
   @Test
@@ -349,4 +349,7 @@ class AuthEndpointIT extends IntegrationData {
           .body("message", is("Must be a valid refresh token."))
         .statusCode(400);
   }
+
+  // TODO if refresh token is expired
+  // TODO if refresh token is not found
 }

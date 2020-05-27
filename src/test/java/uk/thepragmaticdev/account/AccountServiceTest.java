@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -124,6 +123,6 @@ class AccountServiceTest extends UnitData {
     var ex = Assertions.assertThrows(ApiException.class, () -> {
       sut.resetPasswordResetToken("encodedPassword", "token");
     });
-    assertThat(ex.getErrorCode(), is(AuthCode.INVALID_PASSWORD_RESET_TOKEN));
+    assertThat(ex.getErrorCode(), is(AuthCode.PASSWORD_RESET_TOKEN_EXPIRED));
   }
 }

@@ -22,6 +22,7 @@ import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.security.SecurityLog;
+import uk.thepragmaticdev.security.token.RefreshToken;
 
 @Data
 @NoArgsConstructor
@@ -75,4 +76,7 @@ public class Account implements Model {
 
   @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL }, orphanRemoval = true)
   private List<SecurityLog> securityLogs;
+
+  @OneToMany(mappedBy = "account", cascade = { CascadeType.ALL }, orphanRemoval = true)
+  private List<RefreshToken> refreshTokens;
 }

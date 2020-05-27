@@ -19,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.Role;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AuthCode;
@@ -94,9 +95,10 @@ public class TokenService {
    * @param requestMetadata The geolocation and device metadata
    * @return A universally unique refresh token
    */
-  public UUID createRefreshToken(RequestMetadata requestMetadata) {
+  public UUID createRefreshToken(Account account, RequestMetadata requestMetadata) {
     var token = UUID.randomUUID();
-    var refreshToken = new RefreshToken(token, OffsetDateTime.now().plusDays(refreshTokenExpiration), requestMetadata);
+    var refreshToken = new RefreshToken(token, OffsetDateTime.now().plusDays(refreshTokenExpiration), requestMetadata,
+        account);
     refreshTokenRepository.save(refreshToken);
     return refreshToken.getToken();
   }
