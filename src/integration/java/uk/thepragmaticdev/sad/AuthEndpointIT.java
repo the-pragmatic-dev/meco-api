@@ -350,6 +350,33 @@ class AuthEndpointIT extends IntegrationData {
         .statusCode(400);
   }
 
-  // TODO if refresh token is expired
-  // TODO if refresh token is not found
+  @Test
+  void shouldNotRefreshIfRefreshTokenHasExpired() {
+    var request = authRefreshRequest(expiredToken(), "624aa34c-a00e-11ea-bb37-0242ac130002");
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is(AuthCode.REFRESH_TOKEN_EXPIRED.getMessage()))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotRefreshIfRefreshTokenNotFound() {
+    var request = authRefreshRequest(expiredToken(), UUID.randomUUID().toString());
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("NOT_FOUND"))
+        .body("message", is(AuthCode.REFRESH_TOKEN_NOT_FOUND.getMessage()))
+        .statusCode(404);
+  }
 }
