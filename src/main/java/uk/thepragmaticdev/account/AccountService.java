@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
@@ -113,6 +114,7 @@ public class AccountService {
    * @param billingAlertEnabled      An updated billing alert
    * @return The updated account
    */
+  @Transactional
   public Account update(String username, String fullName, boolean emailSubscriptionEnabled,
       boolean billingAlertEnabled) {
     var authenticatedAccount = findAuthenticatedAccount(username);
