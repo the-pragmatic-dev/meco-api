@@ -40,12 +40,12 @@ public class TokenFilter extends OncePerRequestFilter {
       SecurityContextHolder.clearContext();
 
       var responseBody = new ApiError(//
-          AuthCode.INVALID_EXPIRED_TOKEN.getStatus(), //
-          AuthCode.INVALID_EXPIRED_TOKEN.getMessage() //
+          AuthCode.ACCESS_TOKEN_INVALID.getStatus(), //
+          AuthCode.ACCESS_TOKEN_INVALID.getMessage() //
       );
       LOG.warn("{}", responseBody);
       httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-      httpServletResponse.setStatus(AuthCode.INVALID_EXPIRED_TOKEN.getStatus().value());
+      httpServletResponse.setStatus(AuthCode.ACCESS_TOKEN_INVALID.getStatus().value());
       httpServletResponse.getWriter().write(responseBody.toString());
       return;
     }

@@ -89,7 +89,7 @@ public class AuthService {
       var requestMetadata = requestMetadataService.verifyRequest(persistedAccount, request);
       return createTokenPair(persistedAccount, requestMetadata);
     } catch (AuthenticationException ex) {
-      throw new ApiException(AuthCode.INVALID_CREDENTIALS);
+      throw new ApiException(AuthCode.CREDENTIALS_INVALID);
     }
   }
 
@@ -112,7 +112,7 @@ public class AuthService {
         return createTokenPair(persistedAccount, requestMetadataService.extractRequestMetadata(request));
       } catch (ApiException ex) {
         accountService.deleteStripeCustomer(persistedAccount.getStripeCustomerId());
-        throw new ApiException(AuthCode.INVALID_REQUEST_METADATA);
+        throw new ApiException(AuthCode.REQUEST_METADATA_INVALID);
       }
     } else {
       throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
@@ -160,16 +160,16 @@ public class AuthService {
       throw new ApiException(AuthCode.REFRESH_TOKEN_EXPIRED);
     }
     var requestMetadata = requestMetadataService.extractRequestMetadata(request)
-        .orElseThrow(() -> new ApiException(AuthCode.INVALID_REQUEST_METADATA));
+        .orElseThrow(() -> new ApiException(AuthCode.REQUEST_METADATA_INVALID));
     if (!requestMetadata.equals(persistedRefreshToken.getRequestMetadata())) {
-      throw new ApiException(AuthCode.INVALID_REQUEST_METADATA);
+      throw new ApiException(AuthCode.REQUEST_METADATA_INVALID);
     }
     return tokenService.createAccessToken(account.getUsername(), account.getRoles());
   }
 
   private TokenPair createTokenPair(Account account, Optional<RequestMetadata> requestMetadata) {
     if (requestMetadata.isEmpty()) {
-      throw new ApiException(AuthCode.INVALID_REQUEST_METADATA);
+      throw new ApiException(AuthCode.REQUEST_METADATA_INVALID);
     }
     return new TokenPair(tokenService.createAccessToken(account.getUsername(), account.getRoles()),
         tokenService.createRefreshToken(account, requestMetadata.get()));

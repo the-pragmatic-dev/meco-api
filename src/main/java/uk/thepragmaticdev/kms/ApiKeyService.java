@@ -133,7 +133,7 @@ public class ApiKeyService {
     apiKey.setId(id);
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(apiKey.getId(), authenticatedAccount.getId())
-        .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
     persistedApiKey.setName(apiKey.getName());
     updateScope(persistedApiKey, apiKey.getScope());
     updateAccessPolicies(persistedApiKey, apiKey.getAccessPolicies());
@@ -210,7 +210,7 @@ public class ApiKeyService {
   public void delete(String username, long id) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
-        .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
     apiKeyRepository.delete(persistedApiKey);
     securityLogService.deleteKey(authenticatedAccount, persistedApiKey);
     emailService.sendKeyDeleted(authenticatedAccount, persistedApiKey);
@@ -227,7 +227,7 @@ public class ApiKeyService {
   public Page<ApiKeyLog> log(Pageable pageable, String username, long id) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
-        .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
     return apiKeyLogService.findAllByApiKeyId(pageable, persistedApiKey);
   }
 
@@ -241,7 +241,7 @@ public class ApiKeyService {
   public void downloadLog(StatefulBeanToCsv<ApiKeyLog> writer, String username, long id) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
-        .orElseThrow(() -> new ApiException(ApiKeyCode.NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
     try {
       writer.write(apiKeyLogService.findAllByApiKeyId(persistedApiKey));
       apiKeyLogService.downloadLogs(persistedApiKey);

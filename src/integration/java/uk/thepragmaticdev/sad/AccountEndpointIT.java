@@ -43,7 +43,7 @@ class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -62,7 +62,7 @@ class AccountEndpointIT extends IntegrationData {
       .put(ACCOUNTS_ENDPOINT + "me")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -77,7 +77,7 @@ class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -92,7 +92,7 @@ class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -107,7 +107,7 @@ class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me/security/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -122,7 +122,7 @@ class AccountEndpointIT extends IntegrationData {
       .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 

@@ -47,7 +47,7 @@ class AuthEndpointIT extends IntegrationData {
         .post(AUTH_ENDPOINT + "signin")
       .then()
           .body("status", is("BAD_REQUEST"))
-          .body("message", is(AuthCode.INVALID_REQUEST_METADATA.getMessage()))
+          .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
           .statusCode(400);
   }
 
@@ -64,7 +64,7 @@ class AuthEndpointIT extends IntegrationData {
       .post(AUTH_ENDPOINT + "signin")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_CREDENTIALS.getMessage()))
+        .body("message", is(AuthCode.CREDENTIALS_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -81,7 +81,7 @@ class AuthEndpointIT extends IntegrationData {
       .post(AUTH_ENDPOINT + "signin")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_CREDENTIALS.getMessage()))
+        .body("message", is(AuthCode.CREDENTIALS_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -98,7 +98,7 @@ class AuthEndpointIT extends IntegrationData {
         .post(AUTH_ENDPOINT + "signup")
       .then()
           .body("status", is("BAD_REQUEST"))
-          .body("message", is(AuthCode.INVALID_REQUEST_METADATA.getMessage()))
+          .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
           .statusCode(400);
   }
 
@@ -420,7 +420,7 @@ class AuthEndpointIT extends IntegrationData {
       .post(AUTH_ENDPOINT + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
-        .body("message", is(AuthCode.INVALID_REQUEST_METADATA.getMessage()))
+        .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
         .statusCode(400);
   }
 
@@ -434,7 +434,7 @@ class AuthEndpointIT extends IntegrationData {
       .post(AUTH_ENDPOINT + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
-        .body("message", is(AuthCode.INVALID_REQUEST_METADATA.getMessage()))
+        .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
         .statusCode(400);
   }
 }

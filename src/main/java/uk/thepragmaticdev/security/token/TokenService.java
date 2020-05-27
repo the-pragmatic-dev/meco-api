@@ -146,9 +146,9 @@ public class TokenService {
       if (allowExpired) {
         return ex.getClaims();
       }
-      throw new ApiException(AuthCode.INVALID_EXPIRED_TOKEN);
+      throw new ApiException(AuthCode.ACCESS_TOKEN_INVALID);
     } catch (JwtException ex) {
-      throw new ApiException(AuthCode.INVALID_EXPIRED_TOKEN);
+      throw new ApiException(AuthCode.ACCESS_TOKEN_INVALID);
     }
   }
 

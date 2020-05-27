@@ -5,8 +5,8 @@ import uk.thepragmaticdev.exception.ErrorCode;
 
 public enum AccountCode implements ErrorCode {
 
-  USERNAME_UNAVAILABLE(HttpStatus.CONFLICT, "Username is already in use."),
-  USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND, "Username not found.");
+  USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND, "Username not found."),
+  USERNAME_UNAVAILABLE(HttpStatus.CONFLICT, "Username is already in use.");
 
   private final String message;
   private final HttpStatus status;

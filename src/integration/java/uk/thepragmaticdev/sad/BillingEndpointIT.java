@@ -48,7 +48,7 @@ class BillingEndpointIT extends IntegrationData {
       .post(BILLING_ENDPOINT + "subscriptions")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -62,9 +62,9 @@ class BillingEndpointIT extends IntegrationData {
     .when()
       .post(BILLING_ENDPOINT + "subscriptions")
     .then()
-        .body("status", is("SERVICE_UNAVAILABLE"))
+        .body("status", is("NOT_FOUND"))
         .body("message", is(BillingCode.STRIPE_PRICE_NOT_FOUND.getMessage()))
-        .statusCode(503);
+        .statusCode(404);
   }
 
   // @endpoint:cancel-subscription
@@ -78,7 +78,7 @@ class BillingEndpointIT extends IntegrationData {
       .delete(BILLING_ENDPOINT + "subscriptions")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -90,9 +90,9 @@ class BillingEndpointIT extends IntegrationData {
     .when()
       .delete(BILLING_ENDPOINT + "subscriptions")
     .then()
-        .body("status", is("SERVICE_UNAVAILABLE"))
+        .body("status", is("NOT_FOUND"))
         .body("message", is(BillingCode.STRIPE_SUBSCRIPTION_NOT_FOUND.getMessage()))
-        .statusCode(503);
+        .statusCode(404);
   }
 
   // @formatter:on

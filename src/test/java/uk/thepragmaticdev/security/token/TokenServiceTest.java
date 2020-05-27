@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AuthCode;
 import uk.thepragmaticdev.security.UserService;
@@ -93,7 +92,7 @@ class TokenServiceTest {
     var ex = Assertions.assertThrows(ApiException.class, () -> {
       sut.validateToken(token);
     });
-    assertThat(ex.getErrorCode(), is(AuthCode.INVALID_EXPIRED_TOKEN));
+    assertThat(ex.getErrorCode(), is(AuthCode.ACCESS_TOKEN_INVALID));
   }
 
   private String futureToken() {

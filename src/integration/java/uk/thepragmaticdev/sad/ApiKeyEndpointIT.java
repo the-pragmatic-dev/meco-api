@@ -48,7 +48,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT)
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -186,7 +186,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .put(API_KEY_ENDPOINT + "1")
       .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
   
@@ -201,7 +201,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .put(API_KEY_ENDPOINT + "9999")
       .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is(ApiKeyCode.NOT_FOUND.getMessage()))
+        .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -216,7 +216,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .delete(API_KEY_ENDPOINT + "1")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -229,7 +229,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .delete(API_KEY_ENDPOINT + "9999")
     .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is(ApiKeyCode.NOT_FOUND.getMessage()))
+        .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -244,7 +244,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "1/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -257,7 +257,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "9999/logs")
     .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is(ApiKeyCode.NOT_FOUND.getMessage()))
+        .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -272,7 +272,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "1/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
@@ -285,7 +285,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "9999/logs/download")
     .then()
         .body("status", is("NOT_FOUND"))
-        .body("message", is(ApiKeyCode.NOT_FOUND.getMessage()))
+        .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
   }
 
@@ -300,7 +300,7 @@ class ApiKeyEndpointIT extends IntegrationData {
       .get(API_KEY_ENDPOINT + "count")
       .then()
         .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.INVALID_EXPIRED_TOKEN.getMessage()))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
   }
 
