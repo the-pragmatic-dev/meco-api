@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -100,17 +101,19 @@ public class AuthService {
    * @return A token pair containing an access authentication token and a refresh
    *         token
    */
+  @Transactional
   public TokenPair signup(String username, String password, HttpServletRequest request) {
     if (!accountService.existsByUsername(username)) {
-      var account = new Account();
-      account.setUsername(username);
-      account.setPassword(passwordEncoder.encode(password));
-      account.setRoles(Arrays.asList(Role.ROLE_ADMIN));
       var persistedAccount = accountService.create(username, passwordEncoder.encode(password),
           Arrays.asList(Role.ROLE_ADMIN));
       securityLogService.created(persistedAccount);
       emailService.sendAccountCreated(persistedAccount);
-      return createTokenPair(persistedAccount, requestMetadataService.extractRequestMetadata(request));
+      try {
+        return createTokenPair(persistedAccount, requestMetadataService.extractRequestMetadata(request));
+      } catch (ApiException ex) {
+        accountService.deleteStripeCustomer(persistedAccount.getStripeCustomerId());
+        throw new ApiException(AuthCode.INVALID_REQUEST_METADATA);
+      }
     } else {
       throw new ApiException(AccountCode.USERNAME_UNAVAILABLE);
     }

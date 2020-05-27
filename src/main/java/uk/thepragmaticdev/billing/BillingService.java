@@ -68,13 +68,12 @@ public class BillingService {
   /**
    * Delete a stripe customer.
    * 
-   * @param username The email address of the account
+   * @param stripeCustomerId The unique stripe customer identifier
    * @return The deleted stripe customer id
    */
-  public String deleteCustomer(String username) {
-    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+  public String deleteCustomer(String stripeCustomerId) {
     try {
-      return stripeService.deleteCustomer(authenticatedAccount.getStripeCustomerId()).getId();
+      return stripeService.deleteCustomer(stripeCustomerId).getId();
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_DELETE_CUSTOMER_ERROR);
     }

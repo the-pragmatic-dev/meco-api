@@ -37,4 +37,5 @@ INSERT INTO security_log values (3, 1, 'account.signin', '196.245.163.202', 'Lon
 ALTER SEQUENCE security_log_id_seq RESTART WITH 4;
 -- Refresh Token
 INSERT INTO refresh_token values ('08fa878c-1d28-40d3-a3ef-5a52c649840c', 1, '3000-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0') ON CONFLICT DO NOTHING;
+INSERT INTO refresh_token values ('ee42cae2-a012-11ea-bb37-0242ac130002', 1, '3000-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Linux', '0', '0', 'Chrome', '78', '0') ON CONFLICT DO NOTHING;
 INSERT INTO refresh_token values ('624aa34c-a00e-11ea-bb37-0242ac130002', 1, '2020-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0') ON CONFLICT DO NOTHING;

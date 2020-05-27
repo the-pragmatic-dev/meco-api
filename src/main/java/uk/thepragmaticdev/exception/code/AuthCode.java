@@ -6,7 +6,7 @@ import uk.thepragmaticdev.exception.ErrorCode;
 public enum AuthCode implements ErrorCode {
 
   INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Your credentials are missing from the request, or aren't correct."),
-  INVALID_REQUEST_METADATA(HttpStatus.UNAUTHORIZED, "Unable to verify ip or user agent information."),
+  INVALID_REQUEST_METADATA(HttpStatus.BAD_REQUEST, "Unable to verify ip or user agent information."),
   INVALID_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "Expired or invalid token."),
   PASSWORD_RESET_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Password reset token not found."),
   PASSWORD_RESET_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "Password reset token expired."),

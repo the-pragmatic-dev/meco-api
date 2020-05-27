@@ -75,7 +75,7 @@ class BillingEndpointIT extends IntegrationData {
   @AfterEach
   public void cleanUpEach() throws StripeException {
     var account = accountService.findAuthenticatedAccount(TEST_USERNAME);
-    billingService.deleteCustomer(account.getUsername());
+    billingService.deleteCustomer(account.getStripeCustomerId());
   }
 
   // @endpoint:findAllPrices

@@ -255,4 +255,13 @@ public class AccountService {
     persistedAccount.setPasswordResetTokenExpire(null);
     return accountRepository.save(persistedAccount);
   }
+
+  /**
+   * Delete a stripe customer.
+   * 
+   * @param stripeCustomerId The unique stripe customer identifier
+   */
+  public void deleteStripeCustomer(String stripeCustomerId) {
+    billingService.deleteCustomer(stripeCustomerId);
+  }
 }

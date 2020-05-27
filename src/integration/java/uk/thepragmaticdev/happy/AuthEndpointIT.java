@@ -77,7 +77,7 @@ class AuthEndpointIT extends IntegrationData {
         .statusCode(201);
     // clean up stripe customer created on account creation
     var account = accountService.findAuthenticatedAccount("auth@integration.test");
-    billingService.deleteCustomer(account.getUsername());
+    billingService.deleteCustomer(account.getStripeCustomerId());
   }
 
   // @endpoint:forgot

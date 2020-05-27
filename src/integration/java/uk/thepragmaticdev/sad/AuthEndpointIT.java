@@ -38,6 +38,20 @@ class AuthEndpointIT extends IntegrationData {
   // @endpoint:signin
 
   @Test
+  void shouldNotSigninIfRequestMetadataIsMissing() {
+    var request = authSigninRequest();
+    given()
+        .contentType(JSON)
+        .body(request)
+      .when()
+        .post(AUTH_ENDPOINT + "signin")
+      .then()
+          .body("status", is("BAD_REQUEST"))
+          .body("message", is(AuthCode.INVALID_REQUEST_METADATA.getMessage()))
+          .statusCode(400);
+  }
+
+  @Test
   void shouldNotSigninWhenUsernameDoesNotExist() {
     var request = authSigninRequest();
     request.setUsername("random@email.com");
@@ -72,6 +86,21 @@ class AuthEndpointIT extends IntegrationData {
   }
 
   // @endpoint:signup
+
+  @Test
+  void shouldNotSignupIfRequestMetadataIsMissing() {
+    var request = authSignupRequest();
+    request.setUsername("auth@integration.test");
+    given()
+        .contentType(JSON)
+        .body(request)
+      .when()
+        .post(AUTH_ENDPOINT + "signup")
+      .then()
+          .body("status", is("BAD_REQUEST"))
+          .body("message", is(AuthCode.INVALID_REQUEST_METADATA.getMessage()))
+          .statusCode(400);
+  }
 
   @Test
   void shouldNotCreateAccountWhenUsernameAlreadyExists() {
@@ -378,5 +407,34 @@ class AuthEndpointIT extends IntegrationData {
         .body("status", is("NOT_FOUND"))
         .body("message", is(AuthCode.REFRESH_TOKEN_NOT_FOUND.getMessage()))
         .statusCode(404);
+  }
+
+  @Test
+  void shouldNotRefreshIfRequestMetadataIsDifferent() {
+    var request = authRefreshRequest(expiredToken(), "ee42cae2-a012-11ea-bb37-0242ac130002");
+    given()
+      .headers(headers())
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is(AuthCode.INVALID_REQUEST_METADATA.getMessage()))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotRefreshIfRequestMetadataIsMissing() {
+    var request = authRefreshRequest(expiredToken(), "ee42cae2-a012-11ea-bb37-0242ac130002");
+    given()
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(AUTH_ENDPOINT + "refresh")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is(AuthCode.INVALID_REQUEST_METADATA.getMessage()))
+        .statusCode(400);
   }
 }
