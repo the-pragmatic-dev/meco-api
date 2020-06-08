@@ -97,8 +97,9 @@ public class TokenService {
    */
   public UUID createRefreshToken(Account account, RequestMetadata requestMetadata) {
     var token = UUID.randomUUID();
-    var refreshToken = new RefreshToken(token, OffsetDateTime.now().plusDays(refreshTokenExpiration), requestMetadata,
-        account);
+    var createdDate = OffsetDateTime.now();
+    var refreshToken = new RefreshToken(token, createdDate, createdDate.plusDays(refreshTokenExpiration),
+        requestMetadata, account);
     refreshTokenRepository.save(refreshToken);
     return refreshToken.getToken();
   }

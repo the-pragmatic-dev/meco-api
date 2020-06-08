@@ -138,6 +138,7 @@ CREATE INDEX security_log_account_id_idx ON security_log (account_id);
 CREATE TABLE refresh_token (
     token UUID PRIMARY KEY,
     account_id BIGINT NOT NULL REFERENCES account (id),
+    created_date TIMESTAMPTZ NOT NULL,
     expiration_time TIMESTAMPTZ NOT NULL,
     ip TEXT,
     city_name TEXT,

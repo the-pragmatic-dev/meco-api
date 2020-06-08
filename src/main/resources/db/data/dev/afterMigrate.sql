@@ -36,6 +36,6 @@ INSERT INTO security_log values (2, 1, 'account.two_factor_successful_login', '1
 INSERT INTO security_log values (3, 1, 'account.signin', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0', '2020-02-26T15:40:19.111Z') ON CONFLICT DO NOTHING;
 ALTER SEQUENCE security_log_id_seq RESTART WITH 4;
 -- Refresh Token
-INSERT INTO refresh_token values ('08fa878c-1d28-40d3-a3ef-5a52c649840c', 1, '3000-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0') ON CONFLICT DO NOTHING;
-INSERT INTO refresh_token values ('ee42cae2-a012-11ea-bb37-0242ac130002', 1, '3000-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Linux', '0', '0', 'Chrome', '78', '0') ON CONFLICT DO NOTHING;
-INSERT INTO refresh_token values ('624aa34c-a00e-11ea-bb37-0242ac130002', 1, '2020-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0') ON CONFLICT DO NOTHING;
+INSERT INTO refresh_token values ('08fa878c-1d28-40d3-a3ef-5a52c649840c', 1, '2020-01-01T00:00:00.000Z', '3000-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0') ON CONFLICT DO NOTHING;
+INSERT INTO refresh_token values ('ee42cae2-a012-11ea-bb37-0242ac130002', 1, '2020-01-01T00:00:00.000Z', '3000-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Linux', '0', '0', 'Chrome', '78', '0') ON CONFLICT DO NOTHING;
+INSERT INTO refresh_token values ('624aa34c-a00e-11ea-bb37-0242ac130002', 1, '2020-01-01T00:00:00.000Z', '2020-01-01T00:00:00.000Z', '196.245.163.202', 'London', 'GB', 'ENG', 'Mac OS X', '10', '14', 'Chrome', '71', '0') ON CONFLICT DO NOTHING;

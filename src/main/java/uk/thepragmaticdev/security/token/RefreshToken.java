@@ -24,6 +24,8 @@ public class RefreshToken {
   @Id
   private UUID token;
 
+  private OffsetDateTime createdDate;
+
   private OffsetDateTime expirationTime;
 
   @Embedded

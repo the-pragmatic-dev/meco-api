@@ -126,5 +126,35 @@ class AccountEndpointIT extends IntegrationData {
         .statusCode(401);
   }
 
+  // @endpoint:find-all-active-devices
+
+  @Test
+  void shouldNotReturnAllActiveDevicesWithInvalidToken() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
+    .when()
+      .get(ACCOUNTS_ENDPOINT + "me/security/devices")
+    .then()
+        .body("status", is("UNAUTHORIZED"))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
+        .statusCode(401);
+  }
+
+  // @endpoint:delete-all-active-devices
+
+  @Test
+  void shouldNotDeleteAllActiveDevicesWithInvalidToken() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
+      .when()
+        .delete(ACCOUNTS_ENDPOINT + "me/security/devices")
+      .then()
+        .body("status", is("UNAUTHORIZED"))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
+        .statusCode(401);
+  }
+
   // @formatter:on
 }

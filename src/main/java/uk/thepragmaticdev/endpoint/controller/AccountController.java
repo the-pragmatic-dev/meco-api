@@ -2,22 +2,28 @@ package uk.thepragmaticdev.endpoint.controller;
 
 import com.opencsv.bean.StatefulBeanToCsv;
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.account.dto.response.AccountMeResponse;
 import uk.thepragmaticdev.account.dto.response.AccountUpdateResponse;
+import uk.thepragmaticdev.auth.dto.response.AuthDeviceResponse;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.dto.BillingLogResponse;
 import uk.thepragmaticdev.log.dto.SecurityLogResponse;
@@ -124,5 +130,29 @@ public class AccountController {
   @GetMapping(value = "/me/security/logs/download", produces = "text/csv")
   public void downloadSecurityLogs(Principal principal) {
     accountService.downloadSecurityLogs(securityLogWriter, principal.getName());
+  }
+
+  /**
+   * Find all signed-in devices associated with the account.
+   * 
+   * @param principal The currently authenticated principal user
+   * @return A list of signed-in devices
+   */
+  @GetMapping(value = "me/security/devices", produces = MediaType.APPLICATION_JSON_VALUE)
+  public List<AuthDeviceResponse> findAllActiveDevices(Principal principal) {
+    return accountService.findAllActiveDevices(principal.getName()).stream()
+        .map(key -> modelMapper.map(key, AuthDeviceResponse.class)).collect(Collectors.toList());
+  }
+
+  /**
+   * Delete all signed-in devices accociated with the account, forcing a global
+   * signout.
+   * 
+   * @param principal The currently authenticated principal user
+   */
+  @DeleteMapping(value = "me/security/devices")
+  @ResponseStatus(value = HttpStatus.NO_CONTENT)
+  public void deleteAllActiveDevices(Principal principal) {
+    accountService.deleteAllActiveDevices(principal.getName());
   }
 }

@@ -2,6 +2,9 @@ package uk.thepragmaticdev.happy;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.exparity.hamcrest.date.DateMatchers.after;
+import static org.exparity.hamcrest.date.DateMatchers.before;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.hasSize;
@@ -9,9 +12,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
+import io.restassured.mapper.TypeRef;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import org.flywaydb.test.FlywayTestExecutionListener;
@@ -26,6 +31,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
+import uk.thepragmaticdev.auth.dto.response.AuthDeviceResponse;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
 @Import(IntegrationConfig.class)
@@ -187,6 +193,40 @@ class AccountEndpointIT extends IntegrationData {
         .extract().body().asString();
     assertCsvMatch(csv, expectedSecurityLogs());
   }
+
+  // @endpoint:find-all-active-devices
+
+  @Test
+  void shouldReturnAllActiveDevices() {
+    var devices = given()
+        .headers(headers())
+        .header(HttpHeaders.AUTHORIZATION, signin())
+        .when()
+          .get(ACCOUNTS_ENDPOINT + "me/security/devices")
+        .then()
+          .body("$", hasSize(3))
+            .statusCode(200)
+            .extract().as(new TypeRef<List<AuthDeviceResponse>>() {});
+    devices.forEach(device -> {
+      assertThat(new Date(device.getCreatedDate().toInstant().toEpochMilli()), before(new Date()));
+      assertThat(new Date(device.getExpirationTime().toInstant().toEpochMilli()), after(new Date()));
+      assertThat(device.getRequestMetadata().getGeoMetadata(), is(notNullValue()));
+      assertThat(device.getRequestMetadata().getDeviceMetadata(), is(notNullValue()));
+    });
+  }
+
+  // @endpoint:delete-all-active-devices
+
+  @Test
+    void shouldDeleteAllActiveDevices() {
+      given()
+        .headers(headers())
+        .header(HttpHeaders.AUTHORIZATION, signin())
+        .when()
+          .delete(ACCOUNTS_ENDPOINT + "me/security/devices")
+        .then()
+            .statusCode(204);
+    }
 
   // @formatter:on
 

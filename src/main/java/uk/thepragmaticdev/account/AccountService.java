@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
+import uk.thepragmaticdev.security.token.RefreshToken;
 
 @Service
 public class AccountService {
@@ -199,6 +201,30 @@ public class AccountService {
     } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException ex) {
       throw new ApiException(CriticalCode.CSV_WRITING_ERROR);
     }
+  }
+
+  /**
+   * Find all signed-in devices associated with the account.
+   * 
+   * @param username The authenticated account username
+   * @return A list of signed-in devices
+   */
+  public List<RefreshToken> findAllActiveDevices(String username) {
+    var account = findAuthenticatedAccount(username);
+    return account.getRefreshTokens().stream().filter(r -> r.getExpirationTime().isAfter(OffsetDateTime.now()))
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Delete all signed-in devices accociated with the account, forcing a global
+   * signout.
+   * 
+   * @param username The authenticated account username
+   */
+  public void deleteAllActiveDevices(String username) {
+    var account = findAuthenticatedAccount(username);
+    account.getRefreshTokens().clear();
+    accountRepository.save(account);
   }
 
   /**
