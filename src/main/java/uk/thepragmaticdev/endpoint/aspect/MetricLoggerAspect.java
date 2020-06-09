@@ -1,26 +1,22 @@
 package uk.thepragmaticdev.endpoint.aspect;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import lombok.extern.log4j.Log4j2;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
-import uk.thepragmaticdev.endpoint.Model;
 
+@Log4j2
 @Aspect
 @Component
 public class MetricLoggerAspect {
-
-  private static final Logger LOG = LoggerFactory.getLogger(MetricLoggerAspect.class);
 
   /**
    * Advice that surrounds the join point of a methods invocation. This performs
@@ -37,13 +33,12 @@ public class MetricLoggerAspect {
     stopWatch.start();
     var result = joinPoint.proceed();
     stopWatch.stop();
-    var metric = createMetric(joinPoint, stopWatch);
-    LOG.info("{}", metric);
+    log.info(createMetric(joinPoint, stopWatch));
     return result;
   }
 
-  private JSONObject createMetric(ProceedingJoinPoint joinPoint, StopWatch stopWatch) {
-    var metric = new JSONObject();
+  private Map<String, Object> createMetric(ProceedingJoinPoint joinPoint, StopWatch stopWatch) {
+    Map<String, Object> metric = new HashMap<>();
     metric.put("class", joinPoint.getSignature().getDeclaringTypeName());
     metric.put("method", joinPoint.getSignature().getName());
     metric.put("millis", stopWatch.getTotalTimeMillis());
@@ -52,27 +47,14 @@ public class MetricLoggerAspect {
     return metric;
   }
 
-  private JSONArray getArgs(Object[] args) {
-    var objects = new JSONArray();
+  private Object getArgs(Object[] args) {
     for (var object : args) {
-      if (!(object instanceof UsernamePasswordAuthenticationToken) && !(object instanceof Pageable)) {
-        if (object instanceof Model) {
-          objects.put(serialiseModel((Model) object));
-        } else {
-          objects.put(object);
-        }
+      if (!(object instanceof UsernamePasswordAuthenticationToken) && !(object instanceof Pageable)
+          && !(object instanceof HttpServletRequest)) {
+        return object;
       }
     }
-    return objects;
-  }
-
-  private String serialiseModel(Model model) {
-    try {
-      return new ObjectMapper().writeValueAsString(model);
-    } catch (JsonProcessingException ex) {
-      LOG.info("Error serialising model");
-      return "";
-    }
+    return null;
   }
 
   private String getUsername(Object[] args) {

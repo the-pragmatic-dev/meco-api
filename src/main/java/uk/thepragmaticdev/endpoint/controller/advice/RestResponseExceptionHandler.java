@@ -1,8 +1,7 @@
 package uk.thepragmaticdev.endpoint.controller.advice;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,10 +14,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import uk.thepragmaticdev.exception.ApiError;
 import uk.thepragmaticdev.exception.ApiException;
 
+@Log4j2
 @ControllerAdvice
 public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler {
-
-  private static final Logger LOG = LoggerFactory.getLogger(RestResponseExceptionHandler.class);
 
   /**
    * Handles any api error exceptions thrown thoughout application.
@@ -33,7 +31,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
         ex.getErrorCode().getStatus(), //
         ex.getErrorCode().getMessage() //
     );
-    LOG.warn("{}", responseBody);
+    log.warn(responseBody);
     return handleExceptionInternal(ex, responseBody, headers(), ex.getErrorCode().getStatus(), request);
   }
 
@@ -48,7 +46,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
       WebRequest request) {
     var responseBody = new ApiError(HttpStatus.BAD_REQUEST, "Validation errors");
     responseBody.addValidationErrors(ex.getBindingResult().getFieldErrors());
-    LOG.warn("{}", responseBody);
+    log.warn(responseBody);
     return handleExceptionInternal(ex, responseBody, headers(), HttpStatus.BAD_REQUEST, request);
   }
 
@@ -61,7 +59,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
    */
   @ExceptionHandler(Exception.class)
   protected ResponseEntity<Object> exception(Exception ex, WebRequest request) {
-    LOG.error("{}", new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex)));
+    log.error(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getStackTrace(ex)));
     return handleExceptionInternal(//
         ex, //
         new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, null), //

@@ -1,8 +1,7 @@
 package uk.thepragmaticdev.email;
 
 import java.net.URI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,10 +18,9 @@ import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.security.request.RequestMetadata;
 
+@Log4j2
 @Service
 public class EmailService {
-
-  private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
 
   private static final String WEBCLIENT_INFO = "webclient:send: to={}, template={}, formData={}";
 
@@ -122,16 +120,16 @@ public class EmailService {
 
   private void send(String to, String templateName, MultiValueMap<String, String> formData) {
     var template = findEmailTemplate(templateName);
-    LOG.info(WEBCLIENT_INFO, to, template, formData);
+    log.info(WEBCLIENT_INFO, to, template, formData);
 
     webClient.post().uri(uriBuilder -> messagesUri(uriBuilder, to, template))//
         .body(BodyInserters.fromFormData(formData)).retrieve()//
         .onStatus(HttpStatus::is4xxClientError, error -> {
-          LOG.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
+          log.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
           return Mono.empty();
         })//
         .onStatus(HttpStatus::is5xxServerError, error -> {
-          LOG.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
+          log.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
           return Mono.empty();
         })//
         .toBodilessEntity().subscribe();

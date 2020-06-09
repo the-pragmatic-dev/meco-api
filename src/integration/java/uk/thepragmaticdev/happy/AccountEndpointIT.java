@@ -218,15 +218,15 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:delete-all-active-devices
 
   @Test
-    void shouldDeleteAllActiveDevices() {
-      given()
-        .headers(headers())
-        .header(HttpHeaders.AUTHORIZATION, signin())
-        .when()
-          .delete(ACCOUNTS_ENDPOINT + "me/security/devices")
-        .then()
-            .statusCode(204);
-    }
+  void shouldDeleteAllActiveDevices() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .when()
+        .delete(ACCOUNTS_ENDPOINT + "me/security/devices")
+      .then()
+          .statusCode(204);
+  }
 
   // @formatter:on
 

@@ -1,8 +1,7 @@
 package uk.thepragmaticdev;
 
 import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,11 +10,10 @@ import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
+@Log4j2
 @SpringBootApplication
 @EnableAspectJAutoProxy
 public class Application {
-
-  private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
   private final RequestMetadataService requestMetadataService;
 
@@ -40,7 +38,7 @@ public class Application {
   @PostConstruct
   public void init() {
     if (!requestMetadataService.loadDatabase()) {
-      LOG.error(CriticalCode.GEOLITE_DOWNLOAD_ERROR.getMessage());
+      log.error(CriticalCode.GEOLITE_DOWNLOAD_ERROR.getMessage());
       throw new ApiException(CriticalCode.GEOLITE_DOWNLOAD_ERROR);
     }
   }

@@ -12,11 +12,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.ArchiveEntry;
 import org.rauschig.jarchivelib.ArchiverFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -28,10 +27,9 @@ import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.log.security.SecurityLogService;
 
+@Log4j2
 @Service
 public class RequestMetadataService {
-
-  private static final Logger LOG = LoggerFactory.getLogger(RequestMetadataService.class);
 
   private final String databaseName;
 
@@ -105,9 +103,9 @@ public class RequestMetadataService {
     try {
       var database = fetchDatabase().orElseThrow(() -> new ApiException(CriticalCode.GEOLITE_DOWNLOAD_ERROR));
       this.databaseReader = databaseReaderFactory.create(database);
-      LOG.info("GeoLite2 database loaded");
+      log.info("GeoLite2 database loaded");
     } catch (IOException ex) {
-      LOG.error("Failed to load GeoLite2 database: {}", ex.getMessage());
+      log.error("Failed to load GeoLite2 database: {}", ex.getMessage());
       return false;
     }
     return true;
@@ -118,7 +116,7 @@ public class RequestMetadataService {
     final var readTimeout = 10000;
     var localDatabase = findLocalDatabase();
     if (!localDatabase.isPresent()) {
-      LOG.info("Downloading GeoLite2 database from remote");
+      log.info("Downloading GeoLite2 database from remote");
       var extension = ".tar.gz";
       var destination = Paths.get(databaseDirectory.concat(databaseName).concat(extension));
       FileUtils.copyURLToFile(new URL(databaseUrl), destination.toFile(), connectionTimeout, readTimeout);
@@ -140,7 +138,7 @@ public class RequestMetadataService {
     ArchiveEntry entry;
     while ((entry = stream.getNextEntry()) != null) {
       if (entry.getName().contains(databaseName)) {
-        LOG.info("Found database: {}", entry.getName());
+        log.info("Found database: {}", entry.getName());
         entry.extract(destination.getParent().toFile());
         return Optional.of(destination.getParent().resolve(entry.getName()));
       }
@@ -166,9 +164,9 @@ public class RequestMetadataService {
 
   private void verifyRequestMetadata(Account account, RequestMetadata requestMetadata) {
     if (!matchesExistingRequestMetadata(account, requestMetadata)) {
-      var log = securityLogService.unrecognizedDevice(account, requestMetadata);
-      emailService.sendUnrecognizedDevice(account, log);
-      LOG.warn("Unrecognized device {} detected for account {}", requestMetadata, account.getId());
+      var securityLog = securityLogService.unrecognizedDevice(account, requestMetadata);
+      emailService.sendUnrecognizedDevice(account, securityLog);
+      log.warn("Unrecognized device {} detected for account {}", requestMetadata, account.getId());
     } else {
       securityLogService.signin(account);
     }
@@ -206,9 +204,9 @@ public class RequestMetadataService {
           geoMetadata, //
           deviceMetadata));
     } catch (GeoIp2Exception ex) {
-      LOG.warn("IP address not present in the database {}", ex.getMessage());
+      log.warn("IP address not present in the database {}", ex.getMessage());
     } catch (IOException ex) {
-      LOG.warn("IP address of host could not be determined {}", ex.getMessage());
+      log.warn("IP address of host could not be determined {}", ex.getMessage());
     }
     return Optional.empty();
   }
