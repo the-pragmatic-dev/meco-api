@@ -240,7 +240,7 @@ public class ApiKeyService {
     if (enabled == null) {
       return;
     }
-    if (persistedApiKey.getEnabled() != enabled) {
+    if (!persistedApiKey.getEnabled().equals(enabled)) {
       apiKeyLogService.enabled(persistedApiKey, enabled);
       persistedApiKey.setEnabled(enabled);
     }
