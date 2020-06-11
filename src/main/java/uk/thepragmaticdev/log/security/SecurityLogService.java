@@ -117,7 +117,7 @@ public class SecurityLogService {
    * @return The persisted log
    */
   public SecurityLog fullname(Account account) {
-    return log(account, "account.fullname.changed");
+    return log(account, "account.full_name.updated");
   }
 
   /**

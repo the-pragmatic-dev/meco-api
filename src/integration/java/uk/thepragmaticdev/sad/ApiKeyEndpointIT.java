@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
@@ -40,7 +41,7 @@ class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:findAll
 
   @Test
-  void shouldNotReturnAllKeysWithInvalidToken() {
+  void shouldNotReturnAllKeysWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -52,11 +53,39 @@ class ApiKeyEndpointIT extends IntegrationData {
         .statusCode(401);
   }
 
+  // @endpoint:findById
+
+  @Test
+  void shouldNotReturnKeyWhenTokenIsInvalid() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
+    .when()
+      .get(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("status", is("UNAUTHORIZED"))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
+        .statusCode(401);
+  }
+
+  @Test
+  void shouldNotReturnUnknownKey() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+    .when()
+      .get(API_KEY_ENDPOINT + "9999")
+    .then()
+        .body("status", is("NOT_FOUND"))
+        .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
+        .statusCode(404);
+  }
+
   // @endpoint:create
 
   @Test
-  void shouldNotCreateKeyWhenNameIsTooShort() {
-    var shortName = "ab";
+  void shouldNotCreateKeyWhenNameIsEmpty() {
+    var shortName = "";
     var key = apiKeyCreateRequest();
     key.setName(shortName);
 
@@ -75,13 +104,14 @@ class ApiKeyEndpointIT extends IntegrationData {
           .body("object", is("apiKeyCreateRequest"))
           .body("field", is("name"))
           .body("rejected_value", is(shortName))
-          .body("message", is("size must be between 3 and 20"))
+          .body("message", is("API key name length must be between 1-50."))
         .statusCode(400);
   }
 
   @Test
   void shouldNotCreateKeyWhenNameIsTooLong() {
-    var longName = "abcdefghijklmnopqrstu";
+    var longName = IntStream.range(0, 51).mapToObj(i -> "a").collect(Collectors.joining(""));
+
     var key = apiKeyCreateRequest();
     key.setName(longName);
 
@@ -100,14 +130,14 @@ class ApiKeyEndpointIT extends IntegrationData {
           .body("object", is("apiKeyCreateRequest"))
           .body("field", is("name"))
           .body("rejected_value", is(longName))
-          .body("message", is("size must be between 3 and 20"))
+          .body("message", is("API key name length must be between 1-50."))
         .statusCode(400);
   }
 
   @Test
-  void shouldNotCreateKeyWithNoScope() {
+  void shouldNotCreateKeyWhenNameIsNull() {
     var key = apiKeyCreateRequest();
-    key.setScope(null);
+    key.setName(null);
 
     given()
       .headers(headers())
@@ -122,14 +152,14 @@ class ApiKeyEndpointIT extends IntegrationData {
         .body("sub_errors", hasSize(1))
         .root("sub_errors[0]")
           .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("scope"))
+          .body("field", is("name"))
           .body("rejected_value", is(nullValue()))
-          .body("message", is("must not be null"))
+          .body("message", is("API key name cannot be null."))
         .statusCode(400);
   }
 
   @Test
-  void shouldNotCreateKeyWithInvalidIpv4Cidr() {
+  void shouldNotCreateKeyWhenRangeIsInvalid() {
     var key = apiKeyCreateRequest();
     var accessPolicy = accessPolicyRequest("name", "invalidRange");
     key.setAccessPolicies(List.of(accessPolicy));
@@ -153,7 +183,110 @@ class ApiKeyEndpointIT extends IntegrationData {
           .body("rejected_value[0].range", is(accessPolicy.getRange()))
           .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
         .statusCode(400);
-  } 
+  }
+
+  @Test
+  void shouldNotCreateKeyWhenRangeIsNull() {
+    var key = apiKeyCreateRequest();
+    var accessPolicy = accessPolicyRequest("name", null);
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .post(API_KEY_ENDPOINT)
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyCreateRequest"))
+          .body("field", is("accessPolicies"))
+          .body("rejected_value", hasSize(1))
+          .body("rejected_value[0].name", is(accessPolicy.getName()))
+          .body("rejected_value[0].range", is(accessPolicy.getRange()))
+          .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotCreateKeyWhenPolicyNameIsNull() {
+    var key = apiKeyCreateRequest();
+    var accessPolicy = accessPolicyRequest(null, "66.0.0.1/16");
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .post(API_KEY_ENDPOINT)
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyCreateRequest"))
+          .body("field", is("accessPolicies[0].name"))
+          .body("rejected_value", is(nullValue()))
+          .body("message", is("Access policy name cannot be null."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotCreateKeyWhenPolicyNameIsEmpty() {
+    var key = apiKeyCreateRequest();
+    var accessPolicy = accessPolicyRequest("", "66.0.0.1/16");
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .post(API_KEY_ENDPOINT)
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyCreateRequest"))
+          .body("field", is("accessPolicies[0].name"))
+          .body("rejected_value", is(""))
+          .body("message", is("Access policy name length must be between 1-50."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotCreateKeyWhenPolicyNameIsTooLong() {
+    var key = apiKeyCreateRequest();
+    var longName = IntStream.range(0, 51).mapToObj(i -> "a").collect(Collectors.joining(""));
+    var accessPolicy = accessPolicyRequest(longName, "66.0.0.1/16");
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .post(API_KEY_ENDPOINT)
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyCreateRequest"))
+          .body("field", is("accessPolicies[0].name"))
+          .body("rejected_value", is(longName))
+          .body("message", is("Access policy name length must be between 1-50."))
+        .statusCode(400);
+  }
 
   @Test
   void shouldNotCreateKeyWhenAtMaxKeyLimit() {
@@ -176,7 +309,7 @@ class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:update
 
   @Test
-  void shouldNotUpdateKeyWithInvalidToken() {
+  void shouldNotUpdateKeyWhenTokenIsInvalid() {
     given()
       .contentType(JSON)
       .headers(headers())
@@ -205,10 +338,190 @@ class ApiKeyEndpointIT extends IntegrationData {
         .statusCode(404);
   }
 
+  @Test
+  void shouldNotUpdateKeyWhenNameIsEmpty() {
+    var key = apiKeyUpdateRequest();
+    key.setName("");
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .put(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyUpdateRequest"))
+          .body("field", is("name"))
+          .body("rejected_value", is(""))
+          .body("message", is("API key name length must be between 1-50."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotUpdateKeyWhenNameIsTooLong() {
+    var longName = IntStream.range(0, 51).mapToObj(i -> "a").collect(Collectors.joining(""));
+
+    var key = apiKeyUpdateRequest();
+    key.setName(longName);
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .put(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyUpdateRequest"))
+          .body("field", is("name"))
+          .body("rejected_value", is(longName))
+          .body("message", is("API key name length must be between 1-50."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotUpdateKeyWhenRangeIsInvalid() {
+    var key = apiKeyUpdateRequest();
+    var accessPolicy = accessPolicyRequest("name", "invalidRange");
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .put(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyUpdateRequest"))
+          .body("field", is("accessPolicies"))
+          .body("rejected_value", hasSize(1))
+          .body("rejected_value[0].name", is(accessPolicy.getName()))
+          .body("rejected_value[0].range", is(accessPolicy.getRange()))
+          .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotUpdateKeyWhenRangeIsNull() {
+    var key = apiKeyUpdateRequest();
+    var accessPolicy = accessPolicyRequest("name", null);
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .put(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyUpdateRequest"))
+          .body("field", is("accessPolicies"))
+          .body("rejected_value", hasSize(1))
+          .body("rejected_value[0].name", is(accessPolicy.getName()))
+          .body("rejected_value[0].range", is(accessPolicy.getRange()))
+          .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotUpdateKeyWhenPolicyNameIsNull() {
+    var key = apiKeyUpdateRequest();
+    var accessPolicy = accessPolicyRequest(null, "66.0.0.1/16");
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .put(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyUpdateRequest"))
+          .body("field", is("accessPolicies[0].name"))
+          .body("rejected_value", is(nullValue()))
+          .body("message", is("Access policy name cannot be null."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotUpdateKeyWhenPolicyNameIsEmpty() {
+    var key = apiKeyUpdateRequest();
+    var accessPolicy = accessPolicyRequest("", "66.0.0.1/16");
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .put(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyUpdateRequest"))
+          .body("field", is("accessPolicies[0].name"))
+          .body("rejected_value", is(""))
+          .body("message", is("Access policy name length must be between 1-50."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotUpdateKeyWhenPolicyNameIsTooLong() {
+    var key = apiKeyUpdateRequest();
+    var longName = IntStream.range(0, 51).mapToObj(i -> "a").collect(Collectors.joining(""));
+    var accessPolicy = accessPolicyRequest(longName, "66.0.0.1/16");
+    key.setAccessPolicies(List.of(accessPolicy));
+
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .contentType(JSON)
+      .body(key)
+    .when()
+      .put(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
+          .body("object", is("apiKeyUpdateRequest"))
+          .body("field", is("accessPolicies[0].name"))
+          .body("rejected_value", is(longName))
+          .body("message", is("Access policy name length must be between 1-50."))
+        .statusCode(400);
+  }
+
   // @endpoint:delete
 
   @Test
-  void shouldNotDeleteKeyWithInvalidToken() {
+  void shouldNotDeleteKeyWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -236,7 +549,7 @@ class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:key-logs
 
   @Test
-  void shouldNotReturnLatestKeyLogsWithInvalidToken() {
+  void shouldNotReturnLatestKeyLogsWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -264,7 +577,7 @@ class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:key-logs-download
 
   @Test
-  void shouldNotDownloadKeyLogsWithInvalidToken() {
+  void shouldNotDownloadKeyLogsWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -292,7 +605,7 @@ class ApiKeyEndpointIT extends IntegrationData {
   // @endpoint:count
 
   @Test
-  void shouldNotReturnKeyCountWithInvalidToken() {
+  void shouldNotReturnKeyCountWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)

@@ -16,6 +16,9 @@ public class Ipv4CidrValidator implements ConstraintValidator<Ipv4Cidr, Collecti
     }
     for (var accessPolicy : values) {
       try {
+        if (accessPolicy.getRange() == null) {
+          throw new IllegalArgumentException();
+        }
         new SubnetUtils(accessPolicy.getRange());
       } catch (IllegalArgumentException ex) {
         return false;

@@ -6,6 +6,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.collections.CollectionUtils;
@@ -85,6 +86,19 @@ public class ApiKeyService {
   }
 
   /**
+   * Find key owned by the authenticaed account.
+   * 
+   * @param username The authenticated account username
+   * @param id       The id of the key to find
+   * @return A key owned by the account
+   */
+  public ApiKey findById(String username, long id) {
+    var authenticatedAccount = accountService.findAuthenticatedAccount(username);
+    return apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
+        .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
+  }
+
+  /**
    * Create a new key.
    * 
    * @param username The authenticated account username
@@ -101,8 +115,8 @@ public class ApiKeyService {
       apiKey.setKey(apiKey.getPrefix().concat(".").concat(generateKey()));
       apiKey.setHash(hash(apiKey.getKey()));
       apiKey.setCreatedDate(OffsetDateTime.now());
-      apiKey.setEnabled(apiKey.getEnabled());
-      apiKey.getScope().setApiKey(apiKey);
+      setEnabled(apiKey);
+      setScope(apiKey);
       setAccessPolicies(apiKey);
       var persistedApiKey = apiKeyRepository.save(apiKey);
       apiKeyLogService.created(persistedApiKey);
@@ -113,9 +127,22 @@ public class ApiKeyService {
     throw new ApiException(ApiKeyCode.API_KEY_LIMIT);
   }
 
+  private void setEnabled(ApiKey apiKey) {
+    if (apiKey.getEnabled() == null) {
+      apiKey.setEnabled(false);
+    }
+  }
+
+  private void setScope(ApiKey apiKey) {
+    if (apiKey.getScope() == null) {
+      apiKey.setScope(new Scope());
+    }
+    apiKey.getScope().setApiKey(apiKey);
+  }
+
   private void setAccessPolicies(ApiKey apiKey) {
     if (apiKey.getAccessPolicies() == null) {
-      return;
+      apiKey.setAccessPolicies(Collections.emptyList());
     }
     apiKey.getAccessPolicies().forEach(p -> p.setApiKey(apiKey));
   }
@@ -134,7 +161,7 @@ public class ApiKeyService {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(apiKey.getId(), authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
-    persistedApiKey.setName(apiKey.getName());
+    updateName(persistedApiKey, apiKey.getName());
     updateScope(persistedApiKey, apiKey.getScope());
     updateAccessPolicies(persistedApiKey, apiKey.getAccessPolicies());
     updateEnabled(persistedApiKey, apiKey.getEnabled());
@@ -142,7 +169,20 @@ public class ApiKeyService {
     return apiKeyRepository.save(persistedApiKey);
   }
 
+  private void updateName(ApiKey persistedApiKey, String name) {
+    if (name == null) {
+      return;
+    }
+    if (!persistedApiKey.getName().equals(name)) {
+      apiKeyLogService.name(persistedApiKey);
+      persistedApiKey.setName(name);
+    }
+  }
+
   private void updateScope(ApiKey persistedApiKey, Scope scope) {
+    if (scope == null) {
+      return;
+    }
     var persistedScope = persistedApiKey.getScope();
     if (persistedScope.getImage() != scope.getImage()) { // update image scope
       apiKeyLogService.scope(persistedApiKey, "image", scope.getImage());
@@ -164,6 +204,9 @@ public class ApiKeyService {
 
   private void updateAccessPolicies(ApiKey persistedApiKey, Collection<AccessPolicy> newPolicies) {
     var existingPolicies = persistedApiKey.getAccessPolicies();
+    if (newPolicies == null) {
+      return;
+    }
     // check to see if new and exitsing policies match, if so skip
     if (!CollectionUtils.isEqualCollection(existingPolicies, newPolicies)) {
       // add new polcies or update existing policies
@@ -193,7 +236,10 @@ public class ApiKeyService {
     return exists;
   }
 
-  private void updateEnabled(ApiKey persistedApiKey, boolean enabled) {
+  private void updateEnabled(ApiKey persistedApiKey, Boolean enabled) {
+    if (enabled == null) {
+      return;
+    }
     if (persistedApiKey.getEnabled() != enabled) {
       apiKeyLogService.enabled(persistedApiKey, enabled);
       persistedApiKey.setEnabled(enabled);

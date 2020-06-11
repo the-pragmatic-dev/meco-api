@@ -38,7 +38,7 @@ class BillingEndpointIT extends IntegrationData {
   // @endpoint:create-subscription
 
   @Test
-  void shouldNotCreateSubscriptionWithInvalidToken() {
+  void shouldNotCreateSubscriptionWhenTokenIsInvalid() {
     given()
     .headers(headers())
     .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -70,7 +70,7 @@ class BillingEndpointIT extends IntegrationData {
   // @endpoint:cancel-subscription
 
   @Test
-  void shouldNotCancelSubscriptionWithInvalidToken() {
+  void shouldNotCancelSubscriptionWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)

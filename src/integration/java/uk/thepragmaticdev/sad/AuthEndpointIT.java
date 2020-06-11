@@ -182,7 +182,7 @@ class AuthEndpointIT extends IntegrationData {
   // @endpoint:reset
 
   @Test
-  void shouldNotResetPasswordWithInvalidToken() {
+  void shouldNotResetPasswordWhenTokenIsInvalid() {
     var request = authResetRequest();
     
     given()

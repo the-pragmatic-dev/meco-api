@@ -35,7 +35,7 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:me
 
   @Test
-  void shouldNotReturnAuthenticatedAccountWithInvalidToken() {
+  void shouldNotReturnAuthenticatedAccountWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -50,7 +50,7 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:update
 
   @Test
-  void shouldNotUpdateAccountWithInvalidToken() {
+  void shouldNotUpdateAccountWhenTokenIsInvalid() {
     var request = accountUpdateRequest();
 
     given()
@@ -69,7 +69,7 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:billing-logs
 
   @Test
-  void shouldNotReturnLatestBillingLogsWithInvalidToken() {
+  void shouldNotReturnLatestBillingLogsWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -84,7 +84,7 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:billing-logs-download
 
   @Test
-  void shouldNotDownloadBillingLogsWithInvalidToken() {
+  void shouldNotDownloadBillingLogsWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -99,7 +99,7 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:security-logs
 
   @Test
-  void shouldNotReturnLatestSecurityLogsWithInvalidToken() {
+  void shouldNotReturnLatestSecurityLogsWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -114,7 +114,7 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:security-logs-download
 
   @Test
-  void shouldNotDownloadSecurityLogsWithInvalidToken() {
+  void shouldNotDownloadSecurityLogsWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -129,7 +129,7 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:find-all-active-devices
 
   @Test
-  void shouldNotReturnAllActiveDevicesWithInvalidToken() {
+  void shouldNotReturnAllActiveDevicesWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
@@ -144,7 +144,7 @@ class AccountEndpointIT extends IntegrationData {
   // @endpoint:delete-all-active-devices
 
   @Test
-  void shouldNotDeleteAllActiveDevicesWithInvalidToken() {
+  void shouldNotDeleteAllActiveDevicesWhenTokenIsInvalid() {
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)

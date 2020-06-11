@@ -92,6 +92,39 @@ class ApiKeyEndpointIT extends IntegrationData {
         .statusCode(200);
   }
 
+  // @endpoint:findById
+
+  @Test
+  void shouldReturnKeyOwnedByAuthenticatedAccount() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+    .when()
+      .get(API_KEY_ENDPOINT + "1")
+    .then()
+        .body("id", is(1))
+        .body("name", is("Good Coffee Shop"))
+        .body("prefix", is("zaCELgL"))
+        .body("key", is(nullValue()))
+        .body("created_date", is("2020-02-25T13:38:58.232Z"))
+        .body("last_used_date", is(nullValue()))
+        .body("modified_date", is("2020-02-25T13:40:19.111Z"))
+        .body("enabled", is(true))
+        .body("access_policies", hasSize(2))
+        .root("scope")
+          .body("image", is(false))
+          .body("gif", is(true))
+          .body("text", is(true))
+          .body("video", is(false))
+        .root("access_policies.get(0)")
+          .body("name", is("newcastle"))
+          .body("range", is("5.65.196.0/16"))
+        .root("access_policies.get(1)")
+          .body("name", is("quedgeley"))
+          .body("range", is("17.22.136.0/32"))
+        .statusCode(200);
+  }
+
   // @endpoint:create
 
   @Test
@@ -126,6 +159,38 @@ class ApiKeyEndpointIT extends IntegrationData {
     assertValidKey(response);
   }
 
+  @Test
+  void shouldCreateKeyWithDefaultValues() {
+    var request = apiKeyCreateRequest();
+    request.setEnabled(null);
+    request.setScope(null);
+    request.setAccessPolicies(null);
+    var response = given()
+          .headers(headers())
+          .header(HttpHeaders.AUTHORIZATION, signin())
+          .contentType(JSON)
+          .body(request)
+        .when()
+          .post(API_KEY_ENDPOINT)
+        .then()
+          .body("id", is(3))
+          .body("name", is("name"))
+          .body("prefix.length()", is(7))
+          .body("key", containsString("."))
+          .body("created_date", is(withinLast(5, ChronoUnit.SECONDS)))
+          .body("last_used_date", is(nullValue()))
+          .body("modified_date", is(nullValue()))
+          .body("enabled", is(false))
+          .body("scope.image", is(false))
+          .body("scope.gif", is(false))
+          .body("scope.text", is(false))
+          .body("scope.video", is(false))
+          .body("access_policies.size()", is(0))
+          .statusCode(201)
+        .extract().as(ApiKeyCreateResponse.class);
+    assertValidKey(response);
+  }
+
   // @endpoint:update
 
   @Test
@@ -155,6 +220,42 @@ class ApiKeyEndpointIT extends IntegrationData {
         .root("access_policies[0]")
           .body("name", is(request.getAccessPolicies().get(0).getName()))
           .body("range", is(request.getAccessPolicies().get(0).getRange()))
+        .statusCode(200);
+  }
+
+  @Test
+  void shouldUpdateOnlyNonNullKeyFields() {
+    var request = apiKeyUpdateRequest();
+    request.setEnabled(null);
+    request.setScope(null);
+    request.setAccessPolicies(null);
+    given()
+      .contentType(JSON)
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .body(request)
+    .when()
+      .put(API_KEY_ENDPOINT + "1")
+      .then()
+        .body("id", is(1))
+        .body("name", is(request.getName()))
+        .body("prefix", is("zaCELgL"))
+        .body("key", is(nullValue()))
+        .body("created_date", is("2020-02-25T13:38:58.232Z"))
+        .body("last_used_date", is(nullValue()))
+        .body("modified_date", is(withinLast(5, ChronoUnit.SECONDS)))
+        .body("enabled", is(true))
+        .body("scope.image", is(false))
+        .body("scope.gif", is(true))
+        .body("scope.text", is(true))
+        .body("scope.video", is(false))
+        .body("access_policies.size()", is(2))
+        .root("access_policies[0]")
+          .body("name", is("newcastle"))
+          .body("range", is("5.65.196.0/16"))
+        .root("access_policies[1]")
+          .body("name", is("quedgeley"))
+          .body("range", is("17.22.136.0/32"))
         .statusCode(200);
   }
 

@@ -69,6 +69,19 @@ public class ApiKeyController {
   }
 
   /**
+   * Find a key owned by the authenticaed account.
+   * 
+   * @param principal The currently authenticated principal user
+   * @param id        The id of the key to find
+   * @return A key owned by the account
+   */
+  @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ApiKeyResponse findById(Principal principal, @PathVariable long id) {
+    var key = apiKeyService.findById(principal.getName(), id);
+    return modelMapper.map(key, ApiKeyResponse.class);
+  }
+
+  /**
    * Create a new key. This is the only time the key field will be visible in the
    * response for security purposes.
    * 

@@ -46,7 +46,7 @@ public class ApiKey implements Model {
 
   private OffsetDateTime modifiedDate;
 
-  private boolean enabled;
+  private Boolean enabled;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   private Scope scope;

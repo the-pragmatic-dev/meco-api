@@ -1,6 +1,7 @@
 package uk.thepragmaticdev.kms.dto.request;
 
 import java.util.List;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -13,14 +14,15 @@ import uk.thepragmaticdev.kms.validation.Ipv4Cidr;
 @AllArgsConstructor
 public class ApiKeyCreateRequest {
 
-  @Size(min = 3, max = 20)
+  @NotNull(message = "API key name cannot be null.")
+  @Size(min = 1, max = 50, message = "API key name length must be between 1-50.")
   private String name;
 
-  private boolean enabled;
+  private Boolean enabled;
 
-  @NotNull
   private ScopeRequest scope;
 
+  @Valid
   @Ipv4Cidr
   private List<AccessPolicyRequest> accessPolicies;
 }

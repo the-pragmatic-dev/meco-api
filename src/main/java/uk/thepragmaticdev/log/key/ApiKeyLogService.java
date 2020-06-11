@@ -69,6 +69,16 @@ public class ApiKeyLogService {
   }
 
   /**
+   * Log an updated name event for when a keys name is changed.
+   * 
+   * @param apiKey The key being updated
+   * @return The persisted log
+   */
+  public ApiKeyLog name(ApiKey apiKey) {
+    return log(apiKey, "key.name.updated");
+  }
+
+  /**
    * Log an enabled event for when a key is enabled or disabled.
    * 
    * @param apiKey  The key being enabled or disabled
