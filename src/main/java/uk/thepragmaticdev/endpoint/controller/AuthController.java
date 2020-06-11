@@ -24,7 +24,7 @@ import uk.thepragmaticdev.auth.dto.response.AuthSigninResponse;
 import uk.thepragmaticdev.auth.dto.response.AuthSignupResponse;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("v1/auth")
 @CrossOrigin("*")
 public class AuthController {
 

@@ -70,11 +70,11 @@ class ApiKeyEndpointIT extends IntegrationData {
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
-        .body("subErrors", hasSize(1))
-        .root("subErrors[0]")
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
           .body("object", is("apiKeyCreateRequest"))
           .body("field", is("name"))
-          .body("rejectedValue", is(shortName))
+          .body("rejected_value", is(shortName))
           .body("message", is("size must be between 3 and 20"))
         .statusCode(400);
   }
@@ -95,11 +95,11 @@ class ApiKeyEndpointIT extends IntegrationData {
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
-        .body("subErrors", hasSize(1))
-        .root("subErrors[0]")
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
           .body("object", is("apiKeyCreateRequest"))
           .body("field", is("name"))
-          .body("rejectedValue", is(longName))
+          .body("rejected_value", is(longName))
           .body("message", is("size must be between 3 and 20"))
         .statusCode(400);
   }
@@ -119,11 +119,11 @@ class ApiKeyEndpointIT extends IntegrationData {
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
-        .body("subErrors", hasSize(1))
-        .root("subErrors[0]")
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
           .body("object", is("apiKeyCreateRequest"))
           .body("field", is("scope"))
-          .body("rejectedValue", is(nullValue()))
+          .body("rejected_value", is(nullValue()))
           .body("message", is("must not be null"))
         .statusCode(400);
   }
@@ -144,13 +144,13 @@ class ApiKeyEndpointIT extends IntegrationData {
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
-        .body("subErrors", hasSize(1))
-        .root("subErrors[0]")
+        .body("sub_errors", hasSize(1))
+        .root("sub_errors[0]")
           .body("object", is("apiKeyCreateRequest"))
           .body("field", is("accessPolicies"))
-          .body("rejectedValue", hasSize(1))
-          .body("rejectedValue[0].name", is(accessPolicy.getName()))
-          .body("rejectedValue[0].range", is(accessPolicy.getRange()))
+          .body("rejected_value", hasSize(1))
+          .body("rejected_value[0].name", is(accessPolicy.getName()))
+          .body("rejected_value[0].range", is(accessPolicy.getRange()))
           .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
         .statusCode(400);
   } 

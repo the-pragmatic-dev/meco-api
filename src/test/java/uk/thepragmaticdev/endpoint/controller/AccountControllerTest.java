@@ -89,7 +89,7 @@ class AccountControllerTest extends UnitData {
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.get("/accounts/me")//
+        MockMvcRequestBuilders.get("/v1/accounts/me")//
             .principal(principal)//
             .accept(MediaType.APPLICATION_JSON)//
     ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -112,7 +112,7 @@ class AccountControllerTest extends UnitData {
     when(accountService.update(anyString(), anyString(), anyBoolean(), anyBoolean())).thenReturn(account);
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.put("/accounts/me")//
+        MockMvcRequestBuilders.put("/v1/accounts/me")//
             .principal(principal)//
             .contentType(MediaType.APPLICATION_JSON)//
             .content(new Gson().toJson(accountUpdateRequest)) //
@@ -133,7 +133,7 @@ class AccountControllerTest extends UnitData {
     when(accountService.billingLogs(any(Pageable.class), anyString())).thenReturn(logs);
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.get("/accounts/me/billing/logs")//
+        MockMvcRequestBuilders.get("/v1/accounts/me/billing/logs")//
             .principal(principal)//
             .accept(MediaType.APPLICATION_JSON)//
     ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -153,7 +153,7 @@ class AccountControllerTest extends UnitData {
     when(accountService.securityLogs(any(Pageable.class), anyString())).thenReturn(logs);
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.get("/accounts/me/security/logs")//
+        MockMvcRequestBuilders.get("/v1/accounts/me/security/logs")//
             .principal(principal)//
             .accept(MediaType.APPLICATION_JSON)//
     ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();

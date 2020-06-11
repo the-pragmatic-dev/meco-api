@@ -21,7 +21,7 @@ import uk.thepragmaticdev.billing.dto.request.BillingCreateSubscriptionRequest;
 import uk.thepragmaticdev.billing.dto.response.BillingPriceResponse;
 
 @RestController
-@RequestMapping("/billing")
+@RequestMapping("v1/billing")
 @CrossOrigin("*")
 public class BillingController {
 

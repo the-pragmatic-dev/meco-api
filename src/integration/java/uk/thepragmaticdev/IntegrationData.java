@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.not;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
@@ -50,10 +51,10 @@ public abstract class IntegrationData {
   @Autowired
   private ObjectMapper objectMapper;
 
-  protected static final String AUTH_ENDPOINT = "http://localhost:8080/auth/";
-  protected static final String ACCOUNTS_ENDPOINT = "http://localhost:8080/accounts/";
-  protected static final String API_KEY_ENDPOINT = "http://localhost:8080/api-keys/";
-  protected static final String BILLING_ENDPOINT = "http://localhost:8080/billing/";
+  protected static final String AUTH_ENDPOINT = "http://localhost:8080/v1/auth/";
+  protected static final String ACCOUNTS_ENDPOINT = "http://localhost:8080/v1/accounts/";
+  protected static final String API_KEY_ENDPOINT = "http://localhost:8080/v1/api-keys/";
+  protected static final String BILLING_ENDPOINT = "http://localhost:8080/v1/billing/";
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
 
   /**
@@ -67,6 +68,7 @@ public abstract class IntegrationData {
           @Override
           public ObjectMapper create(Type cls, String charset) {
             objectMapper.disable(MapperFeature.USE_ANNOTATIONS);
+            objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
             return objectMapper;
           }
         }));
@@ -86,20 +88,20 @@ public abstract class IntegrationData {
   }
 
   protected ResponseSpecification validRequestMetadataSpec(int index) {
-    var root = String.format("content[%d].requestMetadata.", index);
+    var root = String.format("content[%d].request_metadata.", index);
     var builder = new ResponseSpecBuilder();
     builder.expectBody(root.concat("ip"), is("196.245.163.202"));
-    builder.rootPath(root.concat("geoMetadata"));
-    builder.expectBody("cityName", is("London"));
-    builder.expectBody("countryIsoCode", is("GB"));
-    builder.expectBody("subdivisionIsoCode", is("ENG"));
-    builder.rootPath(root.concat("deviceMetadata"));
-    builder.expectBody("operatingSystemFamily", is("Mac OS X"));
-    builder.expectBody("operatingSystemMajor", is("10"));
-    builder.expectBody("operatingSystemMinor", is("14"));
-    builder.expectBody("userAgentFamily", is("Chrome"));
-    builder.expectBody("userAgentMajor", is("71"));
-    builder.expectBody("userAgentMinor", is("0"));
+    builder.rootPath(root.concat("geo_metadata"));
+    builder.expectBody("city_name", is("London"));
+    builder.expectBody("country_iso_code", is("GB"));
+    builder.expectBody("subdivision_iso_code", is("ENG"));
+    builder.rootPath(root.concat("device_metadata"));
+    builder.expectBody("operating_system_family", is("Mac OS X"));
+    builder.expectBody("operating_system_major", is("10"));
+    builder.expectBody("operating_system_minor", is("14"));
+    builder.expectBody("user_agent_family", is("Chrome"));
+    builder.expectBody("user_agent_major", is("71"));
+    builder.expectBody("user_agent_minor", is("0"));
     return builder.build();
   }
 
@@ -126,8 +128,8 @@ public abstract class IntegrationData {
       .when()
         .post(AUTH_ENDPOINT + "signin")
       .then()
-          .body("accessToken", is(not(emptyString())))
-          .body("refreshToken", is(not(emptyString())))
+          .body("access_token", is(not(emptyString())))
+          .body("refresh_token", is(not(emptyString())))
           .statusCode(200)
       .extract().as(AuthSigninResponse.class).getAccessToken());
   }

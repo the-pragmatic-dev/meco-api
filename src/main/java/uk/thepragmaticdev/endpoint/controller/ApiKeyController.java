@@ -31,7 +31,7 @@ import uk.thepragmaticdev.log.dto.ApiKeyLogResponse;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 
 @RestController
-@RequestMapping("/api-keys")
+@RequestMapping("v1/api-keys")
 @CrossOrigin("*")
 public class ApiKeyController {
 

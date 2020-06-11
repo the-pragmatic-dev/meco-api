@@ -72,8 +72,8 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(AUTH_ENDPOINT + "signup")
     .then()
-        .body("accessToken", is(not(emptyString())))
-        .body("refreshToken", is(not(emptyString())))
+        .body("access_token", is(not(emptyString())))
+        .body("refresh_token", is(not(emptyString())))
         .statusCode(201);
     // clean up stripe customer created on account creation
     var account = accountService.findAuthenticatedAccount("auth@integration.test");
@@ -129,8 +129,8 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(AUTH_ENDPOINT + "refresh")
     .then()
-        .body("accessToken", is(not(emptyString())))
-        .body("refreshToken", is(nullValue()))
+        .body("access_token", is(not(emptyString())))
+        .body("refresh_token", is(nullValue()))
         .statusCode(201);
   }
 

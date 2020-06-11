@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/webhooks")
+@RequestMapping("v1/webhooks")
 @CrossOrigin("*")
 public class WebhookController {
 

@@ -66,7 +66,7 @@ class AuthControllerTest extends UnitData {
     when(authService.signin(anyString(), anyString(), any(HttpServletRequest.class))).thenReturn(tokenPair);
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.post("/auth/signin")//
+        MockMvcRequestBuilders.post("/v1/auth/signin")//
             .contentType(MediaType.APPLICATION_JSON)//
             .content(new Gson().toJson(authSigninRequest)) //
             .accept(MediaType.APPLICATION_JSON)//
@@ -85,7 +85,7 @@ class AuthControllerTest extends UnitData {
     when(authService.signup(anyString(), anyString(), any(HttpServletRequest.class))).thenReturn(tokenPair);
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.post("/auth/signup")//
+        MockMvcRequestBuilders.post("/v1/auth/signup")//
             .contentType(MediaType.APPLICATION_JSON)//
             .content(new Gson().toJson(authSignupRequest)) //
             .accept(MediaType.APPLICATION_JSON)//

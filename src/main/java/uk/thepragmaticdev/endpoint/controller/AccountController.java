@@ -30,7 +30,7 @@ import uk.thepragmaticdev.log.dto.SecurityLogResponse;
 import uk.thepragmaticdev.log.security.SecurityLog;
 
 @RestController
-@RequestMapping("/accounts")
+@RequestMapping("v1/accounts")
 @CrossOrigin("*")
 public class AccountController {
 

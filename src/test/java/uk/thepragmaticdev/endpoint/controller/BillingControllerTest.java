@@ -65,7 +65,7 @@ class BillingControllerTest extends UnitData {
     when(billingService.findAllPrices()).thenReturn(priceCollection);
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.get("/billing/prices")//
+        MockMvcRequestBuilders.get("/v1/billing/prices")//
             .accept(MediaType.APPLICATION_JSON)//
     ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
     var response = mapper.readValue(body, new TypeReference<List<BillingPriceResponse>>() {

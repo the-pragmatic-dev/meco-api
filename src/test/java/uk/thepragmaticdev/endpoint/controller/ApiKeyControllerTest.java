@@ -93,7 +93,7 @@ class ApiKeyControllerTest extends UnitData {
     when(apiKeyService.findAll(anyString())).thenReturn(List.of(expected));
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.get("/api-keys")//
+        MockMvcRequestBuilders.get("/v1/api-keys")//
             .principal(principal)//
             .accept(MediaType.APPLICATION_JSON)//
     ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -112,7 +112,7 @@ class ApiKeyControllerTest extends UnitData {
     when(apiKeyService.create(anyString(), any(ApiKey.class))).thenReturn((key));
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.post("/api-keys")//
+        MockMvcRequestBuilders.post("/v1/api-keys")//
             .principal(principal)//
             .contentType(MediaType.APPLICATION_JSON)//
             .content(new Gson().toJson(request)) //
@@ -130,7 +130,7 @@ class ApiKeyControllerTest extends UnitData {
     when(apiKeyService.update(anyString(), anyLong(), any(ApiKey.class))).thenReturn((key));
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.put("/api-keys/1")//
+        MockMvcRequestBuilders.put("/v1/api-keys/1")//
             .principal(principal)//
             .contentType(MediaType.APPLICATION_JSON)//
             .content(new Gson().toJson(request)) //
@@ -147,7 +147,7 @@ class ApiKeyControllerTest extends UnitData {
     when(apiKeyService.log(any(Pageable.class), anyString(), anyLong())).thenReturn(logs);
 
     var body = mvc.perform(//
-        MockMvcRequestBuilders.get("/api-keys/1/logs")//
+        MockMvcRequestBuilders.get("/v1/api-keys/1/logs")//
             .principal(principal)//
             .accept(MediaType.APPLICATION_JSON)//
     ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
