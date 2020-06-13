@@ -36,7 +36,7 @@ public class ApiKeyLog extends Log implements Model {
    * 
    * @param id              The primary key
    * @param apiKey          The authenticated api key
-   * @param action          The billing action
+   * @param action          The key action
    * @param requestMetadata The geolocation and ip of the request
    * @param createdDate     The time of the action
    */

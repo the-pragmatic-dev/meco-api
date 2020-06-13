@@ -36,7 +36,7 @@ public class SecurityLog extends Log implements Model {
    * 
    * @param id              The primary key
    * @param account         The authenticated account
-   * @param action          The billing action
+   * @param action          The security action
    * @param requestMetadata The geolocation and ip of the request
    * @param createdDate     The time of the action
    */

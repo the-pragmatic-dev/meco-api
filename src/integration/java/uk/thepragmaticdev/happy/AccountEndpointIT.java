@@ -103,6 +103,34 @@ class AccountEndpointIT extends IntegrationData {
         .statusCode(200);
   }
 
+  @Test
+  void shouldUpdateOnlyNonNullAccountFields() {
+    var request = accountUpdateRequest();
+    request.setFullName(null);
+    request.setEmailSubscriptionEnabled(null);
+    request.setBillingAlertEnabled(null);
+    given()
+      .contentType(JSON)
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin())
+      .body(request)
+    .when()
+      .put(ACCOUNTS_ENDPOINT + "me")
+      .then()
+        .body("stripe_customer_id", is(nullValue()))
+        .body("stripe_subscription_id", is(nullValue()))
+        .body("stripe_subscription_item_id", is(nullValue()))
+        .body("username", is("admin@email.com"))
+        .body("password", is(nullValue()))
+        .body("password_reset_token", is(nullValue()))
+        .body("password_reset_token_expire", is(nullValue()))
+        .body("full_name", is("Stephen Cathcart"))
+        .body("email_subscription_enabled", is(true))
+        .body("billing_alert_enabled", is(false))
+        .body("created_date", is("2020-02-25T10:30:44.232Z"))
+        .statusCode(200);
+  }
+
   // @endpoint:billing-logs
 
   @Test

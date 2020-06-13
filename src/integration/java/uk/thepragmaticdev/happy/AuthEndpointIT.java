@@ -78,6 +78,11 @@ class AuthEndpointIT extends IntegrationData {
     // clean up stripe customer created on account creation
     var account = accountService.findAuthenticatedAccount("auth@integration.test");
     billingService.deleteCustomer(account.getStripeCustomerId());
+    // email and billing should be false by default on new accounts
+    assertThat(account.getEmailSubscriptionEnabled(), is(false));
+    assertThat(account.getBillingAlertEnabled(), is(false));
+    // full name will be null on new accounts
+    assertThat(account.getFullName(), is(nullValue()));
   }
 
   // @endpoint:forgot

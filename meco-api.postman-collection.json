@@ -10,45 +10,6 @@
 			"name": "Auth",
 			"item": [
 				{
-					"name": "Signin",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "User-Agent",
-								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-								"type": "text"
-							},
-							{
-								"key": "X-FORWARDED-FOR",
-								"value": "196.245.163.207",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"username\": \"admin@email.com\",\n\t\"password\": \"password\"\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8080/auth/signin",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"auth",
-								"signin"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Signup",
 					"request": {
 						"method": "POST",
@@ -73,15 +34,56 @@
 							"raw": "{\n\t\"username\": \"steve@email.com\",\n\t\"password\": \"password\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/auth/signup",
+							"raw": "http://localhost:8080/v1/auth/signup",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"auth",
 								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Signin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"admin@email.com\",\n\t\"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/v1/auth/signin",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v1",
+								"auth",
+								"signin"
 							]
 						}
 					},
@@ -109,16 +111,20 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"accessToken\": \"\",\n\t\"refreshToken\": \"\"\n}"
+							"raw": "{\n\t\"access_token\": \"\",\n\t\"refresh_token\": \"\"\n}",
+							"options": {
+								"raw": {}
+							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/auth/refresh",
+							"raw": "http://localhost:8080/v1/auth/refresh",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"auth",
 								"refresh"
 							]
@@ -143,13 +149,14 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/auth/forgot?username=admin@email.com",
+							"raw": "http://localhost:8080/v1/auth/forgot?username=admin@email.com",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"auth",
 								"forgot"
 							],
@@ -189,13 +196,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/auth/reset?token=TOKEN",
+							"raw": "http://localhost:8080/v1/auth/reset?token=TOKEN",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"auth",
 								"reset"
 							],
@@ -237,13 +245,14 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/accounts/me",
+							"raw": "http://localhost:8080/v1/accounts/me",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"accounts",
 								"me"
 							]
@@ -278,16 +287,20 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"fullName\": \"Ash\",\n    \"emailSubscriptionEnabled\": false,\n    \"billingAlertEnabled\": true\n}"
+							"raw": "{\n    \"full_name\": \"Ash\",\n    \"email_subscription_enabled\": false,\n    \"billing_alert_enabled\": true\n}",
+							"options": {
+								"raw": {}
+							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/accounts/me",
+							"raw": "http://localhost:8080/v1/accounts/me",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"accounts",
 								"me"
 							]
@@ -317,13 +330,14 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/accounts/me/billing/logs",
+							"raw": "http://localhost:8080/v1/accounts/me/billing/logs",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"accounts",
 								"me",
 								"billing",
@@ -355,13 +369,14 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/accounts/me/billing/logs/download",
+							"raw": "http://localhost:8080/v1/accounts/me/billing/logs/download",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"accounts",
 								"me",
 								"billing",
@@ -394,13 +409,14 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/accounts/me/security/logs",
+							"raw": "http://localhost:8080/v1/accounts/me/security/logs",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"accounts",
 								"me",
 								"security",
@@ -432,18 +448,97 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/accounts/me/security/logs/download",
+							"raw": "http://localhost:8080/v1/accounts/me/security/logs/download",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"accounts",
 								"me",
 								"security",
 								"logs",
 								"download"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find All Devices",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer TOKEN"
+							},
+							{
+								"key": "User-Agent",
+								"type": "text",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"type": "text",
+								"value": "196.245.163.207"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/v1/accounts/me/security/devices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v1",
+								"accounts",
+								"me",
+								"security",
+								"devices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete All Devices",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer TOKEN",
+								"type": "text"
+							},
+							{
+								"key": "User-Agent",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+								"type": "text"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"value": "196.245.163.207",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/v1/accounts/me/security/devices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v1",
+								"accounts",
+								"me",
+								"security",
+								"devices"
 							]
 						}
 					},
@@ -477,13 +572,14 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/api-keys",
+							"raw": "http://localhost:8080/v1/api-keys",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"api-keys"
 							]
 						}
@@ -491,18 +587,13 @@
 					"response": []
 				},
 				{
-					"name": "Create",
+					"name": "Find By Id",
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [
 							{
 								"key": "Authorization",
 								"value": "Bearer TOKEN",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
 								"type": "text"
 							},
 							{
@@ -516,9 +607,51 @@
 								"type": "text"
 							}
 						],
+						"url": {
+							"raw": "http://localhost:8080/v1/api-keys/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"v1",
+								"api-keys",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer TOKEN"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "User-Agent",
+								"type": "text",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
+							},
+							{
+								"key": "X-FORWARDED-FOR",
+								"type": "text",
+								"value": "196.245.163.207"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"test key\",\n  \"enabled\": true,\n  \"scope\": {\n    \"image\": true,\n    \"gif\": false,\n    \"video\": true,\n    \"text\": false\n  },\n  \"accessPolicies\": [{\n  \t\"name\": \"newcastle\",\n  \t\"range\": \"127.0.0.1/32\"\n  }]\n}",
+							"raw": "{\n  \"name\": \"test key\",\n  \"enabled\": true,\n  \"scope\": {\n    \"image\": true,\n    \"gif\": false,\n    \"text\": false\n  },\n  \"access_policies\": [{\n  \t\"name\": \"newcastle\",\n  \t\"range\": \"127.0.0.1/32\"\n  }]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -526,13 +659,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api-keys",
+							"raw": "http://localhost:8080/v1/api-keys",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"api-keys"
 							]
 						}
@@ -556,18 +690,18 @@
 							},
 							{
 								"key": "User-Agent",
-								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-								"type": "text"
+								"type": "text",
+								"value": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
 							},
 							{
 								"key": "X-FORWARDED-FOR",
-								"value": "196.245.163.207",
-								"type": "text"
+								"type": "text",
+								"value": "196.245.163.207"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"updated key\",\n  \"enabled\": true,\n  \"scope\": {\n    \"image\": true,\n    \"gif\": false,\n    \"video\": true,\n    \"text\": false\n  },\n  \"accessPolicies\": [{\n  \t\"name\": \"newcastle\",\n  \t\"range\": \"127.0.0.1/32\"\n  }]\n}",
+							"raw": "{\n  \"name\": \"updated key\",\n  \"enabled\": true,\n  \"scope\": {\n    \"image\": true,\n    \"gif\": false,\n    \"video\": true,\n    \"text\": false\n  },\n  \"access_policies\": [{\n  \t\"name\": \"newcastle\",\n  \t\"range\": \"127.0.0.1/32\"\n  }]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -575,13 +709,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api-keys/1",
+							"raw": "http://localhost:8080/v1/api-keys/1",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"api-keys",
 								"1"
 							]
@@ -620,13 +755,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api-keys/1",
+							"raw": "http://localhost:8080/v1/api-keys/1",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"api-keys",
 								"1"
 							]
@@ -668,13 +804,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api-keys/1/logs",
+							"raw": "http://localhost:8080/v1/api-keys/1/logs",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"api-keys",
 								"1",
 								"logs"
@@ -717,13 +854,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api-keys/1/logs/download",
+							"raw": "http://localhost:8080/v1/api-keys/1/logs/download",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"api-keys",
 								"1",
 								"logs",
@@ -756,13 +894,14 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/billing/prices",
+							"raw": "http://localhost:8080/v1/billing/prices",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"billing",
 								"prices"
 							]
@@ -806,13 +945,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/billing/subscriptions",
+							"raw": "http://localhost:8080/v1/billing/subscriptions",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"billing",
 								"subscriptions"
 							]
@@ -851,13 +991,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/billing/subscriptions",
+							"raw": "http://localhost:8080/v1/billing/subscriptions",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8080",
 							"path": [
+								"v1",
 								"billing",
 								"subscriptions"
 							]

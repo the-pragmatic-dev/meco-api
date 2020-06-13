@@ -89,7 +89,8 @@ public class AccountService {
 
   /**
    * Create a new account. A stripe customer is also created and associated with
-   * the account.
+   * the account. Disables email subscription and billing alerts by default to
+   * comply with GDPR.
    * 
    * @param username        The account username
    * @param encodedPassword An encoded password
@@ -101,6 +102,8 @@ public class AccountService {
     account.setUsername(username);
     account.setPassword(encodedPassword);
     account.setRoles(roles);
+    account.setEmailSubscriptionEnabled(false);
+    account.setBillingAlertEnabled(false);
     account.setCreatedDate(OffsetDateTime.now());
     account.setStripeCustomerId(billingService.createCustomer(account.getUsername()));
     return accountRepository.save(account);
@@ -117,8 +120,8 @@ public class AccountService {
    * @return The updated account
    */
   @Transactional
-  public Account update(String username, String fullName, boolean emailSubscriptionEnabled,
-      boolean billingAlertEnabled) {
+  public Account update(String username, String fullName, Boolean emailSubscriptionEnabled,
+      Boolean billingAlertEnabled) {
     var authenticatedAccount = findAuthenticatedAccount(username);
     updateFullName(authenticatedAccount, fullName);
     updateBillingAlertEnabled(authenticatedAccount, billingAlertEnabled);
@@ -127,20 +130,29 @@ public class AccountService {
   }
 
   private void updateFullName(Account account, String fullName) {
+    if (fullName == null) {
+      return;
+    }
     if (account.getFullName() == null ? fullName != null : !account.getFullName().equals(fullName)) {
       securityLogService.fullname(account);
       account.setFullName(fullName);
     }
   }
 
-  private void updateBillingAlertEnabled(Account account, boolean billingAlertEnabled) {
+  private void updateBillingAlertEnabled(Account account, Boolean billingAlertEnabled) {
+    if (billingAlertEnabled == null) {
+      return;
+    }
     if (account.getBillingAlertEnabled() != billingAlertEnabled) {
       securityLogService.billingAlertEnabled(account, billingAlertEnabled);
       account.setBillingAlertEnabled(billingAlertEnabled);
     }
   }
 
-  private void updateEmailSubscriptionEnabled(Account account, boolean emailSubscriptionEnabled) {
+  private void updateEmailSubscriptionEnabled(Account account, Boolean emailSubscriptionEnabled) {
+    if (emailSubscriptionEnabled == null) {
+      return;
+    }
     if (account.getEmailSubscriptionEnabled() != emailSubscriptionEnabled) {
       securityLogService.emailSubscriptionEnabled(account, emailSubscriptionEnabled);
       account.setEmailSubscriptionEnabled(emailSubscriptionEnabled);

@@ -1,5 +1,6 @@
 package uk.thepragmaticdev.account.dto.request;
 
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,9 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AccountUpdateRequest {
 
+  @Size(min = 1, max = 50, message = "Full name length must be between 1-50.")
   private String fullName;
 
-  private boolean emailSubscriptionEnabled;
+  private Boolean emailSubscriptionEnabled;
 
-  private boolean billingAlertEnabled;
+  private Boolean billingAlertEnabled;
 }

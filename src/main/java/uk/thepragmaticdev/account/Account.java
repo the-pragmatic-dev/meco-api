@@ -56,10 +56,10 @@ public class Account implements Model {
   private String fullName;
 
   @Column(columnDefinition = "boolean not null default false")
-  private boolean emailSubscriptionEnabled;
+  private Boolean emailSubscriptionEnabled;
 
   @Column(columnDefinition = "boolean not null default false")
-  private boolean billingAlertEnabled;
+  private Boolean billingAlertEnabled;
 
   private OffsetDateTime createdDate; // generated
 
