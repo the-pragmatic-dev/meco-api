@@ -106,10 +106,10 @@ public class TokenService {
 
   /**
    * Reads the authorization request header and checks if a bearer token exists.
-   * If a token exists, the bearer prefix is stripped and the jwt is returned.
+   * If so, the header prefix is stripped and the jwt is returned.
    * 
    * @param request The request information for HTTP servlets
-   * @return An existsing JWT, otherwise null
+   * @return A resolved JWT, otherwise null
    */
   public String resolveToken(HttpServletRequest request) {
     var prefix = "Bearer ";

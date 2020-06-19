@@ -3,6 +3,7 @@ package uk.thepragmaticdev.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import uk.thepragmaticdev.kms.ApiKeyService;
+import uk.thepragmaticdev.security.key.ApiKeyFilterConfigurer;
 import uk.thepragmaticdev.security.token.TokenFilterConfigurer;
 import uk.thepragmaticdev.security.token.TokenService;
 
@@ -19,10 +22,13 @@ import uk.thepragmaticdev.security.token.TokenService;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+  private final ApiKeyService apiKeyService;
+
   private final TokenService tokenService;
 
   @Autowired
-  public WebSecurityConfig(TokenService tokenService) {
+  public WebSecurityConfig(@Lazy ApiKeyService apiKeyService, TokenService tokenService) {
+    this.apiKeyService = apiKeyService;
     this.tokenService = tokenService;
   }
 
@@ -60,8 +66,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     // if a user tries to access a resource without having enough permissions
     http.exceptionHandling().accessDeniedPage("/login");
 
-    // apply token filter
+    // apply access token filter
     http.apply(new TokenFilterConfigurer(tokenService));
+
+    // apply api key filter
+    http.apply(new ApiKeyFilterConfigurer(apiKeyService));
   }
 
   @Bean

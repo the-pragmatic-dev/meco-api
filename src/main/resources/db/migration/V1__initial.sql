@@ -17,7 +17,7 @@ DROP INDEX IF EXISTS security_log_account_id_idx;
 DROP INDEX IF EXISTS billing_log_account_id_idx;
 DROP INDEX IF EXISTS access_policy_api_key_id_idx;
 DROP INDEX IF EXISTS account_roles_account_id_idx;
-DROP INDEX IF EXISTS api_key_hash_idx;
+DROP INDEX IF EXISTS api_key_prefix_idx;
 DROP INDEX IF EXISTS api_key_account_id_idx;
 DROP INDEX IF EXISTS api_key_scope_id_idx;
 DROP INDEX IF EXISTS account_username_idx;
@@ -72,7 +72,7 @@ CREATE TABLE api_key (
     scope_id BIGINT NOT NULL REFERENCES scope (id),
     UNIQUE (id, scope_id)
 );
-CREATE INDEX api_key_hash_idx ON api_key (hash);
+CREATE INDEX api_key_prefix_idx ON api_key (prefix);
 CREATE INDEX api_key_account_id_idx ON api_key (account_id);
 CREATE INDEX api_key_scope_id_idx ON api_key (scope_id);
 -------------------------------------------------

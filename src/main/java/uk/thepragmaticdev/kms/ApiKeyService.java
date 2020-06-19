@@ -8,9 +8,12 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -96,6 +99,16 @@ public class ApiKeyService {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     return apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
+  }
+
+  /**
+   * Find all keys that match prefix.
+   * 
+   * @param prefix The prefix of the key to find
+   * @return A list of matching keys
+   */
+  public List<ApiKey> findByPrefix(String prefix) {
+    return apiKeyRepository.findByPrefix(prefix);
   }
 
   /**
@@ -305,6 +318,36 @@ public class ApiKeyService {
   public long count(String username) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
     return apiKeyRepository.countByAccountId(authenticatedAccount.getId());
+  }
+
+  /**
+   * Reads the authorization request header and checks if a raw api key exists. If
+   * so, the header prefix is stripped and the raw key is returned.
+   * 
+   * @param request The request information for HTTP servlets
+   * @return A resolved raw api key, otherwise null
+   */
+  public String extract(HttpServletRequest request) {
+    var prefix = "ApiKey ";
+    var rawKey = request.getHeader("Authorization");
+    return (rawKey != null && rawKey.startsWith(prefix)) ? rawKey.substring(prefix.length()) : null;
+  }
+
+  /**
+   * Authenticate a given raw key. Find all keys from storage that match the given
+   * prefix. A key is authentic if the encoded hashed key obtained from storage
+   * matches the submitted raw key after it too is encoded.
+   * 
+   * @param rawKey The raw, unencoded key from request
+   * @return A matching key or empty if not found
+   */
+  public Optional<ApiKey> authenticate(String rawKey) {
+    var prefix = StringUtils.substringBefore(rawKey, ".");
+    if (StringUtils.isNotBlank(prefix)) {
+      var apiKeys = findByPrefix(prefix);
+      return apiKeys.stream().filter(key -> isAuthentic(rawKey, key.getHash())).findFirst();
+    }
+    return Optional.empty();
   }
 
   /**

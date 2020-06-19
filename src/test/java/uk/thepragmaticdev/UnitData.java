@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.thepragmaticdev.account.Account;
+import uk.thepragmaticdev.text.perspective.AttributeScore;
+import uk.thepragmaticdev.text.perspective.AttributeScores;
+import uk.thepragmaticdev.text.perspective.Score;
+import uk.thepragmaticdev.text.perspective.SpanScore;
+import uk.thepragmaticdev.text.perspective.dto.response.AnalyseCommentResponse;
 
 public abstract class UnitData {
 
@@ -35,6 +40,36 @@ public abstract class UnitData {
       logs.add(log);
     }
     return logs;
+  }
+
+  protected AnalyseCommentResponse analyseCommentResponse() {
+    var response = new AnalyseCommentResponse();
+    response.setAttributeScores(attributeScores());
+    response.setLanguages(List.of("en"));
+    response.setDetectedLanguages(List.of("en"));
+    return response;
+  }
+
+  private AttributeScores attributeScores() {
+    var attributeScores = new AttributeScores();
+    attributeScores.setProfanity(attributeScore());
+    attributeScores.setToxicity(attributeScore());
+    return attributeScores;
+  }
+
+  private AttributeScore attributeScore() {
+    var attributeScore = new AttributeScore();
+    attributeScore.setSpanScores(List.of(spanScore()));
+    attributeScore.setSummaryScore(score());
+    return attributeScore;
+  }
+
+  private SpanScore spanScore() {
+    return new SpanScore(1, 2, score());
+  }
+
+  private Score score() {
+    return new Score(0.9, "type");
   }
 
   protected Account account() {

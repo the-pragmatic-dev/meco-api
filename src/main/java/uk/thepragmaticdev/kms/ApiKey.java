@@ -16,6 +16,7 @@ import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
@@ -52,11 +53,14 @@ public class ApiKey implements Model {
   private Scope scope;
 
   @OneToMany(mappedBy = "apiKey", cascade = { CascadeType.ALL }, orphanRemoval = true)
+  @ToString.Exclude
   private List<AccessPolicy> accessPolicies;
 
   @OneToMany(mappedBy = "apiKey", cascade = { CascadeType.ALL }, orphanRemoval = true)
+  @ToString.Exclude
   private List<ApiKeyLog> apiKeyLogs;
 
   @ManyToOne
+  @ToString.Exclude
   private Account account;
 }

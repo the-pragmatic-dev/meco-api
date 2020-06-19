@@ -86,14 +86,14 @@ class ApiKeyEndpointIT extends IntegrationData {
   @Test
   void shouldNotCreateKeyWhenNameIsEmpty() {
     var shortName = "";
-    var key = apiKeyCreateRequest();
-    key.setName(shortName);
+    var request = apiKeyCreateRequest();
+    request.setName(shortName);
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .post(API_KEY_ENDPOINT)
     .then()
@@ -112,14 +112,14 @@ class ApiKeyEndpointIT extends IntegrationData {
   void shouldNotCreateKeyWhenNameIsTooLong() {
     var longName = IntStream.range(0, 51).mapToObj(i -> "a").collect(Collectors.joining(""));
 
-    var key = apiKeyCreateRequest();
-    key.setName(longName);
+    var request = apiKeyCreateRequest();
+    request.setName(longName);
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .post(API_KEY_ENDPOINT)
     .then()
@@ -136,14 +136,14 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotCreateKeyWhenNameIsNull() {
-    var key = apiKeyCreateRequest();
-    key.setName(null);
+    var request = apiKeyCreateRequest();
+    request.setName(null);
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .post(API_KEY_ENDPOINT)
     .then()
@@ -160,15 +160,15 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotCreateKeyWhenRangeIsInvalid() {
-    var key = apiKeyCreateRequest();
+    var request = apiKeyCreateRequest();
     var accessPolicy = accessPolicyRequest("name", "invalidRange");
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .post(API_KEY_ENDPOINT)
     .then()
@@ -187,15 +187,15 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotCreateKeyWhenRangeIsNull() {
-    var key = apiKeyCreateRequest();
+    var request = apiKeyCreateRequest();
     var accessPolicy = accessPolicyRequest("name", null);
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .post(API_KEY_ENDPOINT)
     .then()
@@ -214,15 +214,15 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotCreateKeyWhenPolicyNameIsNull() {
-    var key = apiKeyCreateRequest();
+    var request = apiKeyCreateRequest();
     var accessPolicy = accessPolicyRequest(null, "66.0.0.1/16");
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .post(API_KEY_ENDPOINT)
     .then()
@@ -239,15 +239,15 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotCreateKeyWhenPolicyNameIsEmpty() {
-    var key = apiKeyCreateRequest();
+    var request = apiKeyCreateRequest();
     var accessPolicy = accessPolicyRequest("", "66.0.0.1/16");
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .post(API_KEY_ENDPOINT)
     .then()
@@ -264,16 +264,16 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotCreateKeyWhenPolicyNameIsTooLong() {
-    var key = apiKeyCreateRequest();
+    var request = apiKeyCreateRequest();
     var longName = IntStream.range(0, 51).mapToObj(i -> "a").collect(Collectors.joining(""));
     var accessPolicy = accessPolicyRequest(longName, "66.0.0.1/16");
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .post(API_KEY_ENDPOINT)
     .then()
@@ -340,14 +340,14 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotUpdateKeyWhenNameIsEmpty() {
-    var key = apiKeyUpdateRequest();
-    key.setName("");
+    var request = apiKeyUpdateRequest();
+    request.setName("");
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .put(API_KEY_ENDPOINT + "1")
     .then()
@@ -366,14 +366,14 @@ class ApiKeyEndpointIT extends IntegrationData {
   void shouldNotUpdateKeyWhenNameIsTooLong() {
     var longName = IntStream.range(0, 51).mapToObj(i -> "a").collect(Collectors.joining(""));
 
-    var key = apiKeyUpdateRequest();
-    key.setName(longName);
+    var request = apiKeyUpdateRequest();
+    request.setName(longName);
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .put(API_KEY_ENDPOINT + "1")
     .then()
@@ -390,15 +390,15 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotUpdateKeyWhenRangeIsInvalid() {
-    var key = apiKeyUpdateRequest();
+    var request = apiKeyUpdateRequest();
     var accessPolicy = accessPolicyRequest("name", "invalidRange");
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .put(API_KEY_ENDPOINT + "1")
     .then()
@@ -417,15 +417,15 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotUpdateKeyWhenRangeIsNull() {
-    var key = apiKeyUpdateRequest();
+    var request = apiKeyUpdateRequest();
     var accessPolicy = accessPolicyRequest("name", null);
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .put(API_KEY_ENDPOINT + "1")
     .then()
@@ -444,15 +444,15 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotUpdateKeyWhenPolicyNameIsNull() {
-    var key = apiKeyUpdateRequest();
+    var request = apiKeyUpdateRequest();
     var accessPolicy = accessPolicyRequest(null, "66.0.0.1/16");
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .put(API_KEY_ENDPOINT + "1")
     .then()
@@ -469,15 +469,15 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotUpdateKeyWhenPolicyNameIsEmpty() {
-    var key = apiKeyUpdateRequest();
+    var request = apiKeyUpdateRequest();
     var accessPolicy = accessPolicyRequest("", "66.0.0.1/16");
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .put(API_KEY_ENDPOINT + "1")
     .then()
@@ -494,16 +494,16 @@ class ApiKeyEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotUpdateKeyWhenPolicyNameIsTooLong() {
-    var key = apiKeyUpdateRequest();
+    var request = apiKeyUpdateRequest();
     var longName = IntStream.range(0, 51).mapToObj(i -> "a").collect(Collectors.joining(""));
     var accessPolicy = accessPolicyRequest(longName, "66.0.0.1/16");
-    key.setAccessPolicies(List.of(accessPolicy));
+    request.setAccessPolicies(List.of(accessPolicy));
 
     given()
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin())
       .contentType(JSON)
-      .body(key)
+      .body(request)
     .when()
       .put(API_KEY_ENDPOINT + "1")
     .then()

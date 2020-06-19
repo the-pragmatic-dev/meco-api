@@ -24,9 +24,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    var objectMapper = Jackson2ObjectMapperBuilder.json().modules(new JavaTimeModule(), new Jdk8Module()).build()
+    var mapper = Jackson2ObjectMapperBuilder.json().modules(new JavaTimeModule(), new Jdk8Module()).build()
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-    objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-    converters.add(new MappingJackson2HttpMessageConverter(objectMapper));
+    mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+    converters.add(new MappingJackson2HttpMessageConverter(mapper));
   }
 }

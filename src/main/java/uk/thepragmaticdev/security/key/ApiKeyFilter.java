@@ -1,4 +1,4 @@
-package uk.thepragmaticdev.security.token;
+package uk.thepragmaticdev.security.key;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -13,14 +13,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import uk.thepragmaticdev.exception.ApiError;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AuthCode;
+import uk.thepragmaticdev.kms.ApiKeyService;
 
 @Log4j2
-public class TokenFilter extends OncePerRequestFilter {
+public class ApiKeyFilter extends OncePerRequestFilter {
 
-  private final TokenService tokenService;
+  private final ApiKeyService apiKeyService;
 
-  public TokenFilter(TokenService tokenService) {
-    this.tokenService = tokenService;
+  public ApiKeyFilter(ApiKeyService tokenService) {
+    this.apiKeyService = tokenService;
   }
 
   @Override
@@ -28,22 +29,23 @@ public class TokenFilter extends OncePerRequestFilter {
       HttpServletRequest httpServletRequest, //
       HttpServletResponse httpServletResponse, //
       FilterChain filterChain) throws ServletException, IOException {
-    var token = tokenService.resolveToken(httpServletRequest);
+    var rawApiKey = apiKeyService.extract(httpServletRequest);
     try {
-      if (tokenService.validateToken(token)) {
-        var auth = tokenService.getAuthentication(token);
+      var authenticatedApiKey = apiKeyService.authenticate(rawApiKey);
+      if (authenticatedApiKey.isPresent()) {
+        var auth = new ApiKeyAuthenticationToken(authenticatedApiKey.get());
         SecurityContextHolder.getContext().setAuthentication(auth);
       }
     } catch (ApiException ex) {
       SecurityContextHolder.clearContext();
 
       var responseBody = new ApiError(//
-          AuthCode.ACCESS_TOKEN_INVALID.getStatus(), //
-          AuthCode.ACCESS_TOKEN_INVALID.getMessage() //
+          AuthCode.API_KEY_INVALID.getStatus(), //
+          AuthCode.API_KEY_INVALID.getMessage() //
       );
       log.warn("{}", responseBody);
       httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-      httpServletResponse.setStatus(AuthCode.ACCESS_TOKEN_INVALID.getStatus().value());
+      httpServletResponse.setStatus(AuthCode.API_KEY_INVALID.getStatus().value());
       httpServletResponse.getWriter().write(responseBody.toString());
       return;
     }

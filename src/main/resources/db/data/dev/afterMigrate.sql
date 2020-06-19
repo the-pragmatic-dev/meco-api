@@ -12,7 +12,7 @@ INSERT INTO scope(id, image, gif, text, video) values (2, true, false, false, tr
 ALTER SEQUENCE scope_id_seq RESTART WITH 3;
 -- API Key
 INSERT INTO api_key(id, name, prefix, hash, created_date, last_used_date, modified_date, enabled, account_id, scope_id) values 
-(1, 'Good Coffee Shop', 'zaCELgL', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', '2020-02-25T13:38:58.232Z', null, '2020-02-25T13:40:19.111Z', true, 1, 1) ON CONFLICT DO NOTHING;
+(1, 'Good Coffee Shop', 'rAosN1E', '$2a$12$vEFf.RpLuHuHDL3mEbORMOyvm1/Jgbz04wOJ1qOE4IyUUA2H2Ps4O', '2020-02-25T13:38:58.232Z', null, '2020-02-25T13:40:19.111Z', true, 1, 1) ON CONFLICT DO NOTHING;
 INSERT INTO api_key(id, name, prefix, hash, created_date, last_used_date, modified_date, enabled, account_id, scope_id) values 
 (2, 'Bobs Pastry Shop', '7Cx9VYK', '$2a$12$Jl0WgfT1aGoTEDVAYeJJveOZMcR/m9bz2A5QQsbVH4/AX5fVv9P3W', '2020-02-25T15:06:41.718Z', null, null, true, 1, 2) ON CONFLICT DO NOTHING;
 ALTER SEQUENCE api_key_id_seq RESTART WITH 3;

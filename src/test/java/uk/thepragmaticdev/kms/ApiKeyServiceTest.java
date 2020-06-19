@@ -2,6 +2,7 @@ package uk.thepragmaticdev.kms;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -15,6 +16,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -143,5 +145,40 @@ class ApiKeyServiceTest {
     var hashedKey = "aSuperSecretHashThatWillNotMatchTheRawKeyWhenHashed";
     when(passwordEncoder.matches(rawKey, hashedKey)).thenReturn(passwordEncoderImpl.matches(rawKey, hashedKey));
     assertThat(sut.isAuthentic(rawKey, hashedKey), is(false));
+  }
+
+  @Test
+  void shouldExtractRawKey() {
+    var apiKey = "abcdefg.hijklmnopqrstuvwxyz";
+    var request = mock(HttpServletRequest.class);
+    when(request.getHeader(anyString())).thenReturn("ApiKey " + apiKey);
+
+    assertThat(sut.extract(request), is(apiKey));
+  }
+
+  @Test
+  void shouldNotExtractRawKeyIfHeaderIsMissing() {
+    var request = mock(HttpServletRequest.class);
+    when(request.getHeader(anyString())).thenReturn(null);
+
+    assertThat(sut.extract(request), is(nullValue()));
+  }
+
+  @Test
+  void shouldNotExtractRawKeyIfHeaderPrefixIsMissing() {
+    var apiKey = "abcdefg.hijklmnopqrstuvwxyz";
+    var request = mock(HttpServletRequest.class);
+    when(request.getHeader(anyString())).thenReturn(apiKey);
+
+    assertThat(sut.extract(request), is(nullValue()));
+  }
+
+  @Test
+  void shouldNotExtractRawKeyIfHeaderPrefixIsInvalid() {
+    var apiKey = "abcdefg.hijklmnopqrstuvwxyz";
+    var request = mock(HttpServletRequest.class);
+    when(request.getHeader(anyString())).thenReturn("InvalidPrefix " + apiKey);
+
+    assertThat(sut.extract(request), is(nullValue()));
   }
 }

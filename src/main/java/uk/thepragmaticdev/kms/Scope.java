@@ -11,6 +11,7 @@ import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import uk.thepragmaticdev.endpoint.Model;
 
 @Data
@@ -37,5 +38,6 @@ public class Scope implements Model {
   private boolean video;
 
   @OneToOne(mappedBy = "scope")
+  @ToString.Exclude
   private ApiKey apiKey;
 }

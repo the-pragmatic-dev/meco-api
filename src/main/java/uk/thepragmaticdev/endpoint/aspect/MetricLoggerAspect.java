@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
+import uk.thepragmaticdev.kms.ApiKey;
+import uk.thepragmaticdev.security.key.ApiKeyAuthenticationToken;
 
 @Log4j2
 @Aspect
@@ -43,25 +45,28 @@ public class MetricLoggerAspect {
     metric.put("method", joinPoint.getSignature().getName());
     metric.put("millis", stopWatch.getTotalTimeMillis());
     metric.put("args", getArgs(joinPoint.getArgs()));
-    metric.put("user", getUsername(joinPoint.getArgs()));
+    metric.put("auth", getAuth(joinPoint.getArgs()));
     return metric;
   }
 
   private Object getArgs(Object[] args) {
     for (var object : args) {
-      if (!(object instanceof UsernamePasswordAuthenticationToken) && !(object instanceof Pageable)
-          && !(object instanceof HttpServletRequest)) {
+      if (!(object instanceof UsernamePasswordAuthenticationToken) && !(object instanceof ApiKeyAuthenticationToken)
+          && !(object instanceof Pageable) && !(object instanceof HttpServletRequest)) {
         return object;
       }
     }
     return null;
   }
 
-  private String getUsername(Object[] args) {
+  private String getAuth(Object[] args) {
     var username = "unauthenticated";
     for (var object : args) {
       if (object instanceof UsernamePasswordAuthenticationToken) {
         username = ((User) ((UsernamePasswordAuthenticationToken) object).getPrincipal()).getUsername();
+      }
+      if (object instanceof ApiKeyAuthenticationToken) {
+        username = ((ApiKey) ((ApiKeyAuthenticationToken) object).getPrincipal()).getPrefix();
       }
     }
     return username;
