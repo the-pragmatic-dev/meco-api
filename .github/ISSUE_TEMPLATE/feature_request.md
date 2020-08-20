@@ -12,6 +12,7 @@ assignees: ''
 **Acceptance Criteria :tada:**
 
 - [ ] Task one
-- [ ] Task two
+- [ ] Unit tested
+- [ ] Integration tested
 
 *Please read [CONTRIBUTING.md](https://github.com/the-pragmatic-dev/meco-api/blob/master/CONTRIBUTING.md) for details on our code of conduct.*
