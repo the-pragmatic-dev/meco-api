@@ -4,7 +4,6 @@ about: Suggest an idea for this project
 title: ''
 labels: t:feature
 assignees: StephenCathcart
-projects: meco-api
 ---
 
 **Description :thinking:**
@@ -15,5 +14,7 @@ projects: meco-api
 - [ ] Task one
 - [ ] Unit tested
 - [ ] Integration tested
+- [ ] Travis CI passing
+- [ ] SonarCloud passing
 
 *Please read [CONTRIBUTING.md](https://github.com/the-pragmatic-dev/meco-api/blob/master/CONTRIBUTING.md) for details on our code of conduct.*
