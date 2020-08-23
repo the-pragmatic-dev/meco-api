@@ -4,7 +4,7 @@ about: Suggest an idea for this project
 title: ''
 labels: t:feature
 assignees: ''
-projects: MECO API
+projects: the-pragmatic-dev/meco-api
 ---
 
 **Description :thinking:**
