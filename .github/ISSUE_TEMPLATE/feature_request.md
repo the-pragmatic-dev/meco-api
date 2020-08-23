@@ -4,7 +4,7 @@ about: Suggest an idea for this project
 title: ''
 labels: t:feature
 assignees: ''
-milestone: mvp
+milestone: MVP
 ---
 
 **Description :thinking:**
