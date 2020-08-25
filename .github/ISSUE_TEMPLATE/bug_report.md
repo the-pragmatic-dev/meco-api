@@ -8,13 +8,13 @@ assignees: StephenCathcart
 
 **Description :thinking:**
 
-**Steps to Reproduce Behaviour :point_down:**
-
-1. *Step one*
-
 **Expected Behaviour :innocent:**
 
 **Actual Behaviour :sob:**
+
+**Steps to Reproduce Behaviour :point_down:**
+
+1. *Step one*
 
 **Additional Information :monocle_face:**
 
