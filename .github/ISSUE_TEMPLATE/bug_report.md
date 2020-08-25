@@ -8,9 +8,8 @@ assignees: StephenCathcart
 
 **Description :thinking:**
 
-**Steps to Reproduce :point_down:**
+**Steps to Reproduce Behaviour :point_down:**
 
-Steps to reproduce the behavior:
 1. *Step one*
 
 **Expected Behaviour :innocent:**
