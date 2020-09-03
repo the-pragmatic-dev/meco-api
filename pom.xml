@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
@@ -47,7 +47,7 @@
     <okhttp3.version>4.0.1</okhttp3.version>
     <opencsv.version>5.1</opencsv.version>
     <reactor.version>1.0.1.RELEASE</reactor.version>
-    <rest.assured.version>3.3.0</rest.assured.version>
+    <rest.assured.version>4.2.0</rest.assured.version>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>the-pragmatic-dev</sonar.organization>
     <sonar.projectKey>the-pragmatic-dev_meco-api</sonar.projectKey>
@@ -281,7 +281,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- junit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -301,13 +300,25 @@
     </dependency>
     <dependency>
       <groupId>io.rest-assured</groupId>
+      <artifactId>spring-mock-mvc</artifactId>
+      <version>${rest.assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
       <version>${rest.assured.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured-all</artifactId>
+      <artifactId>json-path</artifactId>
+      <version>${rest.assured.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>xml-path</artifactId>
       <version>${rest.assured.version}</version>
       <scope>test</scope>
     </dependency>
@@ -315,6 +326,7 @@
       <groupId>org.exparity</groupId>
       <artifactId>hamcrest-date</artifactId>
       <version>${hamcrest-date.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.cactoos</groupId>

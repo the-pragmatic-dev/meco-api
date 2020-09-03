@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
-import io.restassured.mapper.TypeRef;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -143,15 +142,15 @@ class AccountEndpointIT extends IntegrationData {
     .then()
         .body("number_of_elements", is(3))
         .body("content", hasSize(3))
-        .root("content[0]")
+        .rootPath("content[0]")
           .body("action", is("billing.paid"))
           .body("amount", is("-£50.00"))
           .body("created_date", is("2020-02-26T15:40:19.111Z"))
-        .root("content[1]")
+        .rootPath("content[1]")
           .body("action", is("billing.invoice"))
           .body("amount", is("£0.00"))
           .body("created_date", is("2020-02-25T15:50:19.111Z"))
-        .root("content[2]")
+        .rootPath("content[2]")
           .body("action", is("subscription.created"))
           .body("amount", is("£0.00"))
           .body("created_date", is("2020-02-24T15:55:19.111Z"))
@@ -186,19 +185,19 @@ class AccountEndpointIT extends IntegrationData {
     .then()
         .body("number_of_elements", is(4))
         .body("content", hasSize(4))
-        .root("content[0]")
+        .rootPath("content[0]")
           .body("action", is("account.signin"))
           .body("created_date", is(withinLast(5, ChronoUnit.SECONDS)))
           .spec(validRequestMetadataSpec(0))
-        .root("content[1]")
+        .rootPath("content[1]")
           .body("action", is("account.signin"))
           .body("created_date", is("2020-02-26T15:40:19.111Z"))
           .spec(validRequestMetadataSpec(0))
-        .root("content[2]")
+        .rootPath("content[2]")
           .body("action", is("account.two_factor_successful_login"))
           .body("created_date", is("2020-02-25T15:40:19.111Z"))
           .spec(validRequestMetadataSpec(1))
-        .root("content[3]")
+        .rootPath("content[3]")
           .body("action", is("account.created"))
           .body("created_date", is("2020-02-24T15:40:19.111Z"))
           .spec(validRequestMetadataSpec(2))
@@ -234,7 +233,7 @@ class AccountEndpointIT extends IntegrationData {
         .then()
           .body("$", hasSize(3))
             .statusCode(200)
-            .extract().as(new TypeRef<List<AuthDeviceResponse>>() {});
+            .extract().body().jsonPath().getList(".", AuthDeviceResponse.class);
     devices.forEach(device -> {
       assertThat(new Date(device.getCreatedDate().toInstant().toEpochMilli()), before(new Date()));
       assertThat(new Date(device.getExpirationTime().toInstant().toEpochMilli()), after(new Date()));

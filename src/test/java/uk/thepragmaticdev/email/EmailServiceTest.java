@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.email.EmailProperties.From;
@@ -67,7 +67,7 @@ class EmailServiceTest {
     when(emailProperties.getSecretKey()).thenReturn("secret");
     when(emailProperties.getFrom()).thenReturn(mockFrom);
     when(emailProperties.getTemplates()).thenReturn(validTemplates());
-    sut = new EmailService(emailProperties, WebClient.builder());
+    sut = new EmailService(emailProperties, new RestTemplateBuilder());
   }
 
   @Test()

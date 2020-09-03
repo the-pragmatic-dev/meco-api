@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import com.stripe.exception.StripeException;
-import io.restassured.mapper.TypeRef;
 import java.util.List;
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
@@ -88,7 +87,7 @@ class BillingEndpointIT extends IntegrationData {
           .get(BILLING_ENDPOINT + "prices")
         .then()
             .statusCode(200)
-        .extract().as(new TypeRef<List<BillingPriceResponse>>() {});
+        .extract().body().jsonPath().getList(".", BillingPriceResponse.class);
     assertBillingPrices(billingPrices);
   }
 

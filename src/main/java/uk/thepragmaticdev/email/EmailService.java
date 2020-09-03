@@ -2,45 +2,40 @@ package uk.thepragmaticdev.email;
 
 import java.net.URI;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.email.EmailProperties.Template;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.CriticalCode;
+import uk.thepragmaticdev.exception.handler.RestTemplateErrorHandler;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.log.security.SecurityLog;
-import uk.thepragmaticdev.security.request.RequestMetadata;
 
 @Log4j2
 @Service
 public class EmailService {
 
-  private static final String WEBCLIENT_INFO = "webclient:send: to={}, template={}, formData={}";
-
-  private static final String WEBCLIENT_ERROR = "webclient:error: status={}, body={}";
-
   private final EmailProperties properties;
 
-  private final WebClient webClient;
+  private final RestTemplate restTemplate;
 
   /**
    * Service for sending emails. Provides default mailgun configuration.
    * 
-   * @param properties       The email properties
-   * @param webClientBuilder The web client for building request
+   * @param properties The email properties
+   * @param builder    The builder to create rest request
    */
-  public EmailService(EmailProperties properties, WebClient.Builder webClientBuilder) {
+  public EmailService(EmailProperties properties, RestTemplateBuilder builder) {
     this.properties = properties;
-    this.webClient = webClientBuilder.baseUrl(String.format(properties.getUrl(), properties.getDomain()))//
-        .defaultHeaders(header -> header.setBasicAuth("api", properties.getSecretKey()))//
-        .build();
+    this.restTemplate = builder.errorHandler(new RestTemplateErrorHandler())
+        .basicAuthentication("api", properties.getSecretKey()).build();
   }
 
   /**
@@ -48,6 +43,7 @@ public class EmailService {
    * 
    * @param account The newly created account
    */
+  @Async
   public void sendAccountCreated(Account account) {
     send(account.getUsername(), "account-created", new LinkedMultiValueMap<>());
   }
@@ -57,6 +53,7 @@ public class EmailService {
    * 
    * @param account The account requesting a password reset
    */
+  @Async
   public void sendForgottenPassword(Account account) {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:username", account.getUsername());
@@ -69,6 +66,7 @@ public class EmailService {
    * 
    * @param account The account that was updated
    */
+  @Async
   public void sendResetPassword(Account account) {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:username", account.getUsername());
@@ -82,8 +80,9 @@ public class EmailService {
    * @param account The account that was signed in
    * @param log     The security log containing request metadata of the request
    */
+  @Async
   public void sendUnrecognizedDevice(Account account, SecurityLog log) {
-    RequestMetadata metadata = log.getRequestMetadata();
+    var metadata = log.getRequestMetadata();
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:time", log.getCreatedDate().toString());
     formData.add("v:cityName", metadata.getGeoMetadata().getCityName());
@@ -99,6 +98,7 @@ public class EmailService {
    * 
    * @param account The account the key was created on
    */
+  @Async
   public void sendKeyCreated(Account account, ApiKey createdKey) {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:name", createdKey.getName());
@@ -111,6 +111,7 @@ public class EmailService {
    * 
    * @param account The account the key was deleted on
    */
+  @Async
   public void sendKeyDeleted(Account account, ApiKey deletedKey) {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:name", deletedKey.getName());
@@ -120,29 +121,20 @@ public class EmailService {
 
   private void send(String to, String templateName, MultiValueMap<String, String> formData) {
     var template = findEmailTemplate(templateName);
-    log.info(WEBCLIENT_INFO, to, template, formData);
-
-    webClient.post().uri(uriBuilder -> messagesUri(uriBuilder, to, template))//
-        .body(BodyInserters.fromFormData(formData)).retrieve()//
-        .onStatus(HttpStatus::is4xxClientError, error -> {
-          log.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
-          return Mono.empty();
-        })//
-        .onStatus(HttpStatus::is5xxServerError, error -> {
-          log.error(WEBCLIENT_ERROR, error.statusCode(), error.bodyToMono(String.class));
-          return Mono.empty();
-        })//
-        .toBodilessEntity().subscribe();
+    log.info("webclient:send: to={}, template={}, formData={}", to, template, formData);
+    var request = new HttpEntity<>(formData, null);
+    restTemplate.postForEntity(messagesUri(to, template), request, String.class);
   }
 
-  private URI messagesUri(UriBuilder builder, String to, Template template) {
-    return builder.path("/messages")//
+  private URI messagesUri(String to, Template template) {
+    return UriComponentsBuilder
+        .fromHttpUrl(String.format(properties.getUrl(), properties.getDomain()).concat("/messages"))//
         .queryParam("from",
             String.format("%s <mailgun@%s.mailgun.org>", properties.getFrom().getName(), properties.getDomain()))//
         .queryParam("to", to)//
         .queryParam("subject", template.getSubject())//
-        .queryParam("template", template.getName())//
-        .build();
+        .queryParam("template", template.getName()).build().toUri();
+
   }
 
   private Template findEmailTemplate(String templateName) {

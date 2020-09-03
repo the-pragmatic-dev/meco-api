@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
-import io.restassured.mapper.factory.Jackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
 import io.restassured.specification.ResponseSpecification;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -44,6 +44,7 @@ import uk.thepragmaticdev.kms.dto.request.ScopeRequest;
 import uk.thepragmaticdev.security.request.DeviceMetadata;
 import uk.thepragmaticdev.security.request.GeoMetadata;
 import uk.thepragmaticdev.security.request.RequestMetadata;
+import uk.thepragmaticdev.text.dto.request.TextRequest;
 
 @Component
 public abstract class IntegrationData {
@@ -55,6 +56,7 @@ public abstract class IntegrationData {
   protected static final String ACCOUNTS_ENDPOINT = "http://localhost:8080/v1/accounts/";
   protected static final String API_KEY_ENDPOINT = "http://localhost:8080/v1/api-keys/";
   protected static final String BILLING_ENDPOINT = "http://localhost:8080/v1/billing/";
+  protected static final String TEXT_ENDPOINT = "http://localhost:8080/v1/text/";
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
 
   /**
@@ -106,6 +108,22 @@ public abstract class IntegrationData {
   }
 
   // @formatter:off
+
+  /**
+   * Create an api key header value with default credentials.
+   * @return An api key header value
+   */
+  protected String apiKey() {
+    return apiKey("rAosN1E.OGE0NDU3NDUtYTcyNS00Y2U3LWE2M2UtMzY2NzI2OGJhNzBh");
+  }
+
+  /**
+   * Create an api key header value with given credentials.
+   * @return An api key header value
+   */
+  protected String apiKey(String rawKey) {
+    return String.format("ApiKey %s", rawKey);
+  }
 
   /**
    * Authorize an account with default credentials.
@@ -202,6 +220,14 @@ public abstract class IntegrationData {
 
   protected final BillingCreateSubscriptionRequest billingCreateSubscriptionRequest(String price) {
     return new BillingCreateSubscriptionRequest(price);
+  }
+
+  protected final TextRequest textRequest() {
+    return new TextRequest("a very stupid comment");
+  }
+
+  protected final TextRequest textRequest(String text) {
+    return new TextRequest(text);
   }
 
   // @helpers:formatting
