@@ -1,14 +1,14 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
+name: Testing request
+about: Improve our testing of this project
 title: ''
-labels: t:feature
+labels: t:testing
 assignees: StephenCathcart
 ---
 
 **Description :thinking:**
 
-"As a [persona], I [want to], [so that]."
+Describe which area of the project needs new or improved tests and why.
 
 **Acceptance Criteria :tada:**
 
