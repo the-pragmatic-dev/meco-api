@@ -46,7 +46,6 @@
     <model.mapper.version>2.3.7</model.mapper.version>
     <okhttp3.version>4.0.1</okhttp3.version>
     <opencsv.version>5.1</opencsv.version>
-    <reactor.version>1.0.1.RELEASE</reactor.version>
     <rest.assured.version>4.2.0</rest.assured.version>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>the-pragmatic-dev</sonar.organization>
@@ -114,16 +113,6 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-webflux</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
       <exclusions>
         <exclusion>
@@ -155,12 +144,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-log4j2</artifactId>
-    </dependency>
-    <!-- reactor dependencies -->
-    <dependency>
-      <groupId>org.projectreactor</groupId>
-      <artifactId>reactor-spring</artifactId>
-      <version>${reactor.version}</version>
     </dependency>
     <!-- database dependencies -->
     <dependency>

@@ -22,6 +22,7 @@ class AsyncConfigTest {
 
   @Test()
   void shouldReturnValidExecutor() {
+    // TODO
     // var executor = (ThreadPoolTaskExecutor) sut.getAsyncExecutor();
     // assertThat(executor.getClass(), is(ThreadPoolTaskExecutor.class));
   }

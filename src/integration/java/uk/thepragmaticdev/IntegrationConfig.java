@@ -23,6 +23,7 @@ public class IntegrationConfig {
    */
   @Bean
   @Primary
+  @Profile("http-disabled")
   public RestTemplateBuilder mockRestTemplateBuilder() {
     var builder = mock(RestTemplateBuilder.class);
     var restTemplate = mock(RestTemplate.class);

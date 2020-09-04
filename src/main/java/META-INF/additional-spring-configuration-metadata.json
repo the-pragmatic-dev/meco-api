@@ -69,7 +69,7 @@
     {
       "name": "mailgun.url",
       "type": "java.lang.String",
-      "description": "Sets the Mailgun main domain template for this configuration."
+      "description": "Sets the Mailgun main domain for this configuration."
     },
     {
       "name": "mailgun.domain",
@@ -95,6 +95,11 @@
       "name": "mailgun.templates",
       "type": "java.util.List",
       "description": "Sets the list of available Mailgun email templates."
+    },
+    {
+      "name": "perspective.url",
+      "type": "java.lang.String",
+      "description": "Sets the Perspective main domain for this configuration."
     },
     {
       "name": "perspective.secret-key",

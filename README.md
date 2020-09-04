@@ -237,11 +237,12 @@ JWT claims contain both the account username and given roles.
 The following environment variables need to be set within Travis CI:
 
 
-| Name              | Value           |
-| ----------------- | --------------- |
-| GEOLITE_URL       | https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key={YOUR_LICENSE_KEY}&suffix=tar.gz |
-| SONAR_TOKEN       | {YOUR_SONAR_TOKEN}            |
-| STRIPE_SECRET_KEY | {YOUR_STRIPE_SECRET_TEST_KEY} |
+| Name                   | Value                         |
+| ---------------------- | ----------------------------- |
+| GEOLITE_URL            | https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key={YOUR_LICENSE_KEY}&suffix=tar.gz |
+| PERSPECTIVE_SECRET_KEY | {YOUR_PERSPECTIVE_SECRET_KEY} |
+| SONAR_TOKEN            | {YOUR_SONAR_TOKEN}            |
+| STRIPE_SECRET_KEY      | {YOUR_STRIPE_SECRET_TEST_KEY} |
 
 ## Monitoring
 

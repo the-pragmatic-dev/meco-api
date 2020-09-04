@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.kms.ApiKey;
@@ -43,8 +42,7 @@ public class TextController {
    * @return A detailed analysis of the given text
    */
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<AnalyseCommentResponse> analyse(ApiKeyAuthenticationToken token,
-      @Valid @RequestBody TextRequest request) {
+  public AnalyseCommentResponse analyse(ApiKeyAuthenticationToken token, @Valid @RequestBody TextRequest request) {
     if (!(token.getPrincipal() instanceof ApiKey)) {
       throw new ApiException(CriticalCode.AUTHENTICATION_ERROR);
     }

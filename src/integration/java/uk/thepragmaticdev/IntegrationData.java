@@ -10,6 +10,9 @@ import static org.hamcrest.Matchers.not;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
@@ -28,7 +31,7 @@ import org.cactoos.text.TextOf;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthRefreshRequest;
@@ -49,9 +52,6 @@ import uk.thepragmaticdev.text.dto.request.TextRequest;
 @Component
 public abstract class IntegrationData {
 
-  @Autowired
-  private ObjectMapper objectMapper;
-
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
 
   /**
@@ -64,9 +64,11 @@ public abstract class IntegrationData {
         .objectMapperConfig(objectMapperConfig().jackson2ObjectMapperFactory(new Jackson2ObjectMapperFactory() {
           @Override
           public ObjectMapper create(Type cls, String charset) {
-            objectMapper.disable(MapperFeature.USE_ANNOTATIONS);
-            objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-            return objectMapper;
+            var mapper = Jackson2ObjectMapperBuilder.json().modules(new JavaTimeModule(), new Jdk8Module()).build()
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+            mapper.disable(MapperFeature.USE_ANNOTATIONS);
+            mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+            return mapper;
           }
         }));
   }

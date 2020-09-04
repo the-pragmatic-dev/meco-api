@@ -121,7 +121,7 @@ public class EmailService {
 
   private void send(String to, String templateName, MultiValueMap<String, String> formData) {
     var template = findEmailTemplate(templateName);
-    log.info("webclient:send: to={}, template={}, formData={}", to, template, formData);
+    log.info("email:send: to={}, template={}, formData={}", to, template, formData);
     var request = new HttpEntity<>(formData, null);
     restTemplate.postForEntity(messagesUri(to, template), request, String.class);
   }

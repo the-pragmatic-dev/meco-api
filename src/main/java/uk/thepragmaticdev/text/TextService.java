@@ -1,11 +1,15 @@
 package uk.thepragmaticdev.text;
 
+import java.net.URI;
 import java.util.List;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+import uk.thepragmaticdev.exception.handler.RestTemplateErrorHandler;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.text.perspective.Attribute;
 import uk.thepragmaticdev.text.perspective.Comment;
@@ -13,26 +17,25 @@ import uk.thepragmaticdev.text.perspective.RequestedAttributes;
 import uk.thepragmaticdev.text.perspective.dto.request.AnalyseCommentRequest;
 import uk.thepragmaticdev.text.perspective.dto.response.AnalyseCommentResponse;
 
+@Log4j2
 @Service
 public class TextService {
 
-  private final String perspectiveSecretKey;
+  private final TextProperties properties;
 
-  private final WebClient webClient;
+  private final RestTemplate restTemplate;
 
   /**
    * Service for analysing text requests. Requests are routed through perspective
    * api models.
    * 
-   * @param perspectiveSecretKey The secret key for communicating with perspective
-   * @param webClientBuilder     The web client for building request
+   * @param properties Properties for communicating with perspective
+   * @param builder    The builder to create rest request
    */
   @Autowired
-  public TextService(@Value("${perspective.secret-key}") String perspectiveSecretKey,
-      WebClient.Builder webClientBuilder) {
-    this.perspectiveSecretKey = perspectiveSecretKey;
-    this.webClient = webClientBuilder.baseUrl(String.format("https://commentanalyzer.googleapis.com/v1alpha1/"))
-        .build();
+  public TextService(TextProperties properties, RestTemplateBuilder builder) {
+    this.properties = properties;
+    this.restTemplate = builder.errorHandler(new RestTemplateErrorHandler()).build();
   }
 
   /**
@@ -43,14 +46,15 @@ public class TextService {
    * @param apiKey The currently authenticated api key
    * @return A detailed analysis of the given text
    */
-  public Mono<AnalyseCommentResponse> analyse(String text, ApiKey apiKey) {
-    return this.webClient.post() //
-        .uri(uriBuilder -> uriBuilder //
-            .path("/comments:analyze") //
-            .queryParam("key", perspectiveSecretKey) //
-            .build())
-        .bodyValue(createAnalyseCommentRequest(text, apiKey)) //
-        .retrieve().bodyToMono(AnalyseCommentResponse.class);
+  public AnalyseCommentResponse analyse(String text, ApiKey apiKey) {
+    var request = new HttpEntity<>(createAnalyseCommentRequest(text, apiKey));
+    var response = restTemplate.postForEntity(analyseUri(), request, AnalyseCommentResponse.class);
+    return response.getBody();
+  }
+
+  private URI analyseUri() {
+    return UriComponentsBuilder.fromHttpUrl(properties.getUrl() + "/comments:analyze")//
+        .queryParam("key", properties.getSecretKey()).build().toUri();
   }
 
   private AnalyseCommentRequest createAnalyseCommentRequest(String text, ApiKey apiKey) {

@@ -6,9 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import reactor.core.publisher.Mono;
 import uk.thepragmaticdev.UnitData;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.CriticalCode;
@@ -71,20 +67,15 @@ class TextControllerTest extends UnitData {
     var textRequest = new TextRequest("a very naughty sentence");
 
     when(token.getPrincipal()).thenReturn(mock(ApiKey.class));
-    when(textService.analyse(anyString(), any(ApiKey.class))).thenReturn(Mono.just(analyseCommentResponse));
+    when(textService.analyse(anyString(), any(ApiKey.class))).thenReturn(analyseCommentResponse);
 
-    var result = mvc.perform(//
+    var body = mvc.perform(//
         MockMvcRequestBuilders.post("/v1/text") //
-            .principal(token) //
+            .principal(token)//
             .contentType(MediaType.APPLICATION_JSON) //
             .content(new Gson().toJson(textRequest)) //
             .accept(MediaType.APPLICATION_JSON) //
-    ).andExpect(request().asyncStarted()).andReturn();
-
-    result.getAsyncResult();
-
-    var body = mvc.perform(asyncDispatch(result)).andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn().getResponse().getContentAsString();
+    ).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
 
     var response = mapper.readValue(body, AnalyseCommentResponse.class);
     assertThat(response, is(analyseCommentResponse));
