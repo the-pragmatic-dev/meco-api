@@ -34,6 +34,11 @@ spring:
         locations: ${FLYWAY_LOCATIONS:classpath:/db/migration,classpath:/db/data/dev}
         clean-on-validation-error: ${FLYWAY_CLEAN_ON_VALIDATION_ERROR:true}
 
+async:
+    core-pool-size: 5
+    max-pool-size: 10
+    queue-capacity: 10
+
 security:
     token:
         secret-key: ${TOKEN_SECRET_KEY:secret-key}
