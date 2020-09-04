@@ -13,7 +13,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationConfig;
@@ -21,10 +23,15 @@ import uk.thepragmaticdev.IntegrationData;
 import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.exception.code.AuthCode;
 
+@ActiveProfiles({ "async-disabled" })
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class AuthEndpointIT extends IntegrationData {
+
+  @LocalServerPort
+  private int port;
+
   // @formatter:off
 
   /**
@@ -44,7 +51,7 @@ class AuthEndpointIT extends IntegrationData {
         .contentType(JSON)
         .body(request)
       .when()
-        .post(AUTH_ENDPOINT + "signin")
+        .post(authEndpoint(port) + "signin")
       .then()
           .body("status", is("BAD_REQUEST"))
           .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
@@ -61,7 +68,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "signin")
+      .post(authEndpoint(port) + "signin")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.CREDENTIALS_INVALID.getMessage()))
@@ -78,7 +85,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "signin")
+      .post(authEndpoint(port) + "signin")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.CREDENTIALS_INVALID.getMessage()))
@@ -95,7 +102,7 @@ class AuthEndpointIT extends IntegrationData {
         .contentType(JSON)
         .body(request)
       .when()
-        .post(AUTH_ENDPOINT + "signup")
+        .post(authEndpoint(port) + "signup")
       .then()
           .body("status", is("BAD_REQUEST"))
           .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
@@ -111,7 +118,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "signup")
+      .post(authEndpoint(port) + "signup")
     .then()
         .body("status", is("CONFLICT"))
         .body("message", is(AccountCode.USERNAME_UNAVAILABLE.getMessage()))
@@ -128,7 +135,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "signup")
+      .post(authEndpoint(port) + "signup")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -151,7 +158,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "signup")
+      .post(authEndpoint(port) + "signup")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -172,7 +179,7 @@ class AuthEndpointIT extends IntegrationData {
       .headers(headers())
       .queryParam("username", "garbage@username.com")
     .when()
-      .post(AUTH_ENDPOINT + "forgot")
+      .post(authEndpoint(port) + "forgot")
     .then()
         .body("status", is("NOT_FOUND"))
         .body("message", is(AccountCode.USERNAME_NOT_FOUND.getMessage()))
@@ -191,7 +198,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "reset")
+      .post(authEndpoint(port) + "reset")
     .then()
         .body("status", is("NOT_FOUND"))
         .body("message", is(AuthCode.PASSWORD_RESET_TOKEN_NOT_FOUND.getMessage()))
@@ -209,7 +216,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "reset")
+      .post(authEndpoint(port) + "reset")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -233,7 +240,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -255,7 +262,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -277,7 +284,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -299,7 +306,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -322,7 +329,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -344,7 +351,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -366,7 +373,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -387,7 +394,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is(AuthCode.REFRESH_TOKEN_EXPIRED.getMessage()))
@@ -402,7 +409,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("NOT_FOUND"))
         .body("message", is(AuthCode.REFRESH_TOKEN_NOT_FOUND.getMessage()))
@@ -417,7 +424,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
@@ -431,7 +438,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))

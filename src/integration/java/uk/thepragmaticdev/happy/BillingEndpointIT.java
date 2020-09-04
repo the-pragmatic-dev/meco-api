@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
@@ -32,7 +33,7 @@ import uk.thepragmaticdev.billing.dto.response.BillingPriceResponse;
 
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class BillingEndpointIT extends IntegrationData {
 
   private static final String TEST_USERNAME = "billing@integration.test";
@@ -40,6 +41,9 @@ class BillingEndpointIT extends IntegrationData {
   private static final String TEST_PASSWORD = "aTestPassword";
 
   private static final String TEST_PRICE = "price_HJ81NfOgFECuwS";
+
+  @LocalServerPort
+  private int port;
 
   @Autowired
   private AccountService accountService;
@@ -62,7 +66,7 @@ class BillingEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(authSignupRequest(TEST_USERNAME, TEST_PASSWORD))
     .when()
-      .post(AUTH_ENDPOINT + "signup")
+      .post(authEndpoint(port) + "signup")
     .then().statusCode(201);
   }
 
@@ -84,7 +88,7 @@ class BillingEndpointIT extends IntegrationData {
     var billingPrices = given()
         .headers(headers())
         .when()
-          .get(BILLING_ENDPOINT + "prices")
+          .get(billingEndpoint(port) + "prices")
         .then()
             .statusCode(200)
         .extract().body().jsonPath().getList(".", BillingPriceResponse.class);
@@ -107,11 +111,11 @@ class BillingEndpointIT extends IntegrationData {
     // account created within @BeforeEach
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD)))
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
       .contentType(JSON)
       .body(billingCreateSubscriptionRequest(TEST_PRICE))
     .when()
-      .post(BILLING_ENDPOINT + "subscriptions")
+      .post(billingEndpoint(port) + "subscriptions")
     .then().statusCode(201);
     var account = accountService.findAuthenticatedAccount(TEST_USERNAME);
     assertThat(account.getStripeSubscriptionId(), startsWith("sub_"));
@@ -126,9 +130,9 @@ class BillingEndpointIT extends IntegrationData {
     billingService.createSubscription(TEST_USERNAME, TEST_PRICE);
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD)))
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
     .when()
-      .delete(BILLING_ENDPOINT + "subscriptions")
+      .delete(billingEndpoint(port) + "subscriptions")
     .then().statusCode(204);
     var account = accountService.findAuthenticatedAccount(TEST_USERNAME);
     assertThat(account.getStripeSubscriptionId(), is(nullValue()));

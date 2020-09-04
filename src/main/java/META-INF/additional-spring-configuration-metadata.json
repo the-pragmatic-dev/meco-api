@@ -4,6 +4,9 @@
       "name": "kms"
     },
     {
+      "name": "async"
+    },
+    {
       "name": "security.token"
     },
     {
@@ -11,6 +14,9 @@
     },
     {
       "name": "mailgun"
+    },
+    {
+      "name": "perspective"
     },
     {
       "name": "mailgun.from"
@@ -24,6 +30,21 @@
       "name": "kms.api-key-limit",
       "type": "java.lang.Integer",
       "description": "Maximum number of API keys allowed per user account."
+    },
+    {
+      "name": "async.core-pool-size",
+      "type": "java.lang.Integer",
+      "description": "Set the ThreadPoolExecutor's core pool size. Default is 1."
+    },
+    {
+      "name": "async.max-pool-size",
+      "type": "java.lang.Integer",
+      "description": "Set the ThreadPoolExecutor's maximum pool size. Default is Integer.MAX_VALUE."
+    },
+    {
+      "name": "async.queue-capacity",
+      "type": "java.lang.Integer",
+      "description": "Set the capacity for the ThreadPoolExecutor's BlockingQueue. Default is Integer.MAX_VALUE."
     },
     {
       "name": "security.token.secret-key",
@@ -46,6 +67,11 @@
       "description": "Key used in backend code to send any request to Stripe's API."
     },
     {
+      "name": "mailgun.url",
+      "type": "java.lang.String",
+      "description": "Sets the Mailgun main domain template for this configuration."
+    },
+    {
       "name": "mailgun.domain",
       "type": "java.lang.String",
       "description": "Sets the Mailgun domain for this configuration."
@@ -53,7 +79,7 @@
     {
       "name": "mailgun.secret-key",
       "type": "java.lang.String",
-      "description": "Key used in backend code to send any request to Mailgun's API."
+      "description": "Key used in backend code to send any request to Mailguns' API."
     },
     {
       "name": "mailgun.from.name",
@@ -64,6 +90,16 @@
       "name": "mailgun.from.email",
       "type": "java.lang.String",
       "description": "Sets the default sender email for messages that do not specify an address themselves."
+    },
+    {
+      "name": "mailgun.templates",
+      "type": "java.util.List",
+      "description": "Sets the list of available Mailgun email templates."
+    },
+    {
+      "name": "perspective.secret-key",
+      "type": "java.lang.String",
+      "description": "Key used in backend code to send any request to Perspectives' API."
     },
     {
       "name": "geolite2.name",

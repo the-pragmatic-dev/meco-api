@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
@@ -21,8 +22,11 @@ import uk.thepragmaticdev.exception.code.BillingCode;
 
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class BillingEndpointIT extends IntegrationData {
+
+  @LocalServerPort
+  private int port;
 
   // @formatter:off
 
@@ -45,7 +49,7 @@ class BillingEndpointIT extends IntegrationData {
     .contentType(JSON)
     .body(billingCreateSubscriptionRequest("price_invalid"))
     .when()
-      .post(BILLING_ENDPOINT + "subscriptions")
+      .post(billingEndpoint(port) + "subscriptions")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -56,11 +60,11 @@ class BillingEndpointIT extends IntegrationData {
   void shouldNotCreateSubscriptionForInvalidPrice() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest()))
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(), port))
       .contentType(JSON)
       .body(billingCreateSubscriptionRequest("price_invalid"))
     .when()
-      .post(BILLING_ENDPOINT + "subscriptions")
+      .post(billingEndpoint(port) + "subscriptions")
     .then()
         .body("status", is("NOT_FOUND"))
         .body("message", is(BillingCode.STRIPE_PRICE_NOT_FOUND.getMessage()))
@@ -75,7 +79,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
-      .delete(BILLING_ENDPOINT + "subscriptions")
+      .delete(billingEndpoint(port) + "subscriptions")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -86,9 +90,9 @@ class BillingEndpointIT extends IntegrationData {
   void shouldNotCancelSubscriptionIfNoSubscriptionExists() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest()))
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(), port))
     .when()
-      .delete(BILLING_ENDPOINT + "subscriptions")
+      .delete(billingEndpoint(port) + "subscriptions")
     .then()
         .body("status", is("NOT_FOUND"))
         .body("message", is(BillingCode.STRIPE_SUBSCRIPTION_NOT_FOUND.getMessage()))

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
@@ -23,8 +24,12 @@ import uk.thepragmaticdev.exception.code.AuthCode;
 
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class AccountEndpointIT extends IntegrationData {
+
+  @LocalServerPort
+  private int port;
+
   // @formatter:off
 
   /**
@@ -43,7 +48,7 @@ class AccountEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me")
+      .get(accountEndpoint(port) + "me")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -62,7 +67,7 @@ class AccountEndpointIT extends IntegrationData {
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
       .body(request)
     .when()
-      .put(ACCOUNTS_ENDPOINT + "me")
+      .put(accountEndpoint(port) + "me")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -76,11 +81,11 @@ class AccountEndpointIT extends IntegrationData {
 
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
       .contentType(JSON)
       .body(request)
     .when()
-      .put(ACCOUNTS_ENDPOINT + "me")
+      .put(accountEndpoint(port) + "me")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -102,11 +107,11 @@ class AccountEndpointIT extends IntegrationData {
 
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
       .contentType(JSON)
       .body(request)
     .when()
-      .put(ACCOUNTS_ENDPOINT + "me")
+      .put(accountEndpoint(port) + "me")
     .then()
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
@@ -127,7 +132,7 @@ class AccountEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
+      .get(accountEndpoint(port) + "me/billing/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -142,7 +147,7 @@ class AccountEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
+      .get(accountEndpoint(port) + "me/billing/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -157,7 +162,7 @@ class AccountEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me/security/logs")
+      .get(accountEndpoint(port) + "me/security/logs")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -172,7 +177,7 @@ class AccountEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")
+      .get(accountEndpoint(port) + "me/security/logs/download")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -187,7 +192,7 @@ class AccountEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me/security/devices")
+      .get(accountEndpoint(port) + "me/security/devices")
     .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
@@ -202,7 +207,7 @@ class AccountEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
       .when()
-        .delete(ACCOUNTS_ENDPOINT + "me/security/devices")
+        .delete(accountEndpoint(port) + "me/security/devices")
       .then()
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))

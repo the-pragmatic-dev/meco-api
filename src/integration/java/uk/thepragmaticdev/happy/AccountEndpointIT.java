@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
@@ -35,8 +36,12 @@ import uk.thepragmaticdev.log.security.SecurityLog;
 
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class AccountEndpointIT extends IntegrationData {
+
+  @LocalServerPort
+  private int port;
+
   // @formatter:off
 
   /**
@@ -53,9 +58,9 @@ class AccountEndpointIT extends IntegrationData {
   void shouldReturnAuthenticatedAccount() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me")
+      .get(accountEndpoint(port) + "me")
     .then()
         .body("id", is(nullValue()))
         .body("stripe_customer_id", is(nullValue()))
@@ -83,10 +88,10 @@ class AccountEndpointIT extends IntegrationData {
     given()
       .headers(headers())
       .contentType(JSON)
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
       .body(request)
     .when()
-      .put(ACCOUNTS_ENDPOINT + "me")
+      .put(accountEndpoint(port) + "me")
     .then()
         .body("stripe_customer_id", is(nullValue()))
         .body("stripe_subscription_id", is(nullValue()))
@@ -111,10 +116,10 @@ class AccountEndpointIT extends IntegrationData {
     given()
       .contentType(JSON)
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
       .body(request)
     .when()
-      .put(ACCOUNTS_ENDPOINT + "me")
+      .put(accountEndpoint(port) + "me")
       .then()
         .body("stripe_customer_id", is(nullValue()))
         .body("stripe_subscription_id", is(nullValue()))
@@ -136,9 +141,9 @@ class AccountEndpointIT extends IntegrationData {
   void shouldReturnLatestBillingLogs() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me/billing/logs")
+      .get(accountEndpoint(port) + "me/billing/logs")
     .then()
         .body("number_of_elements", is(3))
         .body("content", hasSize(3))
@@ -163,9 +168,9 @@ class AccountEndpointIT extends IntegrationData {
   void shouldDownloadBillingLogs() throws IOException {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me/billing/logs/download")
+      .get(accountEndpoint(port) + "me/billing/logs/download")
     .then()
         .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, is(HttpHeaders.CONTENT_DISPOSITION))
         .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
@@ -179,9 +184,9 @@ class AccountEndpointIT extends IntegrationData {
   void shouldReturnLatestSecurityLogs() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(ACCOUNTS_ENDPOINT + "me/security/logs")
+      .get(accountEndpoint(port) + "me/security/logs")
     .then()
         .body("number_of_elements", is(4))
         .body("content", hasSize(4))
@@ -210,9 +215,9 @@ class AccountEndpointIT extends IntegrationData {
   void shouldDownloadSecurityLogs() throws IOException {
     var csv = given()
           .headers(headers())
-          .header(HttpHeaders.AUTHORIZATION, signin())
+          .header(HttpHeaders.AUTHORIZATION, signin(port))
         .when()
-          .get(ACCOUNTS_ENDPOINT + "me/security/logs/download")
+          .get(accountEndpoint(port) + "me/security/logs/download")
         .then()
           .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, is(HttpHeaders.CONTENT_DISPOSITION))
           .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
@@ -227,9 +232,9 @@ class AccountEndpointIT extends IntegrationData {
   void shouldReturnAllActiveDevices() {
     var devices = given()
         .headers(headers())
-        .header(HttpHeaders.AUTHORIZATION, signin())
+        .header(HttpHeaders.AUTHORIZATION, signin(port))
         .when()
-          .get(ACCOUNTS_ENDPOINT + "me/security/devices")
+          .get(accountEndpoint(port) + "me/security/devices")
         .then()
           .body("$", hasSize(3))
             .statusCode(200)
@@ -248,9 +253,9 @@ class AccountEndpointIT extends IntegrationData {
   void shouldDeleteAllActiveDevices() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
       .when()
-        .delete(ACCOUNTS_ENDPOINT + "me/security/devices")
+        .delete(accountEndpoint(port) + "me/security/devices")
       .then()
           .statusCode(204);
   }

@@ -21,7 +21,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationConfig;
@@ -32,11 +34,14 @@ import uk.thepragmaticdev.auth.AuthService;
 import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.email.EmailService;
 
+@ActiveProfiles({ "async-disabled" })
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class AuthEndpointIT extends IntegrationData {
-  // @formatter:off
+
+  @LocalServerPort
+  private int port;
 
   @Autowired
   private EmailService emailService;
@@ -49,6 +54,8 @@ class AuthEndpointIT extends IntegrationData {
 
   @Autowired
   private BillingService billingService;
+
+  // @formatter:off
 
   /**
    * Called before each integration test to reset database to default state.
@@ -70,7 +77,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "signup")
+      .post(authEndpoint(port) + "signup")
     .then()
         .body("access_token", is(not(emptyString())))
         .body("refresh_token", is(not(emptyString())))
@@ -93,7 +100,7 @@ class AuthEndpointIT extends IntegrationData {
       .headers(headers())
       .queryParam("username", "admin@email.com")
     .when()
-      .post(AUTH_ENDPOINT + "forgot")
+      .post(authEndpoint(port) + "forgot")
     .then()
         .statusCode(200);
   }
@@ -117,7 +124,7 @@ class AuthEndpointIT extends IntegrationData {
       .body(request)
       .queryParam("token", actual.getPasswordResetToken())
     .when()
-      .post(AUTH_ENDPOINT + "reset")
+      .post(authEndpoint(port) + "reset")
     .then()
         .statusCode(200);
   }
@@ -132,7 +139,7 @@ class AuthEndpointIT extends IntegrationData {
       .contentType(JSON)
       .body(request)
     .when()
-      .post(AUTH_ENDPOINT + "refresh")
+      .post(authEndpoint(port) + "refresh")
     .then()
         .body("access_token", is(not(emptyString())))
         .body("refresh_token", is(nullValue()))

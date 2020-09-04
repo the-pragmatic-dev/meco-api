@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
@@ -28,8 +29,12 @@ import uk.thepragmaticdev.kms.dto.response.ApiKeyCreateResponse;
 
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class ApiKeyEndpointIT extends IntegrationData {
+
+  @LocalServerPort
+  private int port;
+
   // @formatter:off
 
   /**
@@ -46,9 +51,9 @@ class ApiKeyEndpointIT extends IntegrationData {
   void shouldReturnAllKeysOwnedByAuthenticatedAccount() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(API_KEY_ENDPOINT)
+      .get(apiKeyEndpoint(port))
     .then()
         .body("$", hasSize(2))
         // first key
@@ -98,9 +103,9 @@ class ApiKeyEndpointIT extends IntegrationData {
   void shouldReturnKeyOwnedByAuthenticatedAccount() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(API_KEY_ENDPOINT + "1")
+      .get(apiKeyEndpoint(port) + "1")
     .then()
         .body("id", is(1))
         .body("name", is("Good Coffee Shop"))
@@ -132,11 +137,11 @@ class ApiKeyEndpointIT extends IntegrationData {
     var request = apiKeyCreateRequest();
     var response = given()
           .headers(headers())
-          .header(HttpHeaders.AUTHORIZATION, signin())
+          .header(HttpHeaders.AUTHORIZATION, signin(port))
           .contentType(JSON)
           .body(request)
         .when()
-          .post(API_KEY_ENDPOINT)
+          .post(apiKeyEndpoint(port))
         .then()
           .body("id", is(3))
           .body("name", is("name"))
@@ -167,11 +172,11 @@ class ApiKeyEndpointIT extends IntegrationData {
     request.setAccessPolicies(null);
     var response = given()
           .headers(headers())
-          .header(HttpHeaders.AUTHORIZATION, signin())
+          .header(HttpHeaders.AUTHORIZATION, signin(port))
           .contentType(JSON)
           .body(request)
         .when()
-          .post(API_KEY_ENDPOINT)
+          .post(apiKeyEndpoint(port))
         .then()
           .body("id", is(3))
           .body("name", is("name"))
@@ -199,10 +204,10 @@ class ApiKeyEndpointIT extends IntegrationData {
     given()
       .contentType(JSON)
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
       .body(request)
     .when()
-      .put(API_KEY_ENDPOINT + "1")
+      .put(apiKeyEndpoint(port) + "1")
       .then()
         .body("id", is(1))
         .body("name", is(request.getName()))
@@ -232,10 +237,10 @@ class ApiKeyEndpointIT extends IntegrationData {
     given()
       .contentType(JSON)
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
       .body(request)
     .when()
-      .put(API_KEY_ENDPOINT + "1")
+      .put(apiKeyEndpoint(port) + "1")
       .then()
         .body("id", is(1))
         .body("name", is(request.getName()))
@@ -265,17 +270,17 @@ class ApiKeyEndpointIT extends IntegrationData {
   void shouldDeleteKey() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .delete(API_KEY_ENDPOINT + "1")
+      .delete(apiKeyEndpoint(port) + "1")
     .then()
         .body(is(emptyString()))
         .statusCode(204);
     // check count has reduced
     given()
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(API_KEY_ENDPOINT + "count")
+      .get(apiKeyEndpoint(port) + "count")
       .then()
         .body(is("1"))
         .statusCode(200);
@@ -287,9 +292,9 @@ class ApiKeyEndpointIT extends IntegrationData {
   void shouldReturnLatestLogsForKey() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(API_KEY_ENDPOINT + "1/logs")
+      .get(apiKeyEndpoint(port) + "1/logs")
     .then()
         .body("number_of_elements", is(3))
         .body("content", hasSize(3))
@@ -314,9 +319,9 @@ class ApiKeyEndpointIT extends IntegrationData {
   void shouldDownloadKeyLogs() throws IOException {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(API_KEY_ENDPOINT + "1/logs/download")
+      .get(apiKeyEndpoint(port) + "1/logs/download")
     .then()
         .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, is(HttpHeaders.CONTENT_DISPOSITION))
         .header(HttpHeaders.CONTENT_DISPOSITION, startsWith("attachment; filename="))
@@ -330,9 +335,9 @@ class ApiKeyEndpointIT extends IntegrationData {
   void shouldReturnKeyCountOfAuthenticatedAccount() {
     given()
       .headers(headers())
-      .header(HttpHeaders.AUTHORIZATION, signin())
+      .header(HttpHeaders.AUTHORIZATION, signin(port))
     .when()
-      .get(API_KEY_ENDPOINT + "count")
+      .get(apiKeyEndpoint(port) + "count")
       .then()
         .body(is("2"))
         .statusCode(200);

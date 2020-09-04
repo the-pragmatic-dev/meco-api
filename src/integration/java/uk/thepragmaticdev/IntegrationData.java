@@ -52,11 +52,6 @@ public abstract class IntegrationData {
   @Autowired
   private ObjectMapper objectMapper;
 
-  protected static final String AUTH_ENDPOINT = "http://localhost:8080/v1/auth/";
-  protected static final String ACCOUNTS_ENDPOINT = "http://localhost:8080/v1/accounts/";
-  protected static final String API_KEY_ENDPOINT = "http://localhost:8080/v1/api-keys/";
-  protected static final String BILLING_ENDPOINT = "http://localhost:8080/v1/billing/";
-  protected static final String TEXT_ENDPOINT = "http://localhost:8080/v1/text/";
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
 
   /**
@@ -74,6 +69,26 @@ public abstract class IntegrationData {
             return objectMapper;
           }
         }));
+  }
+
+  protected String authEndpoint(int port) {
+    return String.format("http://localhost:%d/v1/auth/", port);
+  }
+
+  protected String accountEndpoint(int port) {
+    return String.format("http://localhost:%d/v1/accounts/", port);
+  }
+
+  protected String apiKeyEndpoint(int port) {
+    return String.format("http://localhost:%d/v1/api-keys/", port);
+  }
+
+  protected String billingEndpoint(int port) {
+    return String.format("http://localhost:%d/v1/billing/", port);
+  }
+
+  protected String textEndpoint(int port) {
+    return String.format("http://localhost:%d/v1/text/", port);
   }
 
   /**
@@ -129,22 +144,22 @@ public abstract class IntegrationData {
    * Authorize an account with default credentials.
    * @return An authentication token
    */
-  protected String signin() {
-    return signin(authSigninRequest());
+  protected String signin(int port) {
+    return signin(authSigninRequest(), port);
   }
 
   /**
    * Authorize an account with given credentials.
    * @return An authentication token
    */
-  protected String signin(AuthSigninRequest request) {
+  protected String signin(AuthSigninRequest request, int port) {
     return token(
       given()
         .headers(headers())
         .contentType(JSON)
         .body(request)
       .when()
-        .post(AUTH_ENDPOINT + "signin")
+        .post(authEndpoint(port) + "signin")
       .then()
           .body("access_token", is(not(emptyString())))
           .body("refresh_token", is(not(emptyString())))

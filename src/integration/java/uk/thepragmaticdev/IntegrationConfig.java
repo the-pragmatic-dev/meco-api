@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
 import uk.thepragmaticdev.email.EmailService;
 
@@ -33,6 +34,7 @@ public class IntegrationConfig {
 
   @Bean
   @Primary
+  @Profile("async-disabled")
   public EmailService mockEmailService() {
     return mock(EmailService.class);
   }
