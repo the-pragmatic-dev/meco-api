@@ -84,9 +84,6 @@ mailgun:
         subject: 'A key was deleted from your account'
 
 perspective:
-    secret-key: ${PERSPECTIVE_SECRET_KEY:secret_key}
-    
-perspective:
     url: ${PERSPECTIVE_URL:https://commentanalyzer.googleapis.com/v1alpha1}
     secret-key: ${PERSPECTIVE_SECRET_KEY:secret_key}
             
