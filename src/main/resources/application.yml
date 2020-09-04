@@ -85,6 +85,10 @@ mailgun:
 
 perspective:
     secret-key: ${PERSPECTIVE_SECRET_KEY:secret_key}
+    
+perspective:
+    url: ${PERSPECTIVE_URL:https://commentanalyzer.googleapis.com/v1alpha1}
+    secret-key: ${PERSPECTIVE_SECRET_KEY:secret_key}
             
 kms:
     api-key-limit: ${API_KEY_LIMIT:10}
