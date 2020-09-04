@@ -34,6 +34,11 @@ spring:
         locations: ${FLYWAY_LOCATIONS:classpath:/db/migration,classpath:/db/data/dev}
         clean-on-validation-error: ${FLYWAY_CLEAN_ON_VALIDATION_ERROR:true}
 
+async:
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:5}
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:10}
+    queue-capacity: ${ASYNC_QUEUE_CAPACITY:10}
+
 security:
     token:
         secret-key: ${TOKEN_SECRET_KEY:secret-key}
@@ -79,6 +84,10 @@ mailgun:
         subject: 'A key was deleted from your account'
 
 perspective:
+    secret-key: ${PERSPECTIVE_SECRET_KEY:secret_key}
+    
+perspective:
+    url: ${PERSPECTIVE_URL:https://commentanalyzer.googleapis.com/v1alpha1}
     secret-key: ${PERSPECTIVE_SECRET_KEY:secret_key}
             
 kms:
