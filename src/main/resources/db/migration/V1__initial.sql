@@ -26,7 +26,7 @@ DROP INDEX IF EXISTS account_password_reset_token_idx;
 -- Account --------------------------------------
 CREATE TABLE account (
     id BIGSERIAL PRIMARY KEY,
-    stripe_customer_id TEXT UNIQUE NOT NULL,
+    stripe_customer_id TEXT UNIQUE,
     stripe_subscription_id TEXT,
     stripe_subscription_item_id TEXT,
     username TEXT UNIQUE NOT NULL,

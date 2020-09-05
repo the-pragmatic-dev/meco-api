@@ -111,7 +111,6 @@ public class AuthService {
       try {
         return createTokenPair(persistedAccount, requestMetadataService.extractRequestMetadata(request));
       } catch (ApiException ex) {
-        accountService.deleteStripeCustomer(persistedAccount.getStripeCustomerId());
         throw new ApiException(AuthCode.REQUEST_METADATA_INVALID);
       }
     } else {

@@ -82,9 +82,8 @@ class AuthEndpointIT extends IntegrationData {
         .body("access_token", is(not(emptyString())))
         .body("refresh_token", is(not(emptyString())))
         .statusCode(201);
-    // clean up stripe customer created on account creation
+
     var account = accountService.findAuthenticatedAccount("auth@integration.test");
-    billingService.deleteCustomer(account.getStripeCustomerId());
     // email and billing should be false by default on new accounts
     assertThat(account.getEmailSubscriptionEnabled(), is(false));
     assertThat(account.getBillingAlertEnabled(), is(false));

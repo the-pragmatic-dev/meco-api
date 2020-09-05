@@ -35,7 +35,7 @@ public class Account implements Model {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = true)
   private String stripeCustomerId;
 
   private String stripeSubscriptionId;

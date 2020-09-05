@@ -53,12 +53,29 @@ class BillingServiceTest extends UnitData {
 
   @Test
   void shouldThrowExceptionOnStripeErrorWhenCreatingCustomer() throws Exception {
+    var account = mock(Account.class);
+    when(account.getStripeCustomerId()).thenReturn(null);
+    when(account.getUsername()).thenReturn("user@name.com");
+    when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
+
     doThrow(ApiConnectionException.class).when(stripeService).createCustomer(anyMap());
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
       sut.createCustomer("username");
     });
     assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_CREATE_CUSTOMER_ERROR));
+  }
+
+  @Test
+  void shouldThrowExceptionOnStripeConflictWhenCreatingCustomer() throws Exception {
+    var account = mock(Account.class);
+    when(account.getStripeCustomerId()).thenReturn("existingcustomerid");
+    when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
+
+    var ex = Assertions.assertThrows(ApiException.class, () -> {
+      sut.createCustomer("username");
+    });
+    assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_CREATE_CUSTOMER_CONFLICT));
   }
 
   @Test

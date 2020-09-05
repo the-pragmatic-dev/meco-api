@@ -35,7 +35,6 @@ curl https://api.stripe.com/v1/products \
   -d id='prod_pro' \
   -d active=true \
   -d description='Pro product description...' \
-  -d description='Starter product...' \
   -d name='Pro' \
   -d statement_descriptor='TPD LTD MECO' \
   -d type='service' \
@@ -134,7 +133,7 @@ curl https://api.stripe.com/v1/prices \
   -d currency=gbp \
   -d nickname='Pro Price Yearly' \
   -d 'recurring[aggregate_usage]'=sum \
-  -d 'recurring[interval]'=month \
+  -d 'recurring[interval]'=year \
   -d 'recurring[interval_count]'=1 \
   -d 'recurring[usage_type]'=metered \
   -d tiers_mode=graduated \

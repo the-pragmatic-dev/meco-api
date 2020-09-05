@@ -42,6 +42,17 @@ public class BillingController {
   }
 
   /**
+   * Create a new stripe customer and associate it with the given account.
+   * 
+   * @param principal The currently authenticated principal user
+   */
+  @PostMapping
+  @ResponseStatus(value = HttpStatus.CREATED)
+  public void createCustomer(Principal principal) {
+    billingService.createCustomer(principal.getName());
+  }
+
+  /**
    * Find all active prices held by stripe.
    * 
    * @return A list of all active prices held by stripe

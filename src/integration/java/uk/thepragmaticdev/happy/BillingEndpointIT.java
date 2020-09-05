@@ -40,7 +40,7 @@ class BillingEndpointIT extends IntegrationData {
 
   private static final String TEST_PASSWORD = "aTestPassword";
 
-  private static final String TEST_PRICE = "price_HJ81NfOgFECuwS";
+  private static final String TEST_PRICE = "price_1HO7M3BH6611072qpfZ3scEU";
 
   @LocalServerPort
   private int port;
@@ -61,12 +61,21 @@ class BillingEndpointIT extends IntegrationData {
   @BeforeEach
   @FlywayTest
   public void initEach() {
+    // Create a new account
     given()
       .headers(headers())
       .contentType(JSON)
       .body(authSignupRequest(TEST_USERNAME, TEST_PASSWORD))
     .when()
       .post(authEndpoint(port) + "signup")
+    .then().statusCode(201);
+    // Create a new Stripe customer for account
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
+      .contentType(JSON)
+    .when()
+      .post(billingEndpoint(port))
     .then().statusCode(201);
   }
 
