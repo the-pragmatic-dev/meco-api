@@ -49,6 +49,8 @@ public class TextService {
   public AnalyseCommentResponse analyse(String text, ApiKey apiKey) {
     var request = new HttpEntity<>(createAnalyseCommentRequest(text, apiKey));
     var response = restTemplate.postForEntity(analyseUri(), request, AnalyseCommentResponse.class);
+    // TODO check response code. If ok charge customer an operation and return
+    // result.
     return response.getBody();
   }
 
