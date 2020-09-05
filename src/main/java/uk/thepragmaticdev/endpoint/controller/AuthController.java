@@ -107,6 +107,6 @@ public class AuthController {
     var accessToken = authService.refresh(refresh.getAccessToken(), //
         UUID.fromString(refresh.getRefreshToken()), //
         request);
-    return modelMapper.map(accessToken, AuthRefreshResponse.class);
+    return new AuthRefreshResponse(accessToken);
   }
 }

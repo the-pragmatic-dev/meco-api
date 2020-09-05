@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.thepragmaticdev.UnitData;
 import uk.thepragmaticdev.auth.AuthService;
+import uk.thepragmaticdev.auth.dto.request.AuthRefreshRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthSigninRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthSignupRequest;
 import uk.thepragmaticdev.auth.dto.response.AuthSigninResponse;
@@ -94,6 +96,19 @@ class AuthControllerTest extends UnitData {
 
     assertThat(response.getAccessToken(), is(tokenPair.getAccessToken()));
     assertThat(response.getRefreshToken(), is(tokenPair.getRefreshToken()));
+  }
+
+  @Test
+  void shouldMapToAuthRefreshResponse() throws Exception {
+    var expectedToken = "newAccessToken";
+    var authRefreshRequest = new AuthRefreshRequest("expiredAccessToken", UUID.randomUUID().toString());
+
+    when(authService.refresh(anyString(), any(UUID.class), any(HttpServletRequest.class))).thenReturn(expectedToken);
+
+    var mockRequest = mock(HttpServletRequest.class);
+    var response = sut.refresh(mockRequest, authRefreshRequest);
+
+    assertThat(response.getAccessToken(), is(expectedToken));
   }
 
 }

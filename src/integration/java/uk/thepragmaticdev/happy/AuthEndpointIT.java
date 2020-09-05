@@ -141,6 +141,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("access_token", is(not(nullValue())))
         .body("access_token", is(not(emptyString())))
         .body("refresh_token", is(nullValue()))
         .statusCode(201);

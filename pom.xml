@@ -43,7 +43,7 @@
     <maven.failsafe.plugin.version>3.0.0-M1</maven.failsafe.plugin.version>
     <maven.help.plugin.version>3.2.0</maven.help.plugin.version>
     <maven.surefire.plugin.version>3.0.0-M1</maven.surefire.plugin.version>
-    <model.mapper.version>2.3.7</model.mapper.version>
+    <model.mapper.version>2.3.8</model.mapper.version>
     <okhttp3.version>4.0.1</okhttp3.version>
     <opencsv.version>5.1</opencsv.version>
     <rest.assured.version>4.2.0</rest.assured.version>
