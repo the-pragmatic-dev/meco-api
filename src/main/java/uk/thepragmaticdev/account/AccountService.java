@@ -143,7 +143,7 @@ public class AccountService {
     if (billingAlertEnabled == null) {
       return;
     }
-    if (account.getBillingAlertEnabled() != billingAlertEnabled) {
+    if (!account.getBillingAlertEnabled().equals(billingAlertEnabled)) {
       securityLogService.billingAlertEnabled(account, billingAlertEnabled);
       account.setBillingAlertEnabled(billingAlertEnabled);
     }
@@ -153,7 +153,7 @@ public class AccountService {
     if (emailSubscriptionEnabled == null) {
       return;
     }
-    if (account.getEmailSubscriptionEnabled() != emailSubscriptionEnabled) {
+    if (!account.getEmailSubscriptionEnabled().equals(emailSubscriptionEnabled)) {
       securityLogService.emailSubscriptionEnabled(account, emailSubscriptionEnabled);
       account.setEmailSubscriptionEnabled(emailSubscriptionEnabled);
     }
