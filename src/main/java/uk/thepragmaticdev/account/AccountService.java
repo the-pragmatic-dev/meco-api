@@ -29,8 +29,6 @@ public class AccountService {
 
   private final AccountRepository accountRepository;
 
-  private final BillingService billingService;
-
   private final BillingLogService billingLogService;
 
   private final SecurityLogService securityLogService;
@@ -40,7 +38,6 @@ public class AccountService {
    * authorised account may also be downloaded.
    * 
    * @param accountRepository  The data access repository for accounts
-   * @param billingService     The service for handling payments
    * @param billingLogService  The service for accessing billing logs
    * @param securityLogService The service for accessing security logs
    */
@@ -51,7 +48,6 @@ public class AccountService {
       BillingLogService billingLogService, //
       SecurityLogService securityLogService) {
     this.accountRepository = accountRepository;
-    this.billingService = billingService;
     this.billingLogService = billingLogService;
     this.securityLogService = securityLogService;
   }
@@ -105,7 +101,6 @@ public class AccountService {
     account.setEmailSubscriptionEnabled(false);
     account.setBillingAlertEnabled(false);
     account.setCreatedDate(OffsetDateTime.now());
-    account.setStripeCustomerId(billingService.createCustomer(account.getUsername()));
     return accountRepository.save(account);
   }
 
@@ -240,6 +235,17 @@ public class AccountService {
   }
 
   /**
+   * Persists the accounts new stripe customer id.
+   * 
+   * @param persistedAccount An authenticated account entity
+   * @param stripeCustomerId The id of the new stripe customer
+   */
+  public void saveCustomerId(Account persistedAccount, String stripeCustomerId) {
+    persistedAccount.setStripeCustomerId(stripeCustomerId);
+    accountRepository.save(persistedAccount);
+  }
+
+  /**
    * Persists the accounts new stripe subscription.
    * 
    * @param persistedAccount         An authenticated account entity
@@ -294,14 +300,5 @@ public class AccountService {
     persistedAccount.setPasswordResetToken(null);
     persistedAccount.setPasswordResetTokenExpire(null);
     return accountRepository.save(persistedAccount);
-  }
-
-  /**
-   * Delete a stripe customer.
-   * 
-   * @param stripeCustomerId The unique stripe customer identifier
-   */
-  public void deleteStripeCustomer(String stripeCustomerId) {
-    billingService.deleteCustomer(stripeCustomerId);
   }
 }

@@ -50,16 +50,21 @@ public class BillingService {
   }
 
   /**
-   * Create a new stripe customer.
+   * Create a new stripe customer for an authenticated account.
    * 
-   * @param username The email address of the account
-   * @return The stripe customer id
+   * @param username The authenticated account username
    */
-  public String createCustomer(String username) {
-    Map<String, Object> params = Map.of("email", username, "description", "MECO Account", "metadata",
-        Map.of("username", username));
+  public void createCustomer(String username) {
+    var account = accountService.findAuthenticatedAccount(username);
+    if (!StringUtils.isBlank(account.getStripeCustomerId())) {
+      throw new ApiException(BillingCode.STRIPE_CREATE_CUSTOMER_CONFLICT);
+    }
+    var params = Map.of("email", account.getUsername(), //
+        "description", "MECO Account", //
+        "metadata", Map.of("username", account.getUsername()));
     try {
-      return stripeService.createCustomer(params).getId();
+      var stripeCustomerId = stripeService.createCustomer(params).getId();
+      accountService.saveCustomerId(account, stripeCustomerId);
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CREATE_CUSTOMER_ERROR);
     }
@@ -138,7 +143,7 @@ public class BillingService {
   }
 
   /**
-   * Find all usage records for subscriptio item held by stripe.
+   * Find all usage records for subscription item held by stripe.
    * 
    * @param username The authenticated account username
    * @return A list of all usage records for subscription item

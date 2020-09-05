@@ -42,6 +42,19 @@ class BillingEndpointIT extends IntegrationData {
   // @endpoint:create-subscription
 
   @Test
+  void shouldNotCreateStripeCustomerIfCustomerAlreadyExists() {
+    given()
+    .headers(headers())
+    .header(HttpHeaders.AUTHORIZATION, signin(port))
+    .when()
+      .post(billingEndpoint(port))
+    .then()
+        .body("status", is("CONFLICT"))
+        .body("message", is(BillingCode.STRIPE_CREATE_CUSTOMER_CONFLICT.getMessage()))
+        .statusCode(409);
+  }
+
+  @Test
   void shouldNotCreateSubscriptionWhenTokenIsInvalid() {
     given()
     .headers(headers())
