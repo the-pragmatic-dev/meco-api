@@ -1,7 +1,7 @@
 package uk.thepragmaticdev.security.key;
 
+import lombok.EqualsAndHashCode;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * An {@link org.springframework.security.core.Authentication} implementation
@@ -9,13 +9,13 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * <code>principal</code> should be set to an
  * {@link uk.thepragmaticdev.kms.ApiKey}.
  */
+@SuppressWarnings("serial")
+@EqualsAndHashCode(callSuper = true)
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
-  private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+  private final transient Object principal;
 
-  private final Object principal;
-
-  private Object credentials;
+  private transient Object credentials;
 
   /**
    * Produce a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
@@ -44,7 +44,7 @@ public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
    * trusted token.
    */
   @Override
-  public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+  public void setAuthenticated(boolean isAuthenticated) {
     if (isAuthenticated) {
       throw new IllegalArgumentException("Cannot set this token to trusted - use constructor instead.");
     }

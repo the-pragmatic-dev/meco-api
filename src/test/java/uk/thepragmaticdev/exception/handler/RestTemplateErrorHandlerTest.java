@@ -17,7 +17,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import uk.thepragmaticdev.exception.ApiException;
 
 @SpringBootTest
-public class RestTemplateErrorHandlerTest {
+class RestTemplateErrorHandlerTest {
 
   private RestTemplateErrorHandler sut;
 
