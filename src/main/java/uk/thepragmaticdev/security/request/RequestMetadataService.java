@@ -156,7 +156,6 @@ public class RequestMetadataService {
    * @return The geolocation and device metadata
    */
   public Optional<RequestMetadata> verifyRequest(Account account, HttpServletRequest request) {
-    // TODO: Unit test
     var requestMetadata = extractRequestMetadata(request);
     requestMetadata.ifPresent(r -> verifyRequestMetadata(account, r));
     return requestMetadata;
@@ -197,10 +196,11 @@ public class RequestMetadataService {
    */
   public Optional<RequestMetadata> extractRequestMetadata(HttpServletRequest request) {
     try {
-      var geoMetadata = extractGeoMetadata(request);
+      var ip = extractIp(request);
+      var geoMetadata = extractGeoMetadata(request, ip);
       var deviceMetadata = extractDeviceMetadata(request);
       return Optional.of(new RequestMetadata(//
-          extractIp(request), //
+          ip, //
           geoMetadata, //
           deviceMetadata));
     } catch (GeoIp2Exception ex) {
@@ -211,8 +211,8 @@ public class RequestMetadataService {
     return Optional.empty();
   }
 
-  private GeoMetadata extractGeoMetadata(HttpServletRequest request) throws GeoIp2Exception, IOException {
-    var ipAddress = InetAddress.getByName(extractIp(request));
+  private GeoMetadata extractGeoMetadata(HttpServletRequest request, String host) throws GeoIp2Exception, IOException {
+    var ipAddress = InetAddress.getByName(host);
     var response = databaseReader.city(ipAddress);
     return new GeoMetadata(//
         response.getCity() == null ? "" : response.getCity().getName(), //

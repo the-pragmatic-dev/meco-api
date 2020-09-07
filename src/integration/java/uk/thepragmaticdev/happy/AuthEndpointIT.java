@@ -31,7 +31,6 @@ import uk.thepragmaticdev.IntegrationData;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.auth.AuthService;
-import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.email.EmailService;
 
 @ActiveProfiles({ "async-disabled", "http-disabled" })
@@ -51,9 +50,6 @@ class AuthEndpointIT extends IntegrationData {
 
   @Autowired
   private AuthService authService;
-
-  @Autowired
-  private BillingService billingService;
 
   // @formatter:off
 
