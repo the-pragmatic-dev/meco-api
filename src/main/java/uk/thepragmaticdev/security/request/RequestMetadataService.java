@@ -197,7 +197,7 @@ public class RequestMetadataService {
   public Optional<RequestMetadata> extractRequestMetadata(HttpServletRequest request) {
     try {
       var ip = extractIp(request);
-      var geoMetadata = extractGeoMetadata(request, ip);
+      var geoMetadata = extractGeoMetadata(ip);
       var deviceMetadata = extractDeviceMetadata(request);
       return Optional.of(new RequestMetadata(//
           ip, //
@@ -211,7 +211,7 @@ public class RequestMetadataService {
     return Optional.empty();
   }
 
-  private GeoMetadata extractGeoMetadata(HttpServletRequest request, String host) throws GeoIp2Exception, IOException {
+  private GeoMetadata extractGeoMetadata(String host) throws GeoIp2Exception, IOException {
     var ipAddress = InetAddress.getByName(host);
     var response = databaseReader.city(ipAddress);
     return new GeoMetadata(//
