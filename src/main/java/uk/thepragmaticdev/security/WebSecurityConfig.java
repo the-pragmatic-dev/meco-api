@@ -73,7 +73,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .anyRequest().authenticated();
 
     // authentication error response
-    http.exceptionHandling().authenticationEntryPoint((req, res, e) -> authenticationEntryPoint(req, res));
+    http.exceptionHandling().authenticationEntryPoint((req, res, e) -> authenticationEntryPoint(res));
 
     // if a user tries to access a resource without having enough permissions
     http.exceptionHandling().accessDeniedPage("/login");
@@ -85,7 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     http.apply(new ApiKeyFilterConfigurer(apiKeyService));
   }
 
-  private void authenticationEntryPoint(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  private void authenticationEntryPoint(HttpServletResponse response) throws IOException {
     var responseBody = new ApiError(//
         AuthCode.AUTH_HEADER_INVALID.getStatus(), //
         AuthCode.AUTH_HEADER_INVALID.getMessage() //
