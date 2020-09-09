@@ -36,15 +36,18 @@ import uk.thepragmaticdev.UnitData;
 import uk.thepragmaticdev.kms.AccessPolicy;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.kms.ApiKeyService;
-import uk.thepragmaticdev.kms.Scope;
 import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyUpdateRequest;
 import uk.thepragmaticdev.kms.dto.request.ScopeRequest;
+import uk.thepragmaticdev.kms.dto.request.TextScopeRequest;
 import uk.thepragmaticdev.kms.dto.response.AccessPolicyResponse;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyCreateResponse;
 import uk.thepragmaticdev.kms.dto.response.ApiKeyResponse;
 import uk.thepragmaticdev.kms.dto.response.ScopeResponse;
+import uk.thepragmaticdev.kms.dto.response.TextScopeResponse;
+import uk.thepragmaticdev.kms.scope.Scope;
+import uk.thepragmaticdev.kms.scope.TextScope;
 import uk.thepragmaticdev.log.dto.ApiKeyLogResponse;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 import uk.thepragmaticdev.security.request.RequestMetadata;
@@ -193,8 +196,17 @@ class ApiKeyControllerTest extends UnitData {
   private void assertValidScope(ScopeResponse actual, Scope expected) {
     assertThat(actual.getImage(), is(expected.getImage()));
     assertThat(actual.getGif(), is(expected.getGif()));
-    assertThat(actual.getText(), is(expected.getText()));
+    assertValidTextScope(actual.getText(), expected.getTextScope());
     assertThat(actual.getVideo(), is(expected.getVideo()));
+  }
+
+  private void assertValidTextScope(TextScopeResponse textScopeResponse, TextScope textScope) {
+    assertThat(textScopeResponse.getToxicity(), is(textScope.getToxicity()));
+    assertThat(textScopeResponse.getSevereToxicity(), is(textScope.getSevereToxicity()));
+    assertThat(textScopeResponse.getIdentityAttack(), is(textScope.getIdentityAttack()));
+    assertThat(textScopeResponse.getInsult(), is(textScope.getInsult()));
+    assertThat(textScopeResponse.getProfanity(), is(textScope.getProfanity()));
+    assertThat(textScopeResponse.getThreat(), is(textScope.getThreat()));
   }
 
   private void assertValidAccessPolicy(AccessPolicyResponse actual, AccessPolicy expected) {
@@ -218,7 +230,11 @@ class ApiKeyControllerTest extends UnitData {
   }
 
   private Scope scope(long id, ApiKey key) {
-    return new Scope(id, true, true, true, true, key);
+    return new Scope(id, true, true, textScope(), true, key);
+  }
+
+  private TextScope textScope() {
+    return new TextScope(true, true, true, true, true, true);
   }
 
   private AccessPolicy accessPolicy(long id, ApiKey key) {
@@ -226,7 +242,11 @@ class ApiKeyControllerTest extends UnitData {
   }
 
   private ScopeRequest scopeRequest() {
-    return new ScopeRequest(true, true, true, true);
+    return new ScopeRequest(true, true, textScopeRequest(), true);
+  }
+
+  private TextScopeRequest textScopeRequest() {
+    return new TextScopeRequest(true, true, true, true, true, true);
   }
 
   private AccessPolicyRequest accessPolicyRequest() {

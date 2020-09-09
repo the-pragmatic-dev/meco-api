@@ -26,6 +26,8 @@ import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
+import uk.thepragmaticdev.kms.scope.Scope;
+import uk.thepragmaticdev.kms.scope.TextScope;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 import uk.thepragmaticdev.log.key.ApiKeyLogService;
 import uk.thepragmaticdev.log.security.SecurityLogService;
@@ -150,6 +152,9 @@ public class ApiKeyService {
     if (apiKey.getScope() == null) {
       apiKey.setScope(new Scope());
     }
+    if (apiKey.getScope().getTextScope() == null) {
+      apiKey.getScope().setTextScope(new TextScope());
+    }
     apiKey.getScope().setApiKey(apiKey);
   }
 
@@ -205,13 +210,40 @@ public class ApiKeyService {
       apiKeyLogService.scope(persistedApiKey, "gif", scope.getGif());
       persistedScope.setGif(scope.getGif());
     }
-    if (persistedScope.getText() != scope.getText()) { // update text scope
-      apiKeyLogService.scope(persistedApiKey, "text", scope.getText());
-      persistedScope.setText(scope.getText());
-    }
+    updateTextScope(persistedApiKey, scope);
     if (persistedScope.getVideo() != scope.getVideo()) { // update video scope
       apiKeyLogService.scope(persistedApiKey, "video", scope.getVideo());
       persistedScope.setVideo(scope.getVideo());
+    }
+  }
+
+  private void updateTextScope(ApiKey persistedApiKey, Scope scope) {
+    var persistedTextScope = persistedApiKey.getScope().getTextScope();
+    var textScope = scope.getTextScope();
+
+    if (persistedTextScope.getToxicity() != textScope.getToxicity()) { // update text toxicity scope
+      apiKeyLogService.scope(persistedApiKey, "text.toxicity", textScope.getToxicity());
+      persistedTextScope.setToxicity(textScope.getToxicity());
+    }
+    if (persistedTextScope.getSevereToxicity() != textScope.getSevereToxicity()) { // update text severe toxicity scope
+      apiKeyLogService.scope(persistedApiKey, "text.severe_toxicity", textScope.getSevereToxicity());
+      persistedTextScope.setSevereToxicity(textScope.getSevereToxicity());
+    }
+    if (persistedTextScope.getIdentityAttack() != textScope.getIdentityAttack()) { // update text identity attack scope
+      apiKeyLogService.scope(persistedApiKey, "text.identity_attack", textScope.getIdentityAttack());
+      persistedTextScope.setIdentityAttack(textScope.getIdentityAttack());
+    }
+    if (persistedTextScope.getInsult() != textScope.getInsult()) { // update text insult scope
+      apiKeyLogService.scope(persistedApiKey, "text.insult", textScope.getInsult());
+      persistedTextScope.setInsult(textScope.getInsult());
+    }
+    if (persistedTextScope.getProfanity() != textScope.getProfanity()) { // update text profanity scope
+      apiKeyLogService.scope(persistedApiKey, "text.profanity", textScope.getProfanity());
+      persistedTextScope.setProfanity(textScope.getProfanity());
+    }
+    if (persistedTextScope.getThreat() != textScope.getThreat()) { // update text threat scope
+      apiKeyLogService.scope(persistedApiKey, "text.threat", textScope.getThreat());
+      persistedTextScope.setThreat(textScope.getThreat());
     }
   }
 

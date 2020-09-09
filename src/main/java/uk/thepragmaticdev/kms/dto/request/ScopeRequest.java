@@ -13,7 +13,7 @@ public class ScopeRequest {
 
   private boolean gif;
 
-  private boolean text;
+  private TextScopeRequest text;
 
   private boolean video;
 }

@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -443,5 +444,32 @@ class AuthEndpointIT extends IntegrationData {
         .body("status", is("BAD_REQUEST"))
         .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
         .statusCode(400);
+  }
+
+  // @http:exception
+
+  @Test
+  void shouldReturnUnauthorizedWhenAuthorizationHeaderIsEmpty() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, "")
+    .when()
+      .get(accountEndpoint(port) + "me")
+    .then()
+        .body("status", is("UNAUTHORIZED"))
+        .body("message", is(AuthCode.AUTH_HEADER_INVALID.getMessage()))
+        .statusCode(401);
+  }
+
+  @Test
+  void shouldReturnUnauthorizedWhenAuthorizationHeaderIsMissing() {
+    given()
+      .headers(headers())
+    .when()
+      .get(textEndpoint(port))
+    .then()
+        .body("status", is("UNAUTHORIZED"))
+        .body("message", is(AuthCode.AUTH_HEADER_INVALID.getMessage()))
+        .statusCode(401);
   }
 }

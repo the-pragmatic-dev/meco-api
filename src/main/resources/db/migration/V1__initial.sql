@@ -54,7 +54,12 @@ CREATE TABLE scope (
     id BIGSERIAL PRIMARY KEY,
     image BOOLEAN NOT NULL DEFAULT FALSE,
     gif BOOLEAN NOT NULL DEFAULT FALSE,
-    text BOOLEAN NOT NULL DEFAULT FALSE,
+    text_toxicity BOOLEAN NOT NULL DEFAULT FALSE,
+    text_severe_toxicity BOOLEAN NOT NULL DEFAULT FALSE,
+    text_identity_attack BOOLEAN NOT NULL DEFAULT FALSE,
+    text_insult BOOLEAN NOT NULL DEFAULT FALSE,
+    text_profanity BOOLEAN NOT NULL DEFAULT FALSE,
+    text_threat BOOLEAN NOT NULL DEFAULT FALSE,
     video BOOLEAN NOT NULL DEFAULT FALSE
 );
 -------------------------------------------------

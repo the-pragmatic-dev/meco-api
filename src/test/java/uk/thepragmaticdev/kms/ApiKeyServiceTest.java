@@ -31,6 +31,7 @@ import uk.thepragmaticdev.email.EmailService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
+import uk.thepragmaticdev.kms.scope.Scope;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 import uk.thepragmaticdev.log.key.ApiKeyLogService;
 import uk.thepragmaticdev.log.security.SecurityLogService;

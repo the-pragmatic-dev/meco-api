@@ -44,6 +44,7 @@ import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyUpdateRequest;
 import uk.thepragmaticdev.kms.dto.request.ScopeRequest;
+import uk.thepragmaticdev.kms.dto.request.TextScopeRequest;
 import uk.thepragmaticdev.security.request.DeviceMetadata;
 import uk.thepragmaticdev.security.request.GeoMetadata;
 import uk.thepragmaticdev.security.request.RequestMetadata;
@@ -53,6 +54,7 @@ import uk.thepragmaticdev.text.dto.request.TextRequest;
 public abstract class IntegrationData {
 
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
+  protected static final String INVALID_API_KEY = "ApiKey invalidApiKey";
 
   /**
    * Default to logging RestAssured errors only if validation fails. Also disable
@@ -206,17 +208,24 @@ public abstract class IntegrationData {
   }
 
   protected final ApiKeyCreateRequest apiKeyCreateRequest() {
-    return new ApiKeyCreateRequest("name", true, scopeRequest(true, true, false, false),
+    return new ApiKeyCreateRequest("name", true, scopeRequest(true, true, false),
         List.of(accessPolicyRequest("name", "127.0.0.1/32")));
   }
 
   protected final ApiKeyUpdateRequest apiKeyUpdateRequest() {
-    return new ApiKeyUpdateRequest("newname", false, scopeRequest(false, false, true, true),
+    var scopeRequest = scopeRequest(false, false, true);
+    scopeRequest.setText(textScopeRequest(false, false, false, true, true, true));
+    return new ApiKeyUpdateRequest("newname", false, scopeRequest(false, false, true),
         List.of(accessPolicyRequest("newname", "66.0.0.1/16")));
   }
 
-  protected final ScopeRequest scopeRequest(boolean image, boolean gif, boolean text, boolean video) {
-    return new ScopeRequest(image, gif, text, video);
+  protected final ScopeRequest scopeRequest(boolean image, boolean gif, boolean video) {
+    return new ScopeRequest(image, gif, textScopeRequest(true, true, true, false, false, false), video);
+  }
+
+  protected final TextScopeRequest textScopeRequest(boolean toxicity, boolean severeToxicity, boolean identityAttack,
+      boolean insult, boolean profanity, boolean threat) {
+    return new TextScopeRequest(toxicity, severeToxicity, identityAttack, insult, profanity, threat);
   }
 
   protected final AccessPolicyRequest accessPolicyRequest(String name, String range) {

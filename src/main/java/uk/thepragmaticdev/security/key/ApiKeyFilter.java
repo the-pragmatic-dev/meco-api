@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uk.thepragmaticdev.exception.ApiError;
-import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AuthCode;
 import uk.thepragmaticdev.kms.ApiKeyService;
 
@@ -29,25 +28,25 @@ public class ApiKeyFilter extends OncePerRequestFilter {
       HttpServletRequest httpServletRequest, //
       HttpServletResponse httpServletResponse, //
       FilterChain filterChain) throws ServletException, IOException {
+
     var rawApiKey = apiKeyService.extract(httpServletRequest);
-    try {
+    if (rawApiKey != null) {
       var authenticatedApiKey = apiKeyService.authenticate(rawApiKey);
       if (authenticatedApiKey.isPresent()) {
         var auth = new ApiKeyAuthenticationToken(authenticatedApiKey.get());
         SecurityContextHolder.getContext().setAuthentication(auth);
+      } else {
+        SecurityContextHolder.clearContext();
+        var responseBody = new ApiError(//
+            AuthCode.API_KEY_INVALID.getStatus(), //
+            AuthCode.API_KEY_INVALID.getMessage() //
+        );
+        log.warn("{}", responseBody);
+        httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        httpServletResponse.setStatus(AuthCode.API_KEY_INVALID.getStatus().value());
+        httpServletResponse.getWriter().write(responseBody.toString());
+        return;
       }
-    } catch (ApiException ex) {
-      SecurityContextHolder.clearContext();
-
-      var responseBody = new ApiError(//
-          AuthCode.API_KEY_INVALID.getStatus(), //
-          AuthCode.API_KEY_INVALID.getMessage() //
-      );
-      log.warn("{}", responseBody);
-      httpServletResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-      httpServletResponse.setStatus(AuthCode.API_KEY_INVALID.getStatus().value());
-      httpServletResponse.getWriter().write(responseBody.toString());
-      return;
     }
     filterChain.doFilter(httpServletRequest, httpServletResponse);
   }

@@ -1,6 +1,7 @@
-package uk.thepragmaticdev.kms;
+package uk.thepragmaticdev.kms.scope;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,6 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import uk.thepragmaticdev.endpoint.Model;
+import uk.thepragmaticdev.kms.ApiKey;
 
 @Data
 @NoArgsConstructor
@@ -31,8 +33,8 @@ public class Scope implements Model {
   @Column(columnDefinition = "boolean not null default false")
   private boolean gif;
 
-  @Column(columnDefinition = "boolean not null default false")
-  private boolean text;
+  @Embedded
+  private TextScope textScope;
 
   @Column(columnDefinition = "boolean not null default false")
   private boolean video;

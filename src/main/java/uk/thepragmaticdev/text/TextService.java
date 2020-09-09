@@ -9,6 +9,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.thepragmaticdev.exception.ApiException;
+import uk.thepragmaticdev.exception.code.ApiKeyCode;
+import uk.thepragmaticdev.exception.code.TextCode;
 import uk.thepragmaticdev.exception.handler.RestTemplateErrorHandler;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.text.perspective.Attribute;
@@ -41,17 +44,30 @@ public class TextService {
   /**
    * Retrieve a detailed analysis of the given text by routing through perspective
    * api models. The level of detail depends on which text attributes are enabled.
+   * Default to english only for MVP.
    * 
    * @param text   The text to analyse
    * @param apiKey The currently authenticated api key
    * @return A detailed analysis of the given text
    */
   public AnalyseCommentResponse analyse(String text, ApiKey apiKey) {
+    if (!apiKey.getEnabled()) {
+      throw new ApiException(ApiKeyCode.API_KEY_DISABLED);
+    }
+    if (!isPermitted(apiKey)) {
+      throw new ApiException(TextCode.TEXT_DISABLED);
+    }
     var request = new HttpEntity<>(createAnalyseCommentRequest(text, apiKey));
     var response = restTemplate.postForEntity(analyseUri(), request, AnalyseCommentResponse.class);
     // TODO check response code. If ok charge customer an operation and return
-    // result.
+    // result. Log real error from service but return a generic and say no charge
     return response.getBody();
+  }
+
+  private boolean isPermitted(ApiKey apiKey) {
+    var textScope = apiKey.getScope().getTextScope();
+    return textScope.getToxicity() || textScope.getSevereToxicity() || textScope.getIdentityAttack()
+        || textScope.getInsult() || textScope.getProfanity() || textScope.getThreat();
   }
 
   private URI analyseUri() {
@@ -61,25 +77,33 @@ public class TextService {
 
   private AnalyseCommentRequest createAnalyseCommentRequest(String text, ApiKey apiKey) {
     return new AnalyseCommentRequest(//
-        createComment(text), //
-        createLanguages(), //
+        new Comment(text), //
+        List.of("en"), //
         createRequestedAttributes(apiKey));
-  }
-
-  private Comment createComment(String text) {
-    return new Comment(text);
-  }
-
-  private List<String> createLanguages() {
-    return List.of("en");
   }
 
   private RequestedAttributes createRequestedAttributes(ApiKey apiKey) {
     var attributes = new RequestedAttributes();
-    // TODO dynamically add new attributes to only user enabled attributes from
-    // api key
-    attributes.setProfanity(new Attribute());
-    attributes.setToxicity(new Attribute());
+    var textScope = apiKey.getScope().getTextScope();
+
+    if (textScope.getToxicity()) {
+      attributes.setToxicity(new Attribute());
+    }
+    if (textScope.getSevereToxicity()) {
+      attributes.setSevereToxicity(new Attribute());
+    }
+    if (textScope.getIdentityAttack()) {
+      attributes.setIdentityAttack(new Attribute());
+    }
+    if (textScope.getInsult()) {
+      attributes.setInsult(new Attribute());
+    }
+    if (textScope.getProfanity()) {
+      attributes.setProfanity(new Attribute());
+    }
+    if (textScope.getThreat()) {
+      attributes.setThreat(new Attribute());
+    }
     return attributes;
   }
 }

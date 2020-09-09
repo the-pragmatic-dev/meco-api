@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.endpoint.Model;
+import uk.thepragmaticdev.kms.scope.Scope;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 
 @Data

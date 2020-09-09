@@ -7,8 +7,8 @@ SELECT setval('account_id_seq', max(id)) FROM account;
 -- Account Roles
 INSERT INTO account_roles (account_id, name) values (1, 'ROLE_ADMIN') ON CONFLICT DO NOTHING;
 -- Scope
-INSERT INTO scope(id, image, gif, text, video) values (1, false, true, true, false) ON CONFLICT DO NOTHING;
-INSERT INTO scope(id, image, gif, text, video) values (2, true, false, false, true) ON CONFLICT DO NOTHING;
+INSERT INTO scope values (1, false, true, true, true, true, true, true, true, false) ON CONFLICT DO NOTHING;
+INSERT INTO scope values (2, true, false, false, false, false, false, false, false, true) ON CONFLICT DO NOTHING;
 SELECT setval('scope_id_seq', max(id)) FROM scope;
 -- API Key
 INSERT INTO api_key(id, name, prefix, hash, created_date, last_used_date, modified_date, enabled, account_id, scope_id) values 
