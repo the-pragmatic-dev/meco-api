@@ -1,7 +1,6 @@
 package uk.thepragmaticdev.security;
 
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
