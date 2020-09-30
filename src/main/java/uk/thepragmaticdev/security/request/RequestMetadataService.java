@@ -3,7 +3,6 @@ package uk.thepragmaticdev.security.request;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +36,8 @@ public class RequestMetadataService {
 
   private final String databaseDirectory;
 
+  private final GeoMetadataService geoMetadataService;
+
   private final EmailService emailService;
 
   private final SecurityLogService securityLogService;
@@ -60,9 +61,9 @@ public class RequestMetadataService {
       @Value("${geolite2.name}") String databaseName, //
       @Value("${geolite2.permalink}") String databaseUrl, //
       @Value("${geolite2.directory}") String databaseDirectory, //
-      EmailService emailService, //
+      GeoMetadataService geoMetadataService, EmailService emailService, //
       @Lazy SecurityLogService securityLogService) {
-    this(databaseName, databaseUrl, databaseDirectory, emailService, securityLogService,
+    this(databaseName, databaseUrl, databaseDirectory, geoMetadataService, emailService, securityLogService,
         db -> new DatabaseReader.Builder(db.toFile()).build());
   }
 
@@ -82,12 +83,13 @@ public class RequestMetadataService {
       @Value("${geolite2.name}") String databaseName, //
       @Value("${geolite2.permalink}") String databaseUrl, //
       @Value("${geolite2.directory}") String databaseDirectory, //
-      EmailService emailService, //
+      GeoMetadataService geoMetadataService, EmailService emailService, //
       @Lazy SecurityLogService securityLogService, //
       DatabaseReaderFactory databaseReaderFactory) {
     this.databaseName = databaseName;
     this.databaseUrl = databaseUrl;
     this.databaseDirectory = databaseDirectory;
+    this.geoMetadataService = geoMetadataService;
     this.emailService = emailService;
     this.securityLogService = securityLogService;
     this.databaseReaderFactory = databaseReaderFactory;
@@ -197,7 +199,7 @@ public class RequestMetadataService {
   public Optional<RequestMetadata> extractRequestMetadata(HttpServletRequest request) {
     try {
       var ip = extractIp(request);
-      var geoMetadata = extractGeoMetadata(ip);
+      var geoMetadata = geoMetadataService.extractGeoMetadata(ip, databaseReader);
       var deviceMetadata = extractDeviceMetadata(request);
       return Optional.of(new RequestMetadata(//
           ip, //
@@ -209,15 +211,6 @@ public class RequestMetadataService {
       log.warn("IP address of host could not be determined {}", ex.getMessage());
     }
     return Optional.empty();
-  }
-
-  private GeoMetadata extractGeoMetadata(String host) throws GeoIp2Exception, IOException {
-    var ipAddress = InetAddress.getByName(host);
-    var response = databaseReader.city(ipAddress);
-    return new GeoMetadata(//
-        response.getCity() == null ? "" : response.getCity().getName(), //
-        response.getCountry() == null ? "" : response.getCountry().getIsoCode(), //
-        response.getLeastSpecificSubdivision() == null ? "" : response.getLeastSpecificSubdivision().getIsoCode());
   }
 
   private DeviceMetadata extractDeviceMetadata(HttpServletRequest request) throws IOException {

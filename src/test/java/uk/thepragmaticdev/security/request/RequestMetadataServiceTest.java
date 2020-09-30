@@ -31,6 +31,9 @@ import uk.thepragmaticdev.log.security.SecurityLogService;
 class RequestMetadataServiceTest {
 
   @Mock
+  private GeoMetadataService geoMetadataService;
+
+  @Mock
   private EmailService emailService;
 
   @Mock
@@ -51,8 +54,8 @@ class RequestMetadataServiceTest {
    */
   @BeforeEach
   public void initEach() throws IOException {
-    sut = new RequestMetadataService("database.mmdb", "url", "src/test/resources/geolite", emailService,
-        securityLogService, factory);
+    sut = new RequestMetadataService("database.mmdb", "url", "src/test/resources/geolite", geoMetadataService,
+        emailService, securityLogService, factory);
   }
 
   @Test

@@ -81,7 +81,7 @@ public class AccountController {
   @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public AccountUpdateResponse update(Principal principal, @Valid @RequestBody AccountUpdateRequest request) {
     var account = accountService.update(principal.getName(), request.getFullName(),
-        request.getEmailSubscriptionEnabled(), request.getBillingAlertEnabled());
+        request.getEmailSubscriptionEnabled(), request.getBillingAlertEnabled(), request.getBillingAlertAmount());
     return modelMapper.map(account, AccountUpdateResponse.class);
   }
 

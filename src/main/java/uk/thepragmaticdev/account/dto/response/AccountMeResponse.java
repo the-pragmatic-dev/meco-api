@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AccountMeResponse {
 
+  private short avatar;
+
   private String username;
 
   private String fullName;
@@ -17,6 +19,8 @@ public class AccountMeResponse {
   private boolean emailSubscriptionEnabled;
 
   private boolean billingAlertEnabled;
+
+  private short billingAlertAmount;
 
   private OffsetDateTime createdDate;
 }

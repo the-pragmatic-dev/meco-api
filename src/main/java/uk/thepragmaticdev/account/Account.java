@@ -35,6 +35,8 @@ public class Account implements Model {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  private short avatar;
+
   @Column(unique = true, nullable = true)
   private String stripeCustomerId;
 
@@ -60,6 +62,8 @@ public class Account implements Model {
 
   @Column(columnDefinition = "boolean not null default false")
   private Boolean billingAlertEnabled;
+
+  private short billingAlertAmount;
 
   private OffsetDateTime createdDate; // generated
 

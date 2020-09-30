@@ -26,6 +26,7 @@ DROP INDEX IF EXISTS account_password_reset_token_idx;
 -- Account --------------------------------------
 CREATE TABLE account (
     id BIGSERIAL PRIMARY KEY,
+    avatar SMALLINT DEFAULT 0,
     stripe_customer_id TEXT UNIQUE,
     stripe_subscription_id TEXT,
     stripe_subscription_item_id TEXT,
@@ -35,6 +36,7 @@ CREATE TABLE account (
     password_reset_token_expire TIMESTAMPTZ,
     full_name TEXT,
     billing_alert_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    billing_alert_amount SMALLINT NOT NULL DEFAULT 0,
     created_date TIMESTAMPTZ NOT NULL,
     email_subscription_enabled BOOLEAN NOT NULL DEFAULT FALSE
 );

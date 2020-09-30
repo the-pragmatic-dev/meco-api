@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -108,8 +109,8 @@ class AccountControllerTest extends UnitData {
     var accountUpdateRequest = new AccountUpdateRequest(//
         account.getFullName(), //
         account.getEmailSubscriptionEnabled(), //
-        account.getBillingAlertEnabled());
-    when(accountService.update(anyString(), anyString(), anyBoolean(), anyBoolean())).thenReturn(account);
+        account.getBillingAlertEnabled(), account.getBillingAlertAmount());
+    when(accountService.update(anyString(), anyString(), anyBoolean(), anyBoolean(), anyShort())).thenReturn(account);
 
     var body = mvc.perform(//
         MockMvcRequestBuilders.put("/v1/accounts/me")//

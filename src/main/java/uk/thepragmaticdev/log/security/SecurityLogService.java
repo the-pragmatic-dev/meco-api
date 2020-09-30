@@ -111,6 +111,16 @@ public class SecurityLogService {
   }
 
   /**
+   * Log an updated event for when an account billing alert amount is changed.
+   * 
+   * @param account The account billing alert amount being changed
+   * @return The persisted log
+   */
+  public SecurityLog billingAlertAmount(Account account) {
+    return log(account, "account.billing_alert_amount.updated");
+  }
+
+  /**
    * Log a fullname event for when an accounts fullname is updated.
    * 
    * @param account The account being created

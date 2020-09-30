@@ -2,7 +2,7 @@
 -- Test Data Only -------------------------------
 -------------------------------------------------
 -- Account
-INSERT INTO account values (1, 'cus_HHcMGjRmbLXyCT', null, null, 'admin@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'Stephen Cathcart', false, '2020-02-25T10:30:44.232Z', true) ON CONFLICT DO NOTHING;
+INSERT INTO account values (1, 0, 'cus_HHcMGjRmbLXyCT', null, null, 'admin@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'Stephen Cathcart', false, 0, '2020-02-25T10:30:44.232Z', true) ON CONFLICT DO NOTHING;
 SELECT setval('account_id_seq', max(id)) FROM account;
 -- Account Roles
 INSERT INTO account_roles (account_id, name) values (1, 'ROLE_ADMIN') ON CONFLICT DO NOTHING;

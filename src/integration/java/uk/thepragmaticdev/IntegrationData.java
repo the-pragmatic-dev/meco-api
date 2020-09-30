@@ -196,7 +196,7 @@ public abstract class IntegrationData {
   }
 
   protected final AccountUpdateRequest accountUpdateRequest() {
-    return new AccountUpdateRequest("Ash", false, true);
+    return new AccountUpdateRequest("Ash", false, true, (short) 0);
   }
 
   protected final AuthResetRequest authResetRequest() {

@@ -6,6 +6,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,13 +96,19 @@ public class AccountService {
    */
   public Account create(String username, String encodedPassword, List<Role> roles) {
     var account = new Account();
+    account.setAvatar(generateAvatar());
     account.setUsername(username);
     account.setPassword(encodedPassword);
     account.setRoles(roles);
     account.setEmailSubscriptionEnabled(false);
     account.setBillingAlertEnabled(false);
+    account.setBillingAlertAmount((short) 0);
     account.setCreatedDate(OffsetDateTime.now());
     return accountRepository.save(account);
+  }
+
+  private short generateAvatar() {
+    return (short) new Random().nextInt(16);
   }
 
   /**
@@ -112,14 +119,16 @@ public class AccountService {
    * @param fullName                 An updated fullname
    * @param emailSubscriptionEnabled An updated email subscription
    * @param billingAlertEnabled      An updated billing alert
+   * @param billingAlertAmount       An updated billing alert amount
    * @return The updated account
    */
   @Transactional
-  public Account update(String username, String fullName, Boolean emailSubscriptionEnabled,
-      Boolean billingAlertEnabled) {
+  public Account update(String username, String fullName, Boolean emailSubscriptionEnabled, Boolean billingAlertEnabled,
+      short billingAlertAmount) {
     var authenticatedAccount = findAuthenticatedAccount(username);
     updateFullName(authenticatedAccount, fullName);
     updateBillingAlertEnabled(authenticatedAccount, billingAlertEnabled);
+    updateBillingAlertAmount(authenticatedAccount, billingAlertAmount);
     updateEmailSubscriptionEnabled(authenticatedAccount, emailSubscriptionEnabled);
     return accountRepository.save(authenticatedAccount);
   }
@@ -141,6 +150,13 @@ public class AccountService {
     if (!account.getBillingAlertEnabled().equals(billingAlertEnabled)) {
       securityLogService.billingAlertEnabled(account, billingAlertEnabled);
       account.setBillingAlertEnabled(billingAlertEnabled);
+    }
+  }
+
+  private void updateBillingAlertAmount(Account account, short billingAlertAmount) {
+    if (account.getBillingAlertAmount() != billingAlertAmount) {
+      securityLogService.billingAlertAmount(account);
+      account.setBillingAlertAmount(billingAlertAmount);
     }
   }
 
