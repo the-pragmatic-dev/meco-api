@@ -1,7 +1,9 @@
 server:
-   port: ${PORT:8080}
+    port: ${PORT:8080}
 
 spring:
+    profiles:
+        active: dev
     jackson:
         serialization:
             FAIL_ON_EMPTY_BEANS: false
@@ -20,7 +22,7 @@ spring:
         username: ${DATASOURCE_USERNAME:postgres}
         password: ${DATASOURCE_PASSWORD:}
     jpa:
-        show-sql: ${JPA_SHOW_SQL:true}
+        show-sql: true
         hibernate:
             ddl-auto: validate
         properties:
@@ -31,8 +33,8 @@ spring:
                     lob:
                         non_contextual_creation: true
     flyway:
-        locations: ${FLYWAY_LOCATIONS:classpath:/db/migration,classpath:/db/data/dev}
-        clean-on-validation-error: ${FLYWAY_CLEAN_ON_VALIDATION_ERROR:true}
+        locations: classpath:/db/migration,classpath:/db/data/dev
+        clean-on-validation-error: true
 
 async:
     core-pool-size: ${ASYNC_CORE_POOL_SIZE:5}
@@ -42,8 +44,8 @@ async:
 security:
     token:
         secret-key: ${TOKEN_SECRET_KEY:secret-key}
-        access-token-expiration-minutes: ${ACCESS_TOKEN_EXPIRATION_MINUTES:5}
-        refresh-token-expiration-days: ${REFRESH_TOKEN_EXPIRATION_DAYS:7}
+        access-token-expiration-minutes: 5
+        refresh-token-expiration-days: 7
 
 management:
     endpoints:
@@ -54,16 +56,16 @@ management:
 info:
     app:
         version: 
-            name: alpha
-            major: 0
-            minor: 1
-            patch: 0
+            name: ${VERSION_NAME:alpha}
+            major: ${VERSION_MAJOR:0}
+            minor: ${VERSION_MINOR:0}
+            patch: ${VERSION_PATCH:0}
 
 stripe:
     secret-key: ${STRIPE_SECRET_KEY:secret_key}
 
 mailgun:
-    url: ${MAILGUN_URL:https://api.mailgun.net/v3/%s.mailgun.org}
+    url: https://api.mailgun.net/v3/%s.mailgun.org
     domain: ${MAILGUN_DOMAIN:domain}
     secret-key: ${MAILGUN_SECRET_KEY:secret_key}
     from:
@@ -84,7 +86,7 @@ mailgun:
         subject: 'A key was deleted from your account'
 
 perspective:
-    url: ${PERSPECTIVE_URL:https://commentanalyzer.googleapis.com/v1alpha1}
+    url: https://commentanalyzer.googleapis.com/v1alpha1
     secret-key: ${PERSPECTIVE_SECRET_KEY:secret_key}
             
 kms:
@@ -94,3 +96,17 @@ geolite2:
     name: GeoLite2-City.mmdb
     permalink: ${GEOLITE_URL:https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz}
     directory: ${GEOLITE_DIRECTORY:/var/lib/meco/}
+    
+---
+
+spring:
+    profiles: prod
+    jpa:
+        show-sql: false
+    flyway:
+        locations: classpath:/db/migration
+        clean-on-validation-error: false
+    security:
+        token:
+            access-token-expiration-minutes: 5
+            refresh-token-expiration-days: 7
