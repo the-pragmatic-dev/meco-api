@@ -2,6 +2,7 @@ FROM openjdk:13-jdk-alpine
 
 RUN ls -la
 RUN pwd
+RUN ls -la /workspace
 
 # ARG LIBS=/var/lib/meco
 
