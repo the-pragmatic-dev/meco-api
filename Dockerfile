@@ -1,15 +1,18 @@
 FROM openjdk:13-jdk-alpine
 
-ARG LIBS=/var/lib/meco
+RUN ls -la
+RUN pwd
 
-RUN addgroup -S meco && adduser -S meco -G meco
-RUN mkdir ${LIBS}
-RUN chmod 755 ${LIBS}
-RUN chown -R meco:meco ${LIBS}
+# ARG LIBS=/var/lib/meco
 
-COPY target/*-exec.jar meco.jar
-RUN chown meco:meco meco.jar
+# RUN addgroup -S meco && adduser -S meco -G meco
+# RUN mkdir ${LIBS}
+# RUN chmod 755 ${LIBS}
+# RUN chown -R meco:meco ${LIBS}
 
-USER meco:meco
+# COPY target/*-exec.jar meco.jar
+# RUN chown meco:meco meco.jar
 
-ENTRYPOINT ["java","-jar","/meco.jar"]
+# USER meco:meco
+
+# ENTRYPOINT ["java","-jar","/meco.jar"]
