@@ -359,7 +359,7 @@
               <goal>repackage</goal>
             </goals>
             <configuration>
-              <classifier>spring-boot</classifier>
+              <classifier>exec</classifier>
               <mainClass>uk.thepragmaticdev.Application</mainClass>
               <executable>true</executable>
             </configuration>
