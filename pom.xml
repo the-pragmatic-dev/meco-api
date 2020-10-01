@@ -73,6 +73,7 @@
       <properties>
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>true</skip.unit.tests>
+        <skip.checkstyle>false</skip.checkstyle>
       </properties>
     </profile>
     <!-- configuration for unit and integration tests -->
@@ -81,6 +82,16 @@
       <properties>
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
+        <skip.checkstyle>false</skip.checkstyle>
+      </properties>
+    </profile>
+    <!-- configuration for docker build -->
+    <profile>
+      <id>docker</id>
+      <properties>
+        <skip.integration.tests>true</skip.integration.tests>
+        <skip.unit.tests>true</skip.unit.tests>
+        <skip.checkstyle>true</skip.checkstyle>
       </properties>
     </profile>
   </profiles>
@@ -372,6 +383,7 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>${maven.checkstyle.plugin.version}</version>
         <configuration>
+          <skip>${skip.checkstyle}</skip>
           <configLocation>checkstyle.google.xml</configLocation>
           <encoding>UTF-8</encoding>
           <violationSeverity>warning</violationSeverity>
