@@ -33,6 +33,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ActiveProfiles;
 import uk.thepragmaticdev.account.dto.request.AccountUpdateRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthRefreshRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthResetRequest;
@@ -50,6 +51,7 @@ import uk.thepragmaticdev.security.request.GeoMetadata;
 import uk.thepragmaticdev.security.request.RequestMetadata;
 import uk.thepragmaticdev.text.dto.request.TextRequest;
 
+@ActiveProfiles("integration")
 @Component
 public abstract class IntegrationData {
 

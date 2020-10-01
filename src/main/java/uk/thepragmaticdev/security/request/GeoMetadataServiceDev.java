@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("!prod")
+@Profile("!prod & !integration")
 public class GeoMetadataServiceDev implements GeoMetadataService {
 
   @Override
