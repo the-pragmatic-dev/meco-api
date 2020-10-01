@@ -17,9 +17,20 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 # Package stage
 #
 FROM openjdk:13-jdk-alpine
+
+ENV SPRING_PROFILES_ACTIVE=prod
+ENV GEOLITE_DIRECTORY=/meco/geodb
+
 ARG DEPENDENCY=/workspace/target/dependency
 
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-cp","app:app/lib/*","uk.thepragmaticdev.Application"]
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /meco/lib
+COPY --from=build ${DEPENDENCY}/META-INF /meco/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /meco
+
+RUN addgroup -S meco && adduser -S meco -G meco
+RUN mkdir /meco/geodb
+RUN chown -R meco:meco /meco
+
+USER meco:meco
+
+ENTRYPOINT ["java","-cp","meco:meco/lib/*","uk.thepragmaticdev.Application"]
