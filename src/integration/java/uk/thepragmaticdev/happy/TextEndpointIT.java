@@ -59,10 +59,10 @@ class TextEndpointIT extends IntegrationData {
         .body("detected_languages", hasItem("en"))
         .rootPath("attribute_scores.toxicity")
           .body("span_scores", hasSize(1))
-          .body("summary_score.value", greaterThan(0.9f))
+          .body("summary_score.value", greaterThan(0.8f))
         .rootPath("attribute_scores.severe_toxicity")
           .body("span_scores", hasSize(1))
-          .body("summary_score.value", greaterThan(0.4f))
+          .body("summary_score.value", greaterThan(0.3f))
         .rootPath("attribute_scores.identity_attack")
           .body("span_scores", hasSize(1))
           .body("summary_score.value", greaterThan(0.1f))
@@ -71,10 +71,10 @@ class TextEndpointIT extends IntegrationData {
           .body("summary_score.value", greaterThan(0.8f))
         .rootPath("attribute_scores.profanity")
           .body("span_scores", hasSize(1))
-          .body("summary_score.value", greaterThan(0.7f))
+          .body("summary_score.value", greaterThan(0.6f))
         .rootPath("attribute_scores.threat")
           .body("span_scores", hasSize(1))
-          .body("summary_score.value", greaterThan(0.1f))
+          .body("summary_score.value", greaterThan(0.05f))
         .statusCode(200);
   }
 
@@ -114,7 +114,7 @@ class TextEndpointIT extends IntegrationData {
         .body("attribute_scores.threat", is(nullValue()))
         .rootPath("attribute_scores.toxicity")
           .body("span_scores", hasSize(1))
-          .body("summary_score.value", greaterThan(0.9f))
+          .body("summary_score.value", greaterThan(0.8f))
         .statusCode(200);
   }
 

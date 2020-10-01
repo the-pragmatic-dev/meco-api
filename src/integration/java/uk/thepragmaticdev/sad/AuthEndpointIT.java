@@ -24,7 +24,7 @@ import uk.thepragmaticdev.IntegrationData;
 import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.exception.code.AuthCode;
 
-@ActiveProfiles({ "async-disabled", "http-disabled" })
+@ActiveProfiles({ "async-disabled", "http-disabled", "prod" })
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
