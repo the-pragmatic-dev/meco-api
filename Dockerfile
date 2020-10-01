@@ -1,19 +1,25 @@
+#
+# Build stage
+#
+FROM openjdk:13-jdk-alpine AS build
+WORKDIR /workspace
+
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY pom.xml .
+COPY src src
+
+RUN ./mvnw install -P docker
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
+
+#
+# Package stage
+#
 FROM openjdk:13-jdk-alpine
+ARG DEPENDENCY=/workspace/app/target/dependency
 
-RUN ls -la
-RUN pwd
-RUN ls -la /workspace
-
-# ARG LIBS=/var/lib/meco
-
-# RUN addgroup -S meco && adduser -S meco -G meco
-# RUN mkdir ${LIBS}
-# RUN chmod 755 ${LIBS}
-# RUN chown -R meco:meco ${LIBS}
-
-# COPY target/*-exec.jar meco.jar
-# RUN chown meco:meco meco.jar
-
-# USER meco:meco
-
-# ENTRYPOINT ["java","-jar","/meco.jar"]
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+ENTRYPOINT ["java","-cp","app:app/lib/*","uk.thepragmaticdev.Application"]
