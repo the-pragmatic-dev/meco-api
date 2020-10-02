@@ -33,4 +33,6 @@ RUN chown -R meco:meco /meco
 
 USER meco:meco
 
+EXPOSE 8080
+
 ENTRYPOINT ["java","-cp","meco:meco/lib/*","uk.thepragmaticdev.Application"]
