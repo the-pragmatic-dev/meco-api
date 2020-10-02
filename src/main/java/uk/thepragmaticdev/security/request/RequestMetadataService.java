@@ -145,6 +145,7 @@ public class RequestMetadataService {
         return Optional.of(destination.getParent().resolve(entry.getName()));
       }
     }
+    // TODO delete archive file
     stream.close();
     return Optional.empty();
   }
