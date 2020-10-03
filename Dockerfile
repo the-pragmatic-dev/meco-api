@@ -5,7 +5,7 @@ FROM openjdk:13-jdk-alpine AS build
 
 WORKDIR /workspace
 
-ENV GEOLITE_URL=https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz
+ENV GEOLITE_URL
 
 RUN echo ${GEOLITE_URL}
 
