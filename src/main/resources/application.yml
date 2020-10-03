@@ -111,3 +111,6 @@ spring:
         token:
             access-token-expiration-minutes: 5
             refresh-token-expiration-days: 7
+
+logging:
+    config: classpath:log4j2.prod.properties
