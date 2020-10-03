@@ -48,6 +48,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
+    // enforce https when running on heroku
+    http.requiresChannel().requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null).requiresSecure();
+
     // disable cross site request forgery
     http.csrf().disable();
 
