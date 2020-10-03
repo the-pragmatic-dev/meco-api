@@ -344,6 +344,7 @@
   </dependencies>
 
   <build>
+    <finalName>${project.artifactId}</finalName>
     <plugins>
       <!-- display active profiles in compile phase -->
       <plugin>

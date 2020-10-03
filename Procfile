@@ -1,0 +1,1 @@
+web: java -jar -Dspring.profiles.active=prod target/meco-api-exec.jar 
