@@ -1,1 +1,1 @@
-web: java -jar -Dspring.profiles.active=prod target/meco-api-exec.jar 
+web: java -Dserver.port=$PORT -Dspring.profiles.active=prod $JAVA_OPTS -jar target/meco-api-exec.jar 

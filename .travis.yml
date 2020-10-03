@@ -25,15 +25,9 @@ before_script:
 
 stages:
   - test
-  - provision
-  - deploy
 
 jobs:
   include:
     - stage: test
     # checks compilation and checkstyle errors then runs unit and integration tests before pushing results to sonarcloud.
     - script: ./mvnw clean verify -P all sonar:sonar
-    - stage: provision
-    - script: echo TODO # TODO: run terraform
-    - stage: deploy
-      script: echo TODO # TODO: deploy to digitalocean
