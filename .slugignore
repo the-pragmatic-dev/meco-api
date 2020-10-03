@@ -1,0 +1,16 @@
+.github/
+.gitignore
+.travis.yml
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE
+README.md
+checkstyle.google.xml
+diagrams/
+meco-api.code-workspace
+meco-api.postman-collection.json
+scripts/
+src/integration/
+src/test/
+templates/
+templates/
