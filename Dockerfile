@@ -5,6 +5,7 @@ FROM openjdk:13-jdk-alpine AS build
 
 WORKDIR /workspace
 
+ARG GEOLITE_URL=${GEOLITE_URL}
 RUN echo ${GEOLITE_URL}
 
 COPY mvnw .
