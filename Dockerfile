@@ -5,7 +5,7 @@ FROM openjdk:13-jdk-alpine AS build
 
 WORKDIR /workspace
 
-ENV GEOLITE_URL
+ENV GEOLITE_URL=
 
 RUN echo ${GEOLITE_URL}
 
