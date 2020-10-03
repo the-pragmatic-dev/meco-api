@@ -85,9 +85,9 @@
         <skip.checkstyle>false</skip.checkstyle>
       </properties>
     </profile>
-    <!-- configuration for docker build -->
+    <!-- configuration for heroku build -->
     <profile>
-      <id>docker</id>
+      <id>heroku</id>
       <properties>
         <skip.integration.tests>true</skip.integration.tests>
         <skip.unit.tests>true</skip.unit.tests>
