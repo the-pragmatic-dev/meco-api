@@ -13,4 +13,4 @@ scripts/
 src/integration/
 src/test/
 templates/
-templates/
+terraform/
