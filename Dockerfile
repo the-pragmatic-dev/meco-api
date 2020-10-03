@@ -7,6 +7,8 @@ WORKDIR /workspace
 
 ENV GEOLITE_URL=https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz
 
+RUN echo ${GEOLITE_URL}
+
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
