@@ -103,6 +103,11 @@ geolite2:
 logging:
   config: classpath:log4j2.dev.properties
 
+bucket:
+    capacity: 10000
+    tokens: 10000
+    minutes: 1
+
 ---
 
 spring:
@@ -119,3 +124,8 @@ spring:
 
 logging:
     config: classpath:log4j2.prod.properties
+
+bucket:
+    capacity: 20
+    tokens: 20
+    minutes: 1
