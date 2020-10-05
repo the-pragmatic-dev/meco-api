@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.hazelcast.core.HazelcastInstance;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +21,7 @@ import uk.thepragmaticdev.config.interceptor.RateLimitInterceptor;
 public class WebMvcConfig implements WebMvcConfigurer {
 
   @Autowired
-  private HazelcastInstance hazelcastInstance;
+  private RateLimitInterceptor rateLimitInterceptor;
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
@@ -39,7 +38,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(new RateLimitInterceptor(hazelcastInstance)).addPathPatterns(//
+    registry.addInterceptor(rateLimitInterceptor).addPathPatterns(//
         "/v1/auth*/**", //
         "/v1/accounts*/**", //
         "/v1/api-keys*/**", //

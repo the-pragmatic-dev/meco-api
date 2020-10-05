@@ -21,7 +21,7 @@ public class CacheConfig {
    */
   @Bean
   public Config hazelcastConfig() {
-    Config config = new Config();
+    var config = new Config();
     config.setInstanceName("hazelcast-instance")
         .addMapConfig(new MapConfig().setName("bucket-map")
             .setMaxSizeConfig(new MaxSizeConfig(200, MaxSizeConfig.MaxSizePolicy.FREE_HEAP_SIZE))
