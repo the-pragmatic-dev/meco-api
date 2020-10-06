@@ -126,6 +126,7 @@ logging:
     config: classpath:log4j2.prod.properties
 
 bucket:
-    capacity: 20
-    tokens: 20
+    name: per-client-bucket-map
+    capacity: 10000
+    tokens: 10000
     minutes: 1
