@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "bucket")
 public class BucketProperties {
 
+  private String name;
+
   private long capacity;
 
   private long tokens;

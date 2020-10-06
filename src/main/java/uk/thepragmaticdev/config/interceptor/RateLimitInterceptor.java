@@ -33,8 +33,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
    * @param hazelcastInstance A Hazelcast instance to form a Hazelcast cluster.
    */
   public RateLimitInterceptor(BucketProperties properties, HazelcastInstance hazelcastInstance) {
+    log.info(properties);
     this.buckets = Bucket4j.extension(Hazelcast.class)
-        .proxyManagerForMap(hazelcastInstance.getMap("per-client-bucket-map"));
+        .proxyManagerForMap(hazelcastInstance.getMap(properties.getName()));
     this.configuration = Bucket4j.configurationBuilder().addLimit(//
         Bandwidth.classic(properties.getCapacity(), //
             Refill.intervally(properties.getTokens(), //

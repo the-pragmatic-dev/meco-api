@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
-import uk.thepragmaticdev.config.interceptor.BucketProperties;
 import uk.thepragmaticdev.email.EmailService;
 
 @TestConfiguration
@@ -39,22 +38,5 @@ public class IntegrationConfig {
   @Profile("async-disabled")
   public EmailService mockEmailService() {
     return mock(EmailService.class);
-  }
-
-  /**
-   * Creates a primary bucket properties with low rates to be used for integration
-   * tests.
-   * 
-   * @return a mock bucket properties
-   */
-  @Bean
-  @Primary
-  @Profile("low-rate-limit")
-  public BucketProperties mockBucketProperties() {
-    var props = mock(BucketProperties.class);
-    when(props.getCapacity()).thenReturn(3L);
-    when(props.getTokens()).thenReturn(3L);
-    when(props.getMinutes()).thenReturn(1L);
-    return props;
   }
 }

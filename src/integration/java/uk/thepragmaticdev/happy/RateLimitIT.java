@@ -13,21 +13,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
 import uk.thepragmaticdev.exception.code.SecurityCode;
 
-@ActiveProfiles("low-rate-limit")
 @Import(IntegrationConfig.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
-    FlywayTestExecutionListener.class })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
+
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@TestPropertySource(properties = { "bucket.name=rate-limit-it", "bucket.capacity=3", "bucket.tokens=3",
+    "bucket.minutes=1" })
 class RateLimitIT extends IntegrationData {
 
   @LocalServerPort
