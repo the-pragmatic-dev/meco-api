@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS security_log;
 DROP TABLE IF EXISTS billing_log;
 DROP TABLE IF EXISTS access_policy;
 DROP TABLE IF EXISTS account_roles;
+DROP TABLE IF EXISTS api_key_usage;
 DROP TABLE IF EXISTS api_key;
 DROP TABLE IF EXISTS scope;
 DROP TABLE IF EXISTS account;
@@ -17,6 +18,7 @@ DROP INDEX IF EXISTS security_log_account_id_idx;
 DROP INDEX IF EXISTS billing_log_account_id_idx;
 DROP INDEX IF EXISTS access_policy_api_key_id_idx;
 DROP INDEX IF EXISTS account_roles_account_id_idx;
+DROP INDEX IF EXISTS api_key_usage_usage_date_idx;
 DROP INDEX IF EXISTS api_key_prefix_idx;
 DROP INDEX IF EXISTS api_key_account_id_idx;
 DROP INDEX IF EXISTS api_key_scope_id_idx;
@@ -82,6 +84,17 @@ CREATE TABLE api_key (
 CREATE INDEX api_key_prefix_idx ON api_key (prefix);
 CREATE INDEX api_key_account_id_idx ON api_key (account_id);
 CREATE INDEX api_key_scope_id_idx ON api_key (scope_id);
+-------------------------------------------------
+-- API Key Usage --------------------------------
+CREATE TABLE api_key_usage (
+    id BIGSERIAL PRIMARY KEY,
+    usage_date DATE NOT NULL,
+    text_operations BIGINT NOT NULL DEFAULT 0,
+    image_operations BIGINT NOT NULL DEFAULT 0,
+    api_key_id BIGINT NOT NULL REFERENCES api_key (id),
+    UNIQUE (usage_date, api_key_id)
+);
+CREATE INDEX api_key_usage_usage_date_idx ON api_key_usage (usage_date);
 -------------------------------------------------
 -- Access Policy --------------------------------
 CREATE TABLE access_policy (

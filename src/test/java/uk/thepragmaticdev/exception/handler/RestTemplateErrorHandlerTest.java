@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import uk.thepragmaticdev.exception.ApiException;
+import uk.thepragmaticdev.exception.code.CriticalCode;
 
 @SpringBootTest
 class RestTemplateErrorHandlerTest {
@@ -51,16 +52,15 @@ class RestTemplateErrorHandlerTest {
   }
 
   @Test
-  void shouldThrowApiExceptionWithGivenValues() throws IOException {
+  void shouldThrowIntegrationApiExceptionWithGivenValues() throws IOException {
     var response = mock(ClientHttpResponse.class);
-    var message = "error";
     when(response.getStatusCode()).thenReturn(HttpStatus.BAD_GATEWAY);
-    when(response.getBody()).thenReturn(new ByteArrayInputStream(StandardCharsets.UTF_8.encode(message).array()));
+    when(response.getBody()).thenReturn(new ByteArrayInputStream(StandardCharsets.UTF_8.encode("message").array()));
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
       sut.handleError(response);
     });
-    assertThat(ex.getErrorCode().getMessage(), is(message));
-    assertThat(ex.getErrorCode().getStatus(), is(HttpStatus.BAD_GATEWAY));
+    assertThat(ex.getErrorCode().getMessage(), is(CriticalCode.INTEGRATION_ERROR.getMessage()));
+    assertThat(ex.getErrorCode().getStatus(), is(HttpStatus.SERVICE_UNAVAILABLE));
   }
 }

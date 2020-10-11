@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -38,5 +39,11 @@ public class IntegrationConfig {
   @Profile("async-disabled")
   public EmailService mockEmailService() {
     return mock(EmailService.class);
+  }
+
+  @Bean
+  @Primary
+  public Clock mockClock() {
+    return mock(Clock.class);
   }
 }

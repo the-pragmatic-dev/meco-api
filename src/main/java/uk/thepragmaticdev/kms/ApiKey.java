@@ -20,6 +20,7 @@ import lombok.ToString;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.kms.scope.Scope;
+import uk.thepragmaticdev.kms.usage.ApiKeyUsage;
 import uk.thepragmaticdev.log.key.ApiKeyLog;
 
 @Data
@@ -60,6 +61,10 @@ public class ApiKey implements Model {
   @OneToMany(mappedBy = "apiKey", cascade = { CascadeType.ALL }, orphanRemoval = true)
   @ToString.Exclude
   private List<ApiKeyLog> apiKeyLogs;
+
+  @OneToMany(mappedBy = "apiKey", cascade = { CascadeType.ALL }, orphanRemoval = true)
+  @ToString.Exclude
+  private List<ApiKeyUsage> apiKeyUsages;
 
   @ManyToOne
   @ToString.Exclude

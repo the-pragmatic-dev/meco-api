@@ -2,7 +2,6 @@ package uk.thepragmaticdev.text;
 
 import java.net.URI;
 import java.util.List;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -14,13 +13,14 @@ import uk.thepragmaticdev.exception.code.ApiKeyCode;
 import uk.thepragmaticdev.exception.code.TextCode;
 import uk.thepragmaticdev.exception.handler.RestTemplateErrorHandler;
 import uk.thepragmaticdev.kms.ApiKey;
+import uk.thepragmaticdev.kms.scope.TextScope;
+import uk.thepragmaticdev.kms.usage.ApiKeyUsageCache;
 import uk.thepragmaticdev.text.perspective.Attribute;
 import uk.thepragmaticdev.text.perspective.Comment;
 import uk.thepragmaticdev.text.perspective.RequestedAttributes;
 import uk.thepragmaticdev.text.perspective.dto.request.AnalyseCommentRequest;
 import uk.thepragmaticdev.text.perspective.dto.response.AnalyseCommentResponse;
 
-@Log4j2
 @Service
 public class TextService {
 
@@ -28,17 +28,21 @@ public class TextService {
 
   private final RestTemplate restTemplate;
 
+  private final ApiKeyUsageCache apiKeyUsageCache;
+
   /**
    * Service for analysing text requests. Requests are routed through perspective
    * api models.
    * 
-   * @param properties Properties for communicating with perspective
-   * @param builder    The builder to create rest request
+   * @param properties       Properties for communicating with perspective
+   * @param builder          The builder to create rest request
+   * @param apiKeyUsageCache The service for tracking api key usage
    */
   @Autowired
-  public TextService(TextProperties properties, RestTemplateBuilder builder) {
+  public TextService(TextProperties properties, RestTemplateBuilder builder, ApiKeyUsageCache apiKeyUsageCache) {
     this.properties = properties;
     this.restTemplate = builder.errorHandler(new RestTemplateErrorHandler()).build();
+    this.apiKeyUsageCache = apiKeyUsageCache;
   }
 
   /**
@@ -51,23 +55,18 @@ public class TextService {
    * @return A detailed analysis of the given text
    */
   public AnalyseCommentResponse analyse(String text, ApiKey apiKey) {
+    // TODO check if subcription is active
     if (!Boolean.TRUE.equals(apiKey.getEnabled())) {
       throw new ApiException(ApiKeyCode.API_KEY_DISABLED);
     }
-    if (!isPermitted(apiKey)) {
+    var usageCount = usageCount(apiKey.getScope().getTextScope());
+    if (usageCount == 0) {
       throw new ApiException(TextCode.TEXT_DISABLED);
     }
     var request = new HttpEntity<>(createAnalyseCommentRequest(text, apiKey));
     var response = restTemplate.postForEntity(analyseUri(), request, AnalyseCommentResponse.class);
-    // TODO check response code. If ok charge customer an operation and return
-    // result. Log real error from service but return a generic and say no charge
+    apiKeyUsageCache.put(apiKey, usageCount, 0);
     return response.getBody();
-  }
-
-  private boolean isPermitted(ApiKey apiKey) {
-    var textScope = apiKey.getScope().getTextScope();
-    return textScope.getToxicity() || textScope.getSevereToxicity() || textScope.getIdentityAttack()
-        || textScope.getInsult() || textScope.getProfanity() || textScope.getThreat();
   }
 
   private URI analyseUri() {
@@ -105,5 +104,15 @@ public class TextService {
       attributes.setThreat(new Attribute());
     }
     return attributes;
+  }
+
+  private int usageCount(TextScope textScope) {
+    var scopes = List.of(textScope.getToxicity(), textScope.getSevereToxicity(), textScope.getIdentityAttack(),
+        textScope.getInsult(), textScope.getProfanity(), textScope.getThreat());
+    var count = 0;
+    for (boolean scope : scopes) {
+      count += (scope ? 1 : 0);
+    }
+    return count;
   }
 }

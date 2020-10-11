@@ -9,7 +9,8 @@ public enum CriticalCode implements ErrorCode {
   GEOLITE_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to load geolite database."),
   PRINT_WRITER_IO_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occured while processing the request."),
   TEMPLATE_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to find email template."),
-  AUTHENTICATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occured while authenticating api key.");
+  AUTHENTICATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occured while authenticating api key."),
+  INTEGRATION_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "An error occured while connecting to a third party service.");
 
   private final String message;
   private final HttpStatus status;
