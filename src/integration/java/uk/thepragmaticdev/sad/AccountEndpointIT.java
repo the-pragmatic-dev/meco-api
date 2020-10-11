@@ -2,8 +2,10 @@ package uk.thepragmaticdev.sad;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,6 +52,7 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .get(accountEndpoint(port) + "me")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -69,6 +72,7 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .put(accountEndpoint(port) + "me")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -87,14 +91,15 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .put(accountEndpoint(port) + "me")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("accountUpdateRequest"))
-          .body("field", is("fullName"))
-          .body("rejected_value", is(""))
-          .body("message", is("Full name length must be between 1-50."))
+            .body("object", is("accountUpdateRequest"))
+            .body("field", is("fullName"))
+            .body("rejected_value", is(""))
+            .body("message", is("Full name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -113,14 +118,15 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .put(accountEndpoint(port) + "me")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("accountUpdateRequest"))
-          .body("field", is("fullName"))
-          .body("rejected_value", is(longName))
-          .body("message", is("Full name length must be between 1-50."))
+            .body("object", is("accountUpdateRequest"))
+            .body("field", is("fullName"))
+            .body("rejected_value", is(longName))
+            .body("message", is("Full name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -134,6 +140,7 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .get(accountEndpoint(port) + "me/billing/logs")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -149,6 +156,7 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .get(accountEndpoint(port) + "me/billing/logs/download")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -164,6 +172,7 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .get(accountEndpoint(port) + "me/security/logs")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -179,6 +188,7 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .get(accountEndpoint(port) + "me/security/logs/download")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -194,6 +204,7 @@ class AccountEndpointIT extends IntegrationData {
     .when()
       .get(accountEndpoint(port) + "me/security/devices")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -209,9 +220,10 @@ class AccountEndpointIT extends IntegrationData {
       .when()
         .delete(accountEndpoint(port) + "me/security/devices")
       .then()
-        .body("status", is("UNAUTHORIZED"))
-        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
-        .statusCode(401);
+          .body("id", is(not(emptyString())))
+          .body("status", is("UNAUTHORIZED"))
+          .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
+          .statusCode(401);
   }
 
   // @formatter:on

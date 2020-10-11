@@ -2,7 +2,9 @@ package uk.thepragmaticdev.sad;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
@@ -49,6 +51,7 @@ class BillingEndpointIT extends IntegrationData {
     .when()
       .post(billingEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("CONFLICT"))
         .body("message", is(BillingCode.STRIPE_CREATE_CUSTOMER_CONFLICT.getMessage()))
         .statusCode(409);
@@ -64,6 +67,7 @@ class BillingEndpointIT extends IntegrationData {
     .when()
       .post(billingEndpoint(port) + "subscriptions")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -79,6 +83,7 @@ class BillingEndpointIT extends IntegrationData {
     .when()
       .post(billingEndpoint(port) + "subscriptions")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(BillingCode.STRIPE_PRICE_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -94,6 +99,7 @@ class BillingEndpointIT extends IntegrationData {
     .when()
       .delete(billingEndpoint(port) + "subscriptions")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -107,6 +113,7 @@ class BillingEndpointIT extends IntegrationData {
     .when()
       .delete(billingEndpoint(port) + "subscriptions")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(BillingCode.STRIPE_SUBSCRIPTION_NOT_FOUND.getMessage()))
         .statusCode(404);

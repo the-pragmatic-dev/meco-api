@@ -2,7 +2,9 @@ package uk.thepragmaticdev.sad;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
@@ -52,6 +54,7 @@ class TextEndpointIT extends IntegrationData {
     .when()
       .post(textEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.API_KEY_INVALID.getMessage()))
         .statusCode(401);
@@ -81,6 +84,7 @@ class TextEndpointIT extends IntegrationData {
     .when()
       .post(textEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("FORBIDDEN"))
         .body("message", is(ApiKeyCode.API_KEY_DISABLED.getMessage()))
         .statusCode(403);
@@ -111,6 +115,7 @@ class TextEndpointIT extends IntegrationData {
     .when()
       .post(textEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("FORBIDDEN"))
         .body("message", is(TextCode.TEXT_DISABLED.getMessage()))
         .statusCode(403);

@@ -2,8 +2,10 @@ package uk.thepragmaticdev.sad;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
@@ -53,6 +55,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .get(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -68,6 +71,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .get(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -81,6 +85,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .get(apiKeyEndpoint(port) + "9999")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -102,14 +107,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("name"))
-          .body("rejected_value", is(shortName))
-          .body("message", is("API key name length must be between 1-50."))
+            .body("object", is("apiKeyCreateRequest"))
+            .body("field", is("name"))
+            .body("rejected_value", is(shortName))
+            .body("message", is("API key name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -128,14 +134,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("name"))
-          .body("rejected_value", is(longName))
-          .body("message", is("API key name length must be between 1-50."))
+            .body("object", is("apiKeyCreateRequest"))
+            .body("field", is("name"))
+            .body("rejected_value", is(longName))
+            .body("message", is("API key name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -152,14 +159,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("name"))
-          .body("rejected_value", is(nullValue()))
-          .body("message", is("API key name cannot be null."))
+            .body("object", is("apiKeyCreateRequest"))
+            .body("field", is("name"))
+            .body("rejected_value", is(nullValue()))
+            .body("message", is("API key name cannot be null."))
         .statusCode(400);
   }
 
@@ -177,16 +185,17 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("accessPolicies"))
-          .body("rejected_value", hasSize(1))
-          .body("rejected_value[0].name", is(accessPolicy.getName()))
-          .body("rejected_value[0].range", is(accessPolicy.getRange()))
-          .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
+            .body("object", is("apiKeyCreateRequest"))
+            .body("field", is("accessPolicies"))
+            .body("rejected_value", hasSize(1))
+            .body("rejected_value[0].name", is(accessPolicy.getName()))
+            .body("rejected_value[0].range", is(accessPolicy.getRange()))
+            .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
         .statusCode(400);
   }
 
@@ -204,16 +213,17 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("accessPolicies"))
-          .body("rejected_value", hasSize(1))
-          .body("rejected_value[0].name", is(accessPolicy.getName()))
-          .body("rejected_value[0].range", is(accessPolicy.getRange()))
-          .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
+            .body("object", is("apiKeyCreateRequest"))
+            .body("field", is("accessPolicies"))
+            .body("rejected_value", hasSize(1))
+            .body("rejected_value[0].name", is(accessPolicy.getName()))
+            .body("rejected_value[0].range", is(accessPolicy.getRange()))
+            .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
         .statusCode(400);
   }
 
@@ -231,14 +241,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("accessPolicies[0].name"))
-          .body("rejected_value", is(nullValue()))
-          .body("message", is("Access policy name cannot be null."))
+            .body("object", is("apiKeyCreateRequest"))
+            .body("field", is("accessPolicies[0].name"))
+            .body("rejected_value", is(nullValue()))
+            .body("message", is("Access policy name cannot be null."))
         .statusCode(400);
   }
 
@@ -256,14 +267,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("accessPolicies[0].name"))
-          .body("rejected_value", is(""))
-          .body("message", is("Access policy name length must be between 1-50."))
+            .body("object", is("apiKeyCreateRequest"))
+            .body("field", is("accessPolicies[0].name"))
+            .body("rejected_value", is(""))
+            .body("message", is("Access policy name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -282,14 +294,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyCreateRequest"))
-          .body("field", is("accessPolicies[0].name"))
-          .body("rejected_value", is(longName))
-          .body("message", is("Access policy name length must be between 1-50."))
+            .body("object", is("apiKeyCreateRequest"))
+            .body("field", is("accessPolicies[0].name"))
+            .body("rejected_value", is(longName))
+            .body("message", is("Access policy name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -306,6 +319,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .post(apiKeyEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("FORBIDDEN"))
         .body("message", is(ApiKeyCode.API_KEY_LIMIT.getMessage()))
         .statusCode(403);
@@ -323,6 +337,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "1")
       .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -338,6 +353,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "9999")
       .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -356,14 +372,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyUpdateRequest"))
-          .body("field", is("name"))
-          .body("rejected_value", is(""))
-          .body("message", is("API key name length must be between 1-50."))
+            .body("object", is("apiKeyUpdateRequest"))
+            .body("field", is("name"))
+            .body("rejected_value", is(""))
+            .body("message", is("API key name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -382,14 +399,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyUpdateRequest"))
-          .body("field", is("name"))
-          .body("rejected_value", is(longName))
-          .body("message", is("API key name length must be between 1-50."))
+            .body("object", is("apiKeyUpdateRequest"))
+            .body("field", is("name"))
+            .body("rejected_value", is(longName))
+            .body("message", is("API key name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -407,16 +425,17 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyUpdateRequest"))
-          .body("field", is("accessPolicies"))
-          .body("rejected_value", hasSize(1))
-          .body("rejected_value[0].name", is(accessPolicy.getName()))
-          .body("rejected_value[0].range", is(accessPolicy.getRange()))
-          .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
+            .body("object", is("apiKeyUpdateRequest"))
+            .body("field", is("accessPolicies"))
+            .body("rejected_value", hasSize(1))
+            .body("rejected_value[0].name", is(accessPolicy.getName()))
+            .body("rejected_value[0].range", is(accessPolicy.getRange()))
+            .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
         .statusCode(400);
   }
 
@@ -434,16 +453,17 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyUpdateRequest"))
-          .body("field", is("accessPolicies"))
-          .body("rejected_value", hasSize(1))
-          .body("rejected_value[0].name", is(accessPolicy.getName()))
-          .body("rejected_value[0].range", is(accessPolicy.getRange()))
-          .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
+            .body("object", is("apiKeyUpdateRequest"))
+            .body("field", is("accessPolicies"))
+            .body("rejected_value", hasSize(1))
+            .body("rejected_value[0].name", is(accessPolicy.getName()))
+            .body("rejected_value[0].range", is(accessPolicy.getRange()))
+            .body("message", is("Must match n.n.n.n/m where n=1-3 decimal digits, m = 1-3 decimal digits in range 1-32."))
         .statusCode(400);
   }
 
@@ -461,14 +481,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyUpdateRequest"))
-          .body("field", is("accessPolicies[0].name"))
-          .body("rejected_value", is(nullValue()))
-          .body("message", is("Access policy name cannot be null."))
+            .body("object", is("apiKeyUpdateRequest"))
+            .body("field", is("accessPolicies[0].name"))
+            .body("rejected_value", is(nullValue()))
+            .body("message", is("Access policy name cannot be null."))
         .statusCode(400);
   }
 
@@ -486,14 +507,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyUpdateRequest"))
-          .body("field", is("accessPolicies[0].name"))
-          .body("rejected_value", is(""))
-          .body("message", is("Access policy name length must be between 1-50."))
+            .body("object", is("apiKeyUpdateRequest"))
+            .body("field", is("accessPolicies[0].name"))
+            .body("rejected_value", is(""))
+            .body("message", is("Access policy name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -512,14 +534,15 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .put(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("apiKeyUpdateRequest"))
-          .body("field", is("accessPolicies[0].name"))
-          .body("rejected_value", is(longName))
-          .body("message", is("Access policy name length must be between 1-50."))
+            .body("object", is("apiKeyUpdateRequest"))
+            .body("field", is("accessPolicies[0].name"))
+            .body("rejected_value", is(longName))
+            .body("message", is("Access policy name length must be between 1-50."))
         .statusCode(400);
   }
 
@@ -533,6 +556,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .delete(apiKeyEndpoint(port) + "1")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -546,6 +570,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .delete(apiKeyEndpoint(port) + "9999")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -561,6 +586,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .get(apiKeyEndpoint(port) + "1/logs")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -574,6 +600,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .get(apiKeyEndpoint(port) + "9999/logs")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -589,6 +616,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .get(apiKeyEndpoint(port) + "1/logs/download")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);
@@ -602,6 +630,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .get(apiKeyEndpoint(port) + "9999/logs/download")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(ApiKeyCode.API_KEY_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -617,6 +646,7 @@ class ApiKeyEndpointIT extends IntegrationData {
     .when()
       .get(apiKeyEndpoint(port) + "count")
       .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
         .statusCode(401);

@@ -2,8 +2,10 @@ package uk.thepragmaticdev.sad;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.UUID;
@@ -49,14 +51,15 @@ class AuthEndpointIT extends IntegrationData {
   void shouldNotSigninIfRequestMetadataIsMissing() {
     var request = authSigninRequest();
     given()
-        .contentType(JSON)
-        .body(request)
-      .when()
-        .post(authEndpoint(port) + "signin")
-      .then()
-          .body("status", is("BAD_REQUEST"))
-          .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
-          .statusCode(400);
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(authEndpoint(port) + "signin")
+    .then()
+        .body("id", is(not(emptyString())))
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
+        .statusCode(400);
   }
 
   @Test
@@ -71,6 +74,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "signin")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.CREDENTIALS_INVALID.getMessage()))
         .statusCode(401);
@@ -88,6 +92,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "signin")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.CREDENTIALS_INVALID.getMessage()))
         .statusCode(401);
@@ -100,14 +105,15 @@ class AuthEndpointIT extends IntegrationData {
     var request = authSignupRequest();
     request.setUsername("auth@integration.test");
     given()
-        .contentType(JSON)
-        .body(request)
-      .when()
-        .post(authEndpoint(port) + "signup")
-      .then()
-          .body("status", is("BAD_REQUEST"))
-          .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
-          .statusCode(400);
+      .contentType(JSON)
+      .body(request)
+    .when()
+      .post(authEndpoint(port) + "signup")
+    .then()
+        .body("id", is(not(emptyString())))
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
+        .statusCode(400);
   }
 
   @Test
@@ -121,6 +127,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "signup")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("CONFLICT"))
         .body("message", is(AccountCode.USERNAME_UNAVAILABLE.getMessage()))
         .statusCode(409);
@@ -138,14 +145,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "signup")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authSignupRequest"))
-          .body("field", is("username"))
-          .body("rejected_value", is(request.getUsername()))
-          .body("message", is("Username is not a valid email."))
+            .body("object", is("authSignupRequest"))
+            .body("field", is("username"))
+            .body("rejected_value", is(request.getUsername()))
+            .body("message", is("Username is not a valid email."))
         .statusCode(400);
   }
 
@@ -161,14 +169,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "signup")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authSignupRequest"))
-          .body("field", is("password"))
-          .body("rejected_value", is("[PROTECTED]"))
-          .body("message", is("Minimum password length: 8 characters."))
+            .body("object", is("authSignupRequest"))
+            .body("field", is("password"))
+            .body("rejected_value", is("[PROTECTED]"))
+            .body("message", is("Minimum password length: 8 characters."))
         .statusCode(400);
   }
 
@@ -182,6 +191,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "forgot")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(AccountCode.USERNAME_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -201,6 +211,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "reset")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(AuthCode.PASSWORD_RESET_TOKEN_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -219,14 +230,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "reset")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authResetRequest"))
-          .body("field", is("password"))
-          .body("rejected_value", is("[PROTECTED]"))
-          .body("message", is("Minimum password length: 8 characters."))
+            .body("object", is("authResetRequest"))
+            .body("field", is("password"))
+            .body("rejected_value", is("[PROTECTED]"))
+            .body("message", is("Minimum password length: 8 characters."))
         .statusCode(400);
   }
 
@@ -243,14 +255,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authRefreshRequest"))
-          .body("field", is("accessToken"))
-          .body("rejected_value", is(futureToken()))
-          .body("message", is("Must be a valid, expired access token."))
+            .body("object", is("authRefreshRequest"))
+            .body("field", is("accessToken"))
+            .body("rejected_value", is(futureToken()))
+            .body("message", is("Must be a valid, expired access token."))
         .statusCode(400);
   }
 
@@ -265,14 +278,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authRefreshRequest"))
-          .body("field", is("accessToken"))
-          .body("rejected_value", is(incorrectSignatureToken()))
-          .body("message", is("Must be a valid, expired access token."))
+            .body("object", is("authRefreshRequest"))
+            .body("field", is("accessToken"))
+            .body("rejected_value", is(incorrectSignatureToken()))
+            .body("message", is("Must be a valid, expired access token."))
         .statusCode(400);
   }
 
@@ -287,14 +301,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authRefreshRequest"))
-          .body("field", is("accessToken"))
-          .body("rejected_value", is(nullValue()))
-          .body("message", is("Must be a valid, expired access token."))
+            .body("object", is("authRefreshRequest"))
+            .body("field", is("accessToken"))
+            .body("rejected_value", is(nullValue()))
+            .body("message", is("Must be a valid, expired access token."))
         .statusCode(400);
   }
 
@@ -309,14 +324,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authRefreshRequest"))
-          .body("field", is("accessToken"))
-          .body("rejected_value", is(""))
-          .body("message", is("Must be a valid, expired access token."))
+            .body("object", is("authRefreshRequest"))
+            .body("field", is("accessToken"))
+            .body("rejected_value", is(""))
+            .body("message", is("Must be a valid, expired access token."))
         .statusCode(400);
   }
 
@@ -332,14 +348,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authRefreshRequest"))
-          .body("field", is("refreshToken"))
-          .body("rejected_value", is(refreshToken))
-          .body("message", is("Must be a valid refresh token."))
+            .body("object", is("authRefreshRequest"))
+            .body("field", is("refreshToken"))
+            .body("rejected_value", is(refreshToken))
+            .body("message", is("Must be a valid refresh token."))
         .statusCode(400);
   }
 
@@ -354,14 +371,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authRefreshRequest"))
-          .body("field", is("refreshToken"))
-          .body("rejected_value", is(nullValue()))
-          .body("message", is("Must be a valid refresh token."))
+            .body("object", is("authRefreshRequest"))
+            .body("field", is("refreshToken"))
+            .body("rejected_value", is(nullValue()))
+            .body("message", is("Must be a valid refresh token."))
         .statusCode(400);
   }
 
@@ -376,14 +394,15 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is("Validation errors"))
         .body("sub_errors", hasSize(1))
         .rootPath("sub_errors[0]")
-          .body("object", is("authRefreshRequest"))
-          .body("field", is("refreshToken"))
-          .body("rejected_value", is(""))
-          .body("message", is("Must be a valid refresh token."))
+            .body("object", is("authRefreshRequest"))
+            .body("field", is("refreshToken"))
+            .body("rejected_value", is(""))
+            .body("message", is("Must be a valid refresh token."))
         .statusCode(400);
   }
 
@@ -397,6 +416,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is(AuthCode.REFRESH_TOKEN_EXPIRED.getMessage()))
         .statusCode(400);
@@ -412,6 +432,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("NOT_FOUND"))
         .body("message", is(AuthCode.REFRESH_TOKEN_NOT_FOUND.getMessage()))
         .statusCode(404);
@@ -427,6 +448,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
         .statusCode(400);
@@ -441,6 +463,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .post(authEndpoint(port) + "refresh")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("BAD_REQUEST"))
         .body("message", is(AuthCode.REQUEST_METADATA_INVALID.getMessage()))
         .statusCode(400);
@@ -456,6 +479,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .get(accountEndpoint(port) + "me")
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.AUTH_HEADER_INVALID.getMessage()))
         .statusCode(401);
@@ -468,6 +492,7 @@ class AuthEndpointIT extends IntegrationData {
     .when()
       .get(textEndpoint(port))
     .then()
+        .body("id", is(not(emptyString())))
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.AUTH_HEADER_INVALID.getMessage()))
         .statusCode(401);
