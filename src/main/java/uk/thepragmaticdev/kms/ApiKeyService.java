@@ -87,7 +87,7 @@ public class ApiKeyService {
    */
   public List<ApiKey> findAll(String username) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    return apiKeyRepository.findAllByAccountId(authenticatedAccount.getId());
+    return apiKeyRepository.findAllByAccountIdAndDeletedDateIsNull(authenticatedAccount.getId());
   }
 
   /**
@@ -99,7 +99,7 @@ public class ApiKeyService {
    */
   public ApiKey findById(String username, long id) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    return apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
+    return apiKeyRepository.findOneByIdAndAccountIdAndDeletedDateIsNull(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
   }
 
@@ -110,7 +110,7 @@ public class ApiKeyService {
    * @return A list of matching keys
    */
   public List<ApiKey> findByPrefix(String prefix) {
-    return apiKeyRepository.findByPrefix(prefix);
+    return apiKeyRepository.findByPrefixAndDeletedDateIsNull(prefix);
   }
 
   /**
@@ -123,7 +123,7 @@ public class ApiKeyService {
   @Transactional
   public ApiKey create(String username, ApiKey apiKey) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    if (apiKeyRepository.countByAccountId(authenticatedAccount.getId()) < apiKeyLimit) {
+    if (apiKeyRepository.countByAccountIdAndDeletedDateIsNull(authenticatedAccount.getId()) < apiKeyLimit) {
       apiKey.setAccount(authenticatedAccount);
       apiKey.setName(apiKey.getName());
       apiKey.setPrefix(generatePrefix());
@@ -177,7 +177,8 @@ public class ApiKeyService {
   public ApiKey update(String username, long id, ApiKey apiKey) {
     apiKey.setId(id);
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(apiKey.getId(), authenticatedAccount.getId())
+    var persistedApiKey = apiKeyRepository
+        .findOneByIdAndAccountIdAndDeletedDateIsNull(apiKey.getId(), authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
     updateName(persistedApiKey, apiKey.getName());
     updateScope(persistedApiKey, apiKey.getScope());
@@ -292,7 +293,9 @@ public class ApiKeyService {
   }
 
   /**
-   * Delete a key owned by an authenticated account.
+   * Delete a key owned by an authenticated account. Rather than removing from
+   * database the deleted date is set as the key ids are still needed for billing.
+   * A cron job will remove old deleted keys.
    * 
    * @param username The authenticated account username
    * @param id       The id of the key to be deleted
@@ -300,9 +303,10 @@ public class ApiKeyService {
   @Transactional
   public void delete(String username, long id) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
+    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountIdAndDeletedDateIsNull(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
-    apiKeyRepository.delete(persistedApiKey);
+    persistedApiKey.setDeletedDate(OffsetDateTime.now());
+    apiKeyRepository.save(persistedApiKey);
     securityLogService.deleteKey(authenticatedAccount, persistedApiKey);
     emailService.sendKeyDeleted(authenticatedAccount, persistedApiKey);
   }
@@ -317,7 +321,7 @@ public class ApiKeyService {
    */
   public Page<ApiKeyLog> log(Pageable pageable, String username, long id) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
+    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountIdAndDeletedDateIsNull(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
     return apiKeyLogService.findAllByApiKeyId(pageable, persistedApiKey);
   }
@@ -331,7 +335,7 @@ public class ApiKeyService {
    */
   public void downloadLog(StatefulBeanToCsv<ApiKeyLog> writer, String username, long id) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountId(id, authenticatedAccount.getId())
+    var persistedApiKey = apiKeyRepository.findOneByIdAndAccountIdAndDeletedDateIsNull(id, authenticatedAccount.getId())
         .orElseThrow(() -> new ApiException(ApiKeyCode.API_KEY_NOT_FOUND));
     try {
       writer.write(apiKeyLogService.findAllByApiKeyId(persistedApiKey));
@@ -349,7 +353,7 @@ public class ApiKeyService {
    */
   public long count(String username) {
     var authenticatedAccount = accountService.findAuthenticatedAccount(username);
-    return apiKeyRepository.countByAccountId(authenticatedAccount.getId());
+    return apiKeyRepository.countByAccountIdAndDeletedDateIsNull(authenticatedAccount.getId());
   }
 
   /**

@@ -76,6 +76,7 @@ CREATE TABLE api_key (
     created_date TIMESTAMPTZ NOT NULL,
     last_used_date TIMESTAMPTZ,
     modified_date TIMESTAMPTZ,
+    deleted_date TIMESTAMPTZ,
     enabled BOOLEAN NOT NULL,
     account_id BIGINT NOT NULL REFERENCES account (id),
     scope_id BIGINT NOT NULL REFERENCES scope (id),

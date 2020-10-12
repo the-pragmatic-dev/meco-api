@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
 
-  List<ApiKey> findAllByAccountId(Long accountId);
+  List<ApiKey> findAllByAccountIdAndDeletedDateIsNull(Long accountId);
 
-  Optional<ApiKey> findOneByIdAndAccountId(Long id, Long accountId);
+  Optional<ApiKey> findOneByIdAndAccountIdAndDeletedDateIsNull(Long id, Long accountId);
 
-  List<ApiKey> findByPrefix(String prefix);
+  List<ApiKey> findByPrefixAndDeletedDateIsNull(String prefix);
 
-  long countByAccountId(Long accountId);
+  long countByAccountIdAndDeletedDateIsNull(Long accountId);
 }

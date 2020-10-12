@@ -81,7 +81,7 @@ class ApiKeyServiceTest {
     apiKey.setScope(new Scope());
 
     when(passwordEncoder.encode(anyString())).thenReturn(encodedString);
-    when(apiKeyRepository.countByAccountId(anyLong())).thenReturn(0L);
+    when(apiKeyRepository.countByAccountIdAndDeletedDateIsNull(anyLong())).thenReturn(0L);
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
     when(apiKeyRepository.save(any(ApiKey.class))).thenReturn(apiKey);
 
@@ -98,7 +98,7 @@ class ApiKeyServiceTest {
   void shouldThrowExceptionWhenMaxKeysReached() {
     var apiKey = new ApiKey();
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
-    when(apiKeyRepository.countByAccountId(anyLong())).thenReturn(10L); // max keys
+    when(apiKeyRepository.countByAccountIdAndDeletedDateIsNull(anyLong())).thenReturn(10L); // max keys
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
       sut.create("username", apiKey);
@@ -109,7 +109,8 @@ class ApiKeyServiceTest {
   @Test
   void shouldThrowExceptionDownloadingApiKeyLogsIfInvalidCsvDataType() throws Exception {
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
-    when(apiKeyRepository.findOneByIdAndAccountId(anyLong(), anyLong())).thenReturn(Optional.of(mock(ApiKey.class)));
+    when(apiKeyRepository.findOneByIdAndAccountIdAndDeletedDateIsNull(anyLong(), anyLong()))
+        .thenReturn(Optional.of(mock(ApiKey.class)));
     doThrow(CsvDataTypeMismatchException.class).when(apiKeyLogWriter).write(anyList());
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
@@ -121,7 +122,8 @@ class ApiKeyServiceTest {
   @Test
   void shouldThrowExceptionDownloadingApiKeyLogsIfRequiredFieldIsEmpty() throws Exception {
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(mock(Account.class));
-    when(apiKeyRepository.findOneByIdAndAccountId(anyLong(), anyLong())).thenReturn(Optional.of(mock(ApiKey.class)));
+    when(apiKeyRepository.findOneByIdAndAccountIdAndDeletedDateIsNull(anyLong(), anyLong()))
+        .thenReturn(Optional.of(mock(ApiKey.class)));
     doThrow(CsvRequiredFieldEmptyException.class).when(apiKeyLogWriter).write(anyList());
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
