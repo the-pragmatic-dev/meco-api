@@ -55,6 +55,12 @@ import uk.thepragmaticdev.text.dto.request.TextRequest;
 @Component
 public abstract class IntegrationData {
 
+  protected static final String TEST_USERNAME = "billing@integration.test";
+  protected static final String TEST_PASSWORD = "aTestPassword";
+  protected static final String TEST_STARTER_PLAN = "price_1HjjsyBH6611072qfHrKuJ4i";
+  protected static final String TEST_INDIE_PLAN = "price_1HiI8qBH6611072qmfPxAR7T";
+  protected static final String TEST_PRO_PLAN = "price_1HiI8vBH6611072qMbcphyNB";
+  protected static final String TEST_PAYMENT_METHOD = "pm_card_visa";
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
   protected static final String INVALID_API_KEY = "ApiKey invalidApiKey";
 
@@ -246,8 +252,9 @@ public abstract class IntegrationData {
     return new DeviceMetadata("Mac OS X", "10", "14", "Chrome", "71", "0");
   }
 
-  protected final BillingCreateSubscriptionRequest billingCreateSubscriptionRequest(String price) {
-    return new BillingCreateSubscriptionRequest(price);
+  protected final BillingCreateSubscriptionRequest billingCreateSubscriptionRequest(String paymentMethodId,
+      String planId) {
+    return new BillingCreateSubscriptionRequest(paymentMethodId, planId);
   }
 
   protected final TextRequest textRequest() {
@@ -281,6 +288,10 @@ public abstract class IntegrationData {
             OffsetDateTime.now().toString()));
       }
     };
+  }
+
+  public static boolean isSameDay(OffsetDateTime actual, OffsetDateTime expected, ChronoUnit unit) {
+    return actual.truncatedTo(unit).isEqual(expected.truncatedTo(unit));
   }
 
   // @helpers:tokens

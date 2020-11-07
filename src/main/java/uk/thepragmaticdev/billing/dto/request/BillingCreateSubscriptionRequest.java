@@ -9,5 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BillingCreateSubscriptionRequest {
 
-  private String price;
+  private String paymentMethodId;
+
+  private String planId;
 }

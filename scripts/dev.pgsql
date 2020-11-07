@@ -8,7 +8,10 @@ delete from api_key;
 delete from scope;
 delete from account_roles;
 delete from account;
+delete from billing;
+delete from flyway_schema_history;
 
+select * from billing;
 select * from account;
 select * from account_roles;
 select * from api_key;

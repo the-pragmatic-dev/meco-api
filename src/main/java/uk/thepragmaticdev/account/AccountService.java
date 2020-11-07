@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.thepragmaticdev.billing.Billing;
 import uk.thepragmaticdev.billing.BillingService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
@@ -104,6 +105,7 @@ public class AccountService {
     account.setBillingAlertEnabled(false);
     account.setBillingAlertAmount((short) 0);
     account.setCreatedDate(OffsetDateTime.now());
+    account.setBilling(new Billing());
     return accountRepository.save(account);
   }
 
@@ -248,41 +250,6 @@ public class AccountService {
     var account = findAuthenticatedAccount(username);
     account.getRefreshTokens().clear();
     accountRepository.save(account);
-  }
-
-  /**
-   * Persists the accounts new stripe customer id.
-   * 
-   * @param persistedAccount An authenticated account entity
-   * @param stripeCustomerId The id of the new stripe customer
-   */
-  public void saveCustomerId(Account persistedAccount, String stripeCustomerId) {
-    persistedAccount.setStripeCustomerId(stripeCustomerId);
-    accountRepository.save(persistedAccount);
-  }
-
-  /**
-   * Persists the accounts new stripe subscription.
-   * 
-   * @param persistedAccount         An authenticated account entity
-   * @param stripeSubscriptionId     The id of the new stripe subscription
-   * @param stripeSubscriptionItemId The id of the new stripe subscription item
-   */
-  public void saveSubscription(Account persistedAccount, String stripeSubscriptionId, String stripeSubscriptionItemId) {
-    persistedAccount.setStripeSubscriptionId(stripeSubscriptionId);
-    persistedAccount.setStripeSubscriptionItemId(stripeSubscriptionItemId);
-    accountRepository.save(persistedAccount);
-  }
-
-  /**
-   * Removes the accounts stripe subscription.
-   * 
-   * @param persistedAccount An authenticated account entity
-   */
-  public void cancelSubscription(Account persistedAccount) {
-    persistedAccount.setStripeSubscriptionId(null);
-    persistedAccount.setStripeSubscriptionItemId(null);
-    accountRepository.save(persistedAccount);
   }
 
   /**

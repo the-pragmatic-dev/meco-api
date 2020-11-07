@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS api_key_usage;
 DROP TABLE IF EXISTS api_key;
 DROP TABLE IF EXISTS scope;
 DROP TABLE IF EXISTS account;
+DROP TABLE IF EXISTS billing;
 -------------------------------------------------
 -- Drop Indexes ---------------------------------
 DROP INDEX IF EXISTS refresh_token_token_idx;
@@ -24,14 +25,34 @@ DROP INDEX IF EXISTS api_key_account_id_idx;
 DROP INDEX IF EXISTS api_key_scope_id_idx;
 DROP INDEX IF EXISTS account_username_idx;
 DROP INDEX IF EXISTS account_password_reset_token_idx;
+DROP INDEX IF EXISTS account_billing_id_idx;
+DROP INDEX IF EXISTS billing_customer_id_idx;
+-------------------------------------------------
+-- Billing --------------------------------------
+CREATE TABLE billing (
+    id BIGSERIAL PRIMARY KEY,
+    customer_id TEXT UNIQUE,
+    subscription_id TEXT,
+    subscription_item_id TEXT,
+    subscription_status TEXT,
+    subscription_current_period_start TIMESTAMPTZ,
+    subscription_current_period_end TIMESTAMPTZ,
+    plan_id TEXT,
+    plan_nickname TEXT,
+    card_billing_name TEXT,
+    card_brand TEXT,
+    card_last4 TEXT,
+    card_exp_month SMALLINT,
+    card_exp_year SMALLINT,
+    created_date TIMESTAMPTZ,
+    updated_date TIMESTAMPTZ
+);
+CREATE INDEX billing_customer_id_idx ON billing (customer_id);
 -------------------------------------------------
 -- Account --------------------------------------
 CREATE TABLE account (
     id BIGSERIAL PRIMARY KEY,
     avatar SMALLINT DEFAULT 0,
-    stripe_customer_id TEXT UNIQUE,
-    stripe_subscription_id TEXT,
-    stripe_subscription_item_id TEXT,
     username TEXT UNIQUE NOT NULL,
     password CHAR(60) NOT NULL,
     password_reset_token CHAR(36),
@@ -40,10 +61,13 @@ CREATE TABLE account (
     billing_alert_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     billing_alert_amount SMALLINT NOT NULL DEFAULT 0,
     created_date TIMESTAMPTZ NOT NULL,
-    email_subscription_enabled BOOLEAN NOT NULL DEFAULT FALSE
+    email_subscription_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    billing_id BIGINT NOT NULL REFERENCES billing (id),
+    UNIQUE (id, billing_id)
 );
 CREATE INDEX account_username_idx ON account (username);
 CREATE INDEX account_password_reset_token_idx ON account (password_reset_token);
+CREATE INDEX account_billing_id_idx ON account (billing_id);
 -------------------------------------------------
 -- Account Roles --------------------------------
 CREATE TABLE account_roles (

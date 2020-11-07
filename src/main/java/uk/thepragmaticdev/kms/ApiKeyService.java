@@ -286,6 +286,7 @@ public class ApiKeyService {
     if (enabled == null) {
       return;
     }
+    // TODO if trying to enable key - check if account has an active subscription
     if (!persistedApiKey.getEnabled().equals(enabled)) {
       apiKeyLogService.enabled(persistedApiKey, enabled);
       persistedApiKey.setEnabled(enabled);

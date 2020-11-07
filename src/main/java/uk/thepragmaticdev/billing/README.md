@@ -12,19 +12,17 @@ curl https://api.stripe.com/v1/products \
   -u {{API_KEY}} \
   -d id='prod_starter' \
   -d active=true \
-  -d description='Starter product description...' \
   -d name='Starter' \
   -d statement_descriptor='TPD LTD MECO' \
   -d type='service' \
   -d unit_label='operation'
 
-# Growth
+# Indie
 curl https://api.stripe.com/v1/products \
   -u {{API_KEY}} \
-  -d id='prod_growth' \
+  -d id='prod_indie' \
   -d active=true \
-  -d description='Growth product description...' \
-  -d name='Growth' \
+  -d name='Indie' \
   -d statement_descriptor='TPD LTD MECO' \
   -d type='service' \
   -d unit_label='operation'
@@ -34,22 +32,32 @@ curl https://api.stripe.com/v1/products \
   -u {{API_KEY}} \
   -d id='prod_pro' \
   -d active=true \
-  -d description='Pro product description...' \
   -d name='Pro' \
   -d statement_descriptor='TPD LTD MECO' \
   -d type='service' \
   -d unit_label='operation'
 ```
 
-### Create monthly and yearly prices for each product
+### Create monthly prices for each product
 
 ```bash
 # Starter
 curl https://api.stripe.com/v1/prices \
   -u {{API_KEY}} \
+  -d currency=gbp \
+  -d unit_amount=0 \
+  -d nickname='starter' \
+  -d 'recurring[interval]'=month \
+  -d 'recurring[interval_count]'=1 \
+  -d 'recurring[usage_type]'=metered \
+  -d product=prod_starter
+
+# Indie
+curl https://api.stripe.com/v1/prices \
+  -u {{API_KEY}} \
   -d billing_scheme=tiered \
   -d currency=gbp \
-  -d nickname='Starter Price Monthly' \
+  -d nickname='indie' \
   -d 'recurring[aggregate_usage]'=sum \
   -d 'recurring[interval]'=month \
   -d 'recurring[interval_count]'=1 \
@@ -59,30 +67,14 @@ curl https://api.stripe.com/v1/prices \
   -d 'tiers[0][up_to]'=10000 \
   -d 'tiers[1][unit_amount_decimal]'=0.2 \
   -d 'tiers[1][up_to]'=inf \
-  -d product=prod_starter
+  -d product=prod_indie
 
+# Pro
 curl https://api.stripe.com/v1/prices \
   -u {{API_KEY}} \
   -d billing_scheme=tiered \
   -d currency=gbp \
-  -d nickname='Starter Price Yearly' \
-  -d 'recurring[aggregate_usage]'=sum \
-  -d 'recurring[interval]'=year \
-  -d 'recurring[interval_count]'=1 \
-  -d 'recurring[usage_type]'=metered \
-  -d tiers_mode=graduated \
-  -d 'tiers[0][flat_amount]'=54000 \
-  -d 'tiers[0][up_to]'=120000 \
-  -d 'tiers[1][unit_amount_decimal]'=0.2 \
-  -d 'tiers[1][up_to]'=inf \
-  -d product=prod_starter
-
-# Growth
-curl https://api.stripe.com/v1/prices \
-  -u {{API_KEY}} \
-  -d billing_scheme=tiered \
-  -d currency=gbp \
-  -d nickname='Growth Price Monthly' \
+  -d nickname='pro' \
   -d 'recurring[aggregate_usage]'=sum \
   -d 'recurring[interval]'=month \
   -d 'recurring[interval_count]'=1 \
@@ -91,55 +83,6 @@ curl https://api.stripe.com/v1/prices \
   -d 'tiers[0][flat_amount]'=20000 \
   -d 'tiers[0][up_to]'=100000 \
   -d 'tiers[1][unit_amount_decimal]'=0.1 \
-  -d 'tiers[1][up_to]'=inf \
-  -d product=prod_growth
-
-curl https://api.stripe.com/v1/prices \
-  -u {{API_KEY}} \
-  -d billing_scheme=tiered \
-  -d currency=gbp \
-  -d nickname='Growth Price Yearly' \
-  -d 'recurring[aggregate_usage]'=sum \
-  -d 'recurring[interval]'=year \
-  -d 'recurring[interval_count]'=1 \
-  -d 'recurring[usage_type]'=metered \
-  -d tiers_mode=graduated \
-  -d 'tiers[0][flat_amount]'=216000 \
-  -d 'tiers[0][up_to]'=1200000 \
-  -d 'tiers[1][unit_amount_decimal]'=0.1 \
-  -d 'tiers[1][up_to]'=inf \
-  -d product=prod_growth
-
-# Pro
-curl https://api.stripe.com/v1/prices \
-  -u {{API_KEY}} \
-  -d billing_scheme=tiered \
-  -d currency=gbp \
-  -d nickname='Pro Price Monthly' \
-  -d 'recurring[aggregate_usage]'=sum \
-  -d 'recurring[interval]'=month \
-  -d 'recurring[interval_count]'=1 \
-  -d 'recurring[usage_type]'=metered \
-  -d tiers_mode=graduated \
-  -d 'tiers[0][flat_amount]'=50000 \
-  -d 'tiers[0][up_to]'=500000 \
-  -d 'tiers[1][unit_amount_decimal]'=0.05 \
-  -d 'tiers[1][up_to]'=inf \
-  -d product=prod_pro
-
-curl https://api.stripe.com/v1/prices \
-  -u {{API_KEY}} \
-  -d billing_scheme=tiered \
-  -d currency=gbp \
-  -d nickname='Pro Price Yearly' \
-  -d 'recurring[aggregate_usage]'=sum \
-  -d 'recurring[interval]'=year \
-  -d 'recurring[interval_count]'=1 \
-  -d 'recurring[usage_type]'=metered \
-  -d tiers_mode=graduated \
-  -d 'tiers[0][flat_amount]'=540000 \
-  -d 'tiers[0][up_to]'=6000000 \
-  -d 'tiers[1][unit_amount_decimal]'=0.05 \
   -d 'tiers[1][up_to]'=inf \
   -d product=prod_pro
 ```

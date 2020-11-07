@@ -13,11 +13,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.thepragmaticdev.billing.Billing;
 import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.log.billing.BillingLog;
@@ -36,13 +38,6 @@ public class Account implements Model {
   private Long id;
 
   private short avatar;
-
-  @Column(unique = true, nullable = true)
-  private String stripeCustomerId;
-
-  private String stripeSubscriptionId;
-
-  private String stripeSubscriptionItemId;
 
   @Column(unique = true, nullable = false)
   private String username;
@@ -66,6 +61,9 @@ public class Account implements Model {
   private short billingAlertAmount;
 
   private OffsetDateTime createdDate; // generated
+
+  @OneToOne(cascade = { CascadeType.ALL }, orphanRemoval = true)
+  private Billing billing;
 
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(name = "name")

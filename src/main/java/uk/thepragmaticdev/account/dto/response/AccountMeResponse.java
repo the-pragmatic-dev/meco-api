@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.thepragmaticdev.billing.dto.response.BillingResponse;
 
 @Data
 @NoArgsConstructor
@@ -23,4 +24,6 @@ public class AccountMeResponse {
   private short billingAlertAmount;
 
   private OffsetDateTime createdDate;
+
+  private BillingResponse billing;
 }

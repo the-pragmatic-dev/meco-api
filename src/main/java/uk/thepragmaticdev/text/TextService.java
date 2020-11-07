@@ -55,7 +55,6 @@ public class TextService {
    * @return A detailed analysis of the given text
    */
   public AnalyseCommentResponse analyse(String text, ApiKey apiKey) {
-    // TODO check if subcription is active
     if (!Boolean.TRUE.equals(apiKey.getEnabled())) {
       throw new ApiException(ApiKeyCode.API_KEY_DISABLED);
     }

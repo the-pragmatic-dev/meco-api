@@ -2,6 +2,7 @@ package uk.thepragmaticdev.billing;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -9,7 +10,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.stripe.exception.ApiConnectionException;
-import com.stripe.model.PriceCollection;
+import com.stripe.exception.InvalidRequestException;
+import com.stripe.model.PaymentMethod;
+import com.stripe.model.PlanCollection;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +29,9 @@ import uk.thepragmaticdev.exception.code.BillingCode;
 class BillingServiceTest extends UnitData {
 
   @Mock
+  private BillingRepository billingRepository;
+
+  @Mock
   private AccountService accountService;
 
   @Mock
@@ -38,23 +44,25 @@ class BillingServiceTest extends UnitData {
    */
   @BeforeEach
   public void initEach() {
-    sut = new BillingService(accountService, stripeService);
+    sut = new BillingService(billingRepository, accountService, stripeService);
   }
 
   @Test
-  void shouldThrowExceptionOnStripeErrorWhenFindingAllPrices() throws Exception {
-    doThrow(ApiConnectionException.class).when(stripeService).findAllPrices(anyMap());
+  void shouldThrowExceptionOnStripeErrorWhenFindingAllPlans() throws Exception {
+    doThrow(ApiConnectionException.class).when(stripeService).findAllPlans(anyMap());
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
-      sut.findAllPrices();
+      sut.findAllPlans();
     });
-    assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_FIND_ALL_PRICES_ERROR));
+    assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_FIND_ALL_PLANS_ERROR));
   }
 
   @Test
   void shouldThrowExceptionOnStripeErrorWhenCreatingCustomer() throws Exception {
     var account = mock(Account.class);
-    when(account.getStripeCustomerId()).thenReturn(null);
+    var billing = mock(Billing.class);
+    when(billing.getCustomerId()).thenReturn(null);
+    when(account.getBilling()).thenReturn(billing);
     when(account.getUsername()).thenReturn("user@name.com");
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
 
@@ -69,7 +77,9 @@ class BillingServiceTest extends UnitData {
   @Test
   void shouldThrowExceptionOnStripeConflictWhenCreatingCustomer() throws Exception {
     var account = mock(Account.class);
-    when(account.getStripeCustomerId()).thenReturn("existingcustomerid");
+    var billing = mock(Billing.class);
+    when(billing.getCustomerId()).thenReturn("existingcustomerid");
+    when(account.getBilling()).thenReturn(billing);
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
@@ -81,7 +91,9 @@ class BillingServiceTest extends UnitData {
   @Test
   void shouldThrowExceptionOnStripeErrorWhenDeletingCustomer() throws Exception {
     var account = mock(Account.class);
-    when(account.getStripeCustomerId()).thenReturn("id");
+    var billing = mock(Billing.class);
+    when(billing.getCustomerId()).thenReturn("id");
+    when(account.getBilling()).thenReturn(billing);
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
     doThrow(ApiConnectionException.class).when(stripeService).deleteCustomer(anyString());
 
@@ -94,37 +106,53 @@ class BillingServiceTest extends UnitData {
   @Test
   void shouldThrowExceptionOnStripeErrorWhenCreatingSubscription() throws Exception {
     var account = mock(Account.class);
-    var priceCollection = mock(PriceCollection.class);
-    when(account.getStripeCustomerId()).thenReturn("id");
-    when(priceCollection.getData()).thenReturn(List.of(price()));
+    var planCollection = mock(PlanCollection.class);
+
+    var billing = mock(Billing.class);
+    when(billing.getCustomerId()).thenReturn("id");
+    when(account.getBilling()).thenReturn(billing);
+
+    var paymentMethod = mock(PaymentMethod.class);
+    when(paymentMethod.getId()).thenReturn("id");
+
+    when(planCollection.getData()).thenReturn(List.of(plan()));
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
-    when(stripeService.findAllPrices(anyMap())).thenReturn(priceCollection);
+    when(stripeService.findAllPlans(anyMap())).thenReturn(planCollection);
+    when(stripeService.attachPaymentMethod(any(), anyMap())).thenReturn(paymentMethod);
     doThrow(ApiConnectionException.class).when(stripeService).createSubscription(anyMap());
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
-      sut.createSubscription("username", "priceId");
+      sut.createSubscription("username", "paymentMethodId", "planId");
     });
     assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_CREATE_SUBSCRIPTION_ERROR));
   }
 
   @Test
-  void shouldThrowExceptioWhenPriceNotFound() throws Exception {
+  void shouldThrowExceptioWhenPlanNotFound() throws Exception {
     var account = mock(Account.class);
-    var priceCollection = mock(PriceCollection.class);
-    when(priceCollection.getData()).thenReturn(List.of(price()));
+    var billing = mock(Billing.class);
+    when(billing.getCustomerId()).thenReturn("id");
+    when(account.getBilling()).thenReturn(billing);
+
+    var planCollection = mock(PlanCollection.class);
+    when(planCollection.getData()).thenReturn(List.of(plan()));
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
-    when(stripeService.findAllPrices(anyMap())).thenReturn(priceCollection);
+    when(stripeService.findAllPlans(anyMap())).thenReturn(planCollection);
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
-      sut.createSubscription("username", "invalidPriceId");
+      sut.createSubscription("username", "paymentMethodId", "invalidPlanId");
     });
-    assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_PRICE_NOT_FOUND));
+    assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_PLAN_NOT_FOUND));
   }
 
   @Test
   void shouldThrowExceptionWhenSubscriptionNotFound() throws Exception {
     var account = mock(Account.class);
-    when(account.getStripeSubscriptionId()).thenReturn(null);
+    var billing = mock(Billing.class);
+    when(billing.getCustomerId()).thenReturn("id");
+    when(billing.getSubscriptionId()).thenReturn(null);
+    when(account.getBilling()).thenReturn(billing);
+
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
     doThrow(ApiConnectionException.class).when(stripeService).createSubscription(anyMap());
 
@@ -135,22 +163,11 @@ class BillingServiceTest extends UnitData {
   }
 
   @Test
-  void shouldThrowExceptionOnStripeErrorWhenCancellingSubscription() throws Exception {
-    var account = mock(Account.class);
-    when(account.getStripeSubscriptionId()).thenReturn("id");
-    when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
-    doThrow(ApiConnectionException.class).when(stripeService).cancelSubscription(anyString());
-
-    var ex = Assertions.assertThrows(ApiException.class, () -> {
-      sut.cancelSubscription("username");
-    });
-    assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_ERROR));
-  }
-
-  @Test
   void shouldThrowExceptionOnStripeErrorWhenCreatingUsageRecord() throws Exception {
     var account = mock(Account.class);
-    when(account.getStripeSubscriptionItemId()).thenReturn("id");
+    var billing = mock(Billing.class);
+    when(billing.getSubscriptionItemId()).thenReturn("id");
+    when(account.getBilling()).thenReturn(billing);
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
     doThrow(ApiConnectionException.class).when(stripeService).createUsageRecord(anyString(), anyMap());
 
@@ -164,7 +181,9 @@ class BillingServiceTest extends UnitData {
   @Test
   void shouldThrowExceptionOnStripeErrorWhenFindingAllUsageRecords() throws Exception {
     var account = mock(Account.class);
-    when(account.getStripeSubscriptionItemId()).thenReturn("id");
+    var billing = mock(Billing.class);
+    when(billing.getSubscriptionItemId()).thenReturn("id");
+    when(account.getBilling()).thenReturn(billing);
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
     doThrow(ApiConnectionException.class).when(stripeService).findAllUsageRecords(anyString());
 
@@ -175,11 +194,34 @@ class BillingServiceTest extends UnitData {
   }
 
   @Test
-  void shouldThrowExceptionOnStripeErrorWhenFindingUpcomingInvoice() throws Exception {
+  void shouldThrowExceptionOnStripeErrorWhenFindingUpcomingInvoiceNotFound() throws Exception {
     var account = mock(Account.class);
-    when(account.getStripeCustomerId()).thenReturn("id");
+    var billing = mock(Billing.class);
+    when(billing.getCustomerId()).thenReturn("id");
+    when(account.getBilling()).thenReturn(billing);
+
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
-    doThrow(ApiConnectionException.class).when(stripeService).findUpcomingInvoice(anyMap());
+    var error = mock(InvalidRequestException.class);
+    when(error.getCode()).thenReturn("invoice_upcoming_none");
+    doThrow(error).when(stripeService).findUpcomingInvoice(anyMap());
+
+    var ex = Assertions.assertThrows(ApiException.class, () -> {
+      sut.findUpcomingInvoice("username");
+    });
+    assertThat(ex.getErrorCode(), is(BillingCode.STRIPE_FIND_UPCOMING_INVOICE_NOT_FOUND));
+  }
+
+  @Test
+  void shouldThrowExceptionOnStripeErrorWhenFindingUpcomingInvoiceError() throws Exception {
+    var account = mock(Account.class);
+    var billing = mock(Billing.class);
+    when(billing.getCustomerId()).thenReturn("id");
+    when(account.getBilling()).thenReturn(billing);
+
+    when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
+    var error = mock(InvalidRequestException.class);
+    when(error.getCode()).thenReturn("code");
+    doThrow(error).when(stripeService).findUpcomingInvoice(anyMap());
 
     var ex = Assertions.assertThrows(ApiException.class, () -> {
       sut.findUpcomingInvoice("username");
