@@ -29,5 +29,6 @@ stages:
 jobs:
   include:
     - stage: test
-    # checks compilation and checkstyle errors then runs unit and integration tests before pushing results to sonarcloud.
-    - script: ./mvnw clean verify -P all sonar:sonar
+    # checks compilation and checkstyle errors then run unit and integration tests before pushing results to sonarcloud.
+    # jpa logs are disabled to avoid travis log length error
+    - script: ./mvnw clean verify -Dspring.jpa.show-sql=false -P all sonar:sonar
