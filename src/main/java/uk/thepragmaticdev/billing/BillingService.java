@@ -32,6 +32,60 @@ public class BillingService {
 
   private final StripeService stripeService;
 
+  private static final String BILLING_CYCLE_NOW = "now";
+
+  private static final String BILLING_CYCLE_UNCHANGED = "unchanged";
+
+  private static final String KEY_ACTIVE = "active";
+
+  private static final String KEY_BILLING_CYCLE_ANCHOR = "billing_cycle_anchor";
+
+  private static final String KEY_CANCEL_AT_PERIOD_END = "cancel_at_period_end";
+
+  private static final String KEY_CURRENCY = "currency";
+
+  private static final String KEY_CUSTOMER = "customer";
+
+  private static final String KEY_DEFAULT_PAYMENT_METHOD = "default_payment_method";
+
+  private static final String KEY_DESCRIPTION = "description";
+
+  private static final String KEY_EMAIL = "email";
+
+  private static final String KEY_INVOICE_SETTINGS = "invoice_settings";
+
+  private static final String KEY_ITEMS = "items";
+
+  private static final String KEY_ITEM_0_ID = "items[0][id]";
+
+  private static final String KEY_ITEM_0_PRICE = "items[0][price]";
+
+  private static final String KEY_METADATA = "metadata";
+
+  private static final String KEY_PRICE = "price";
+
+  private static final String KEY_PRORATION_BEHAVIOUR = "proration_behavior";
+
+  private static final String KEY_QUANTITY = "quantity";
+
+  private static final String KEY_TIMESTAMP = "timestamp";
+
+  private static final String KEY_UNIT_AMOUNT_DECIMAL = "unit_amount_decimal";
+
+  private static final String KEY_USERNAME = "username";
+
+  private static final String PLAN_STARTER = "starter";
+
+  private static final String PLAN_INDIE = "indie";
+
+  private static final String PLAN_PRO = "pro";
+
+  private static final String PRORATION_BEHAVIOUR_NONE = "none";
+
+  private static final String PRORATION_BEHAVIOUR_ALWAYS = "always_invoice";
+
+  private static final String STRIPE_EXCEPTION_NO_INVOICE = "invoice_upcoming_none";
+
   /**
    * Service for creating stripe customers and handling subscriptions to non-free
    * prices.
@@ -55,7 +109,7 @@ public class BillingService {
    * @return A list of all active plans held by stripe
    */
   public PlanCollection findAllPlans() {
-    Map<String, Object> params = Map.of("active", true);
+    Map<String, Object> params = Map.of(KEY_ACTIVE, true);
     try {
       return stripeService.findAllPlans(params);
     } catch (StripeException ex) {
@@ -74,9 +128,9 @@ public class BillingService {
     if (!StringUtils.isBlank(account.getBilling().getCustomerId())) {
       throw new ApiException(BillingCode.STRIPE_CREATE_CUSTOMER_CONFLICT);
     }
-    var params = Map.of("email", account.getUsername(), //
-        "description", "MECO Account", //
-        "metadata", Map.of("username", account.getUsername()));
+    var params = Map.of(KEY_EMAIL, account.getUsername(), //
+        KEY_DESCRIPTION, "MECO Account", //
+        KEY_METADATA, Map.of(KEY_USERNAME, account.getUsername()));
     try {
       var customerId = stripeService.createCustomer(params).getId();
       account.getBilling().setCustomerId(customerId);
@@ -133,17 +187,17 @@ public class BillingService {
   }
 
   private Subscription createSubscription(String customerId, String plan) throws StripeException {
-    Map<String, Object> params = Map.of("customer", customerId, "items", List.of(Map.of("price", plan)));
+    Map<String, Object> params = Map.of(KEY_CUSTOMER, customerId, KEY_ITEMS, List.of(Map.of(KEY_PRICE, plan)));
     return stripeService.createSubscription(params);
   }
 
   private PaymentMethod createPaymentMethod(String customerId, String paymentMethodId) throws StripeException {
-    Map<String, Object> params = Map.of("customer", customerId);
+    Map<String, Object> params = Map.of(KEY_CUSTOMER, customerId);
     return stripeService.attachPaymentMethod(paymentMethodId, params);
   }
 
   private Customer updateDefaultPaymentMethod(String customerId, String paymentMethodId) throws StripeException {
-    Map<String, Object> params = Map.of("invoice_settings", Map.of("default_payment_method", paymentMethodId));
+    Map<String, Object> params = Map.of(KEY_INVOICE_SETTINGS, Map.of(KEY_DEFAULT_PAYMENT_METHOD, paymentMethodId));
     return stripeService.updateCustomer(customerId, params);
   }
 
@@ -194,7 +248,7 @@ public class BillingService {
     if (newPlan.isEmpty()) {
       throw new ApiException(BillingCode.STRIPE_PLAN_NOT_FOUND);
     }
-    if (account.getBilling().getSubscriptionStatus().equals("active")
+    if (account.getBilling().getSubscriptionStatus().equals(KEY_ACTIVE)
         && account.getBilling().getPlanId().equals(newPlan.get().getId())) {
       throw new ApiException(BillingCode.STRIPE_UPDATE_SUBSCRIPTION_INVALID);
     }
@@ -202,11 +256,11 @@ public class BillingService {
       var existingSubscription = stripeService.retrieveSubscription(account.getBilling().getSubscriptionId());
       if (isCancelling(existingSubscription.getPlan().getNickname(), newPlan.get().getNickname())) {
         return cancelSubscription(account, existingSubscription,
-            plans.stream().filter(p -> p.getNickname().equals("starter")).findFirst().get().getId());
+            plans.stream().filter(p -> p.getNickname().equals(PLAN_STARTER)).findFirst().get().getId());
       } else if (isUpgrading(existingSubscription.getPlan().getNickname(), newPlan.get().getNickname())) {
-        return updateSubscription(account, existingSubscription, plan, "now", "none");
+        return updateSubscription(account, existingSubscription, plan, BILLING_CYCLE_NOW, PRORATION_BEHAVIOUR_NONE);
       }
-      return updateSubscription(account, existingSubscription, plan, "unchanged", "none");
+      return updateSubscription(account, existingSubscription, plan, BILLING_CYCLE_UNCHANGED, PRORATION_BEHAVIOUR_NONE);
     } catch (StripeException e) {
       throw new ApiException(BillingCode.STRIPE_UPDATE_SUBSCRIPTION_ERROR);
     }
@@ -215,24 +269,24 @@ public class BillingService {
   private Billing updateSubscription(Account account, Subscription existingSubscription, String plan,
       String billingCycle, String prorationBehaviour) throws StripeException {
     var subscription = stripeService.updateSubscription(existingSubscription.getId(), Map.of(//
-        "cancel_at_period_end", false, //
-        "billing_cycle_anchor", billingCycle, //
-        "proration_behavior", prorationBehaviour, //
-        "items[0][id]", existingSubscription.getItems().getData().get(0).getId(), //
-        "items[0][price]", plan));
+        KEY_CANCEL_AT_PERIOD_END, false, //
+        KEY_BILLING_CYCLE_ANCHOR, billingCycle, //
+        KEY_PRORATION_BEHAVIOUR, prorationBehaviour, //
+        KEY_ITEM_0_ID, existingSubscription.getItems().getData().get(0).getId(), //
+        KEY_ITEM_0_PRICE, plan));
     mapToBilling(account.getBilling(), null, subscription);
     account.getBilling().setUpdatedDate(OffsetDateTime.now());
     return billingRepository.save(account.getBilling());
   }
 
   private boolean isCancelling(String existingPlanNickname, String newPlanNickname) {
-    return (existingPlanNickname.equals("pro") && newPlanNickname.equals("starter"))
-        || (existingPlanNickname.equals("indie") && newPlanNickname.equals("starter"));
+    return (existingPlanNickname.equals(PLAN_PRO) && newPlanNickname.equals(PLAN_STARTER))
+        || (existingPlanNickname.equals(PLAN_INDIE) && newPlanNickname.equals(PLAN_STARTER));
   }
 
   private boolean isUpgrading(String existingPlanNickname, String newPlanNickname) {
-    return (existingPlanNickname.equals("starter") && newPlanNickname.equals("pro"))
-        || (existingPlanNickname.equals("starter") && newPlanNickname.equals("indie"));
+    return (existingPlanNickname.equals(PLAN_STARTER) && newPlanNickname.equals(PLAN_PRO))
+        || (existingPlanNickname.equals(PLAN_STARTER) && newPlanNickname.equals(PLAN_INDIE));
   }
 
   /**
@@ -253,8 +307,8 @@ public class BillingService {
     }
     try {
       var existingSubscription = stripeService.retrieveSubscription(account.getBilling().getSubscriptionId());
-      return cancelSubscription(account, existingSubscription,
-          findAllPlans().getData().stream().filter(p -> p.getNickname().equals("starter")).findFirst().get().getId());
+      return cancelSubscription(account, existingSubscription, findAllPlans().getData().stream()
+          .filter(p -> p.getNickname().equals(PLAN_STARTER)).findFirst().get().getId());
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_ERROR);
     }
@@ -262,26 +316,27 @@ public class BillingService {
 
   private Billing cancelSubscription(Account account, Subscription existingSubscription, String starterPlan)
       throws StripeException {
-    if (existingSubscription.getPlan().getNickname().equals("starter")) {
+    if (existingSubscription.getPlan().getNickname().equals(PLAN_STARTER)) {
       throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_INVALID);
     }
     refundUnusedOperations(account, existingSubscription);
-    return updateSubscription(account, existingSubscription, starterPlan, "now", "always_invoice");
+    return updateSubscription(account, existingSubscription, starterPlan, BILLING_CYCLE_NOW,
+        PRORATION_BEHAVIOUR_ALWAYS);
   }
 
   private void refundUnusedOperations(Account account, Subscription subscription) throws StripeException {
     var flatTier = subscription.getItems().getData().get(0).getPlan().getTiers().get(0);
     var maxOperations = flatTier.getUpTo();
-    var upcomingInvoice = stripeService.findUpcomingInvoice(Map.of("customer", account.getBilling().getCustomerId()));
+    var upcomingInvoice = stripeService.findUpcomingInvoice(Map.of(KEY_CUSTOMER, account.getBilling().getCustomerId()));
     var currentOperations = upcomingInvoice.getLines().getData().get(0).getQuantity();
 
     if (maxOperations - currentOperations > 0) {
       stripeService.createInvoiceItem(Map.of(//
-          "customer", account.getBilling().getCustomerId(), //
-          "description", "Unused operation(s)", //
-          "currency", "gbp", //
-          "quantity", maxOperations - currentOperations, //
-          "unit_amount_decimal", -((double) flatTier.getFlatAmount() / maxOperations)));
+          KEY_CUSTOMER, account.getBilling().getCustomerId(), //
+          KEY_DESCRIPTION, "Unused operation(s)", //
+          KEY_CURRENCY, "gbp", //
+          KEY_QUANTITY, maxOperations - currentOperations, //
+          KEY_UNIT_AMOUNT_DECIMAL, -((double) flatTier.getFlatAmount() / maxOperations)));
     }
   }
 
@@ -293,7 +348,7 @@ public class BillingService {
    */
   public void createUsageRecord(String username, int operations) {
     var account = accountService.findAuthenticatedAccount(username);
-    Map<String, Object> params = Map.of("quantity", operations, "timestamp", Instant.now().getEpochSecond());
+    Map<String, Object> params = Map.of(KEY_QUANTITY, operations, KEY_TIMESTAMP, Instant.now().getEpochSecond());
     try {
       stripeService.createUsageRecord(account.getBilling().getSubscriptionItemId(), params);
     } catch (StripeException ex) {
@@ -324,9 +379,9 @@ public class BillingService {
    */
   public List<InvoiceResponse> findAllInvoices(String username) {
     var account = accountService.findAuthenticatedAccount(username);
-    Map<String, Object> params = Map.of("customer", account.getBilling().getCustomerId());
+    Map<String, Object> params = Map.of(KEY_CUSTOMER, account.getBilling().getCustomerId());
     try {
-      return stripeService.findAllInvoices(params).getData().stream().map(invoice -> mapToInvoiceResponse(invoice))
+      return stripeService.findAllInvoices(params).getData().stream().map(this::mapToInvoiceResponse)
           .collect(Collectors.toList());
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_FIND_ALL_INVOICES_ERROR);
@@ -341,11 +396,11 @@ public class BillingService {
    */
   public InvoiceResponse findUpcomingInvoice(String username) {
     var account = accountService.findAuthenticatedAccount(username);
-    Map<String, Object> params = Map.of("customer", account.getBilling().getCustomerId());
+    Map<String, Object> params = Map.of(KEY_CUSTOMER, account.getBilling().getCustomerId());
     try {
       return mapToInvoiceResponse(stripeService.findUpcomingInvoice(params));
     } catch (StripeException ex) {
-      if (ex.getCode().equals("invoice_upcoming_none")) {
+      if (ex.getCode().equals(STRIPE_EXCEPTION_NO_INVOICE)) {
         throw new ApiException(BillingCode.STRIPE_FIND_UPCOMING_INVOICE_NOT_FOUND);
       }
       throw new ApiException(BillingCode.STRIPE_FIND_UPCOMING_INVOICE_ERROR);

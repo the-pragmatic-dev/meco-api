@@ -11,19 +11,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InvoiceResponse {
 
-  public String number;
+  private String number;
 
-  public String currency;
+  private String currency;
 
-  public long subtotal;
+  private long subtotal;
 
-  public long total;
+  private long total;
 
-  public long amountDue;
+  private long amountDue;
 
-  public OffsetDateTime periodStart;
+  private OffsetDateTime periodStart;
 
-  public OffsetDateTime periodEnd;
+  private OffsetDateTime periodEnd;
 
-  public List<InvoiceLineItemResponse> items;
+  private List<InvoiceLineItemResponse> items;
 }

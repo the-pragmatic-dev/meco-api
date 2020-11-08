@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InvoiceLineItemResponse {
 
-  public String description;
+  private String description;
 
-  public long operations;
+  private long operations;
 
-  public long amount;
+  private long amount;
 
-  public double unitAmount;
+  private double unitAmount;
 
   /**
    * An invoice line wrapper around a stripe invoice line item. The description is
@@ -31,7 +31,7 @@ public class InvoiceLineItemResponse {
       this.unitAmount = invoiceLineItem.getPrice().getUnitAmountDecimal().doubleValue();
     } else if (invoiceLineItem.getDescription().contains("Tier 1 at £0")) {
       if (invoiceLineItem.getPlan().getNickname().equals("starter")) {
-        this.description = String.format("First 1000");
+        this.description = "First 1000";
       } else {
         this.description = String.format("First %d", invoiceLineItem.getPlan().getTiers().get(0).getUpTo());
       }
