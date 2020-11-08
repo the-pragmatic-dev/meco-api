@@ -4,6 +4,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.Invoice;
 import com.stripe.model.PaymentMethod;
+import com.stripe.model.Plan;
 import com.stripe.model.PlanCollection;
 import com.stripe.model.Subscription;
 import com.stripe.model.UsageRecordSummaryCollection;
@@ -115,6 +116,14 @@ public class BillingService {
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_FIND_ALL_PLANS_ERROR);
     }
+  }
+
+  private Plan findPlanByNickname(String nickname) {
+    var plan = findAllPlans().getData().stream().filter(p -> p.getNickname().equals(nickname)).findFirst();
+    if (plan.isEmpty()) {
+      throw new ApiException(BillingCode.STRIPE_PLAN_NOT_FOUND);
+    }
+    return plan.get();
   }
 
   /**
@@ -255,8 +264,7 @@ public class BillingService {
     try {
       var existingSubscription = stripeService.retrieveSubscription(account.getBilling().getSubscriptionId());
       if (isCancelling(existingSubscription.getPlan().getNickname(), newPlan.get().getNickname())) {
-        return cancelSubscription(account, existingSubscription,
-            plans.stream().filter(p -> p.getNickname().equals(PLAN_STARTER)).findFirst().get().getId());
+        return cancelSubscription(account, existingSubscription, findPlanByNickname(PLAN_STARTER).getId());
       } else if (isUpgrading(existingSubscription.getPlan().getNickname(), newPlan.get().getNickname())) {
         return updateSubscription(account, existingSubscription, plan, BILLING_CYCLE_NOW, PRORATION_BEHAVIOUR_NONE);
       }
@@ -307,8 +315,7 @@ public class BillingService {
     }
     try {
       var existingSubscription = stripeService.retrieveSubscription(account.getBilling().getSubscriptionId());
-      return cancelSubscription(account, existingSubscription, findAllPlans().getData().stream()
-          .filter(p -> p.getNickname().equals(PLAN_STARTER)).findFirst().get().getId());
+      return cancelSubscription(account, existingSubscription, findPlanByNickname(PLAN_STARTER).getId());
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_ERROR);
     }
