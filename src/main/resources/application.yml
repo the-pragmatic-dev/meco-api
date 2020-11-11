@@ -66,6 +66,7 @@ info:
 
 stripe:
     secret-key: ${STRIPE_SECRET_KEY:secret_key}
+    webhook-signature: ${STRIPE_WEBHOOK_SIGNATURE:webhook_signature}
 
 mailgun:
     url: https://api.mailgun.net/v3/%s.mailgun.org
@@ -91,9 +92,12 @@ mailgun:
 perspective:
     url: https://commentanalyzer.googleapis.com/v1alpha1
     secret-key: ${PERSPECTIVE_SECRET_KEY:secret_key}
-            
+
 kms:
     api-key-limit: ${API_KEY_LIMIT:10}
+
+billing:
+    expire-grace-period: 3
 
 geolite2:
     name: GeoLite2-City.mmdb
@@ -118,10 +122,11 @@ spring:
     flyway:
         locations: classpath:/db/migration
         clean-on-validation-error: false
-    security:
-        token:
-            access-token-expiration-minutes: 5
-            refresh-token-expiration-days: 7
+
+security:
+    token:
+        access-token-expiration-minutes: 5
+        refresh-token-expiration-days: 7
 
 logging:
     config: classpath:log4j2.prod.properties
