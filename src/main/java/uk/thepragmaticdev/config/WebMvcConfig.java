@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -33,6 +34,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     var mapper = Jackson2ObjectMapperBuilder.json().modules(new JavaTimeModule(), new Jdk8Module()).build()
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+    converters.add(new StringHttpMessageConverter());
     converters.add(new MappingJackson2HttpMessageConverter(mapper));
   }
 

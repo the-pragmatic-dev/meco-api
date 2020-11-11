@@ -70,7 +70,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/v1/auth/forgot").permitAll()//
         .antMatchers("/v1/auth/reset").permitAll()//
         .antMatchers("/v1/auth/refresh").permitAll()//
-        .antMatchers("/v1/billing/plans").permitAll()
+        .antMatchers("/v1/billing/plans").permitAll()//
+        .antMatchers("/v1/webhooks/stripe").permitAll()
         // disallow everything else
         .anyRequest().authenticated();
 

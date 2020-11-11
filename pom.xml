@@ -52,7 +52,7 @@
     <sonar.organization>the-pragmatic-dev</sonar.organization>
     <sonar.projectKey>the-pragmatic-dev_meco-api</sonar.projectKey>
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-    <stripe.version>19.11.0</stripe.version>
+    <stripe.version>20.0.0</stripe.version>
     <uap-java.version>1.4.0</uap-java.version>
   </properties>
 

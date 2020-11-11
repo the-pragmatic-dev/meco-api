@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
@@ -181,7 +180,7 @@ class BillingEndpointIT extends IntegrationData {
     assertThat(isSameDay(actualSubStart, expectedSubStart, ChronoUnit.DAYS), is(true));
 
     var actualSubEnd = billingResponse.getSubscriptionCurrentPeriodEnd().withOffsetSameInstant(ZoneOffset.UTC);
-    var expectedSubEnd = OffsetDateTime.now(ZoneOffset.UTC).plusMonths(1);
+    var expectedSubEnd = OffsetDateTime.now(ZoneOffset.UTC).plusMonths(1).plusDays(3);
     assertThat(isSameDay(actualSubEnd, expectedSubEnd, ChronoUnit.DAYS), is(true));
   }
 
@@ -462,8 +461,6 @@ class BillingEndpointIT extends IntegrationData {
     assertThat(invoices.size(), is(2));
     assertThat(invoices.get(0).getTotal(), is(3750L));
     assertThat(invoices.get(0).getItems().get(0).getAmount(), is(-1250L));
-    assertThat(invoices.get(0).getItems().get(0).getOperations(), is(2500L));
-    assertThat(invoices.get(0).getItems().get(1).getOperations(), is(7500L));
     assertThat(invoices.get(0).getItems().get(2).getAmount(), is(5000L));
     assertThat(invoices.get(1).getTotal(), is(0L));
   }
@@ -511,8 +508,6 @@ class BillingEndpointIT extends IntegrationData {
     assertThat(invoices.size(), is(2));
     assertThat(invoices.get(0).getTotal(), is(3000L));
     assertThat(invoices.get(0).getItems().get(0).getAmount(), is(-17000L));
-    assertThat(invoices.get(0).getItems().get(0).getOperations(), is(85000L));
-    assertThat(invoices.get(0).getItems().get(1).getOperations(), is(15000L));
     assertThat(invoices.get(0).getItems().get(2).getAmount(), is(20000L));
     assertThat(invoices.get(1).getTotal(), is(0L));
   }
@@ -560,8 +555,6 @@ class BillingEndpointIT extends IntegrationData {
     assertThat(invoices.size(), is(2));
     assertThat(invoices.get(0).getTotal(), is(3750L));
     assertThat(invoices.get(0).getItems().get(0).getAmount(), is(-1250L));
-    assertThat(invoices.get(0).getItems().get(0).getOperations(), is(2500L));
-    assertThat(invoices.get(0).getItems().get(1).getOperations(), is(7500L));
     assertThat(invoices.get(0).getItems().get(2).getAmount(), is(5000L));
     assertThat(invoices.get(1).getTotal(), is(0L));
   }
@@ -607,8 +600,6 @@ class BillingEndpointIT extends IntegrationData {
     assertThat(invoices.size(), is(2));
     assertThat(invoices.get(0).getTotal(), is(3000L));
     assertThat(invoices.get(0).getItems().get(0).getAmount(), is(-17000L));
-    assertThat(invoices.get(0).getItems().get(0).getOperations(), is(85000L));
-    assertThat(invoices.get(0).getItems().get(1).getOperations(), is(15000L));
     assertThat(invoices.get(0).getItems().get(2).getAmount(), is(20000L));
     assertThat(invoices.get(1).getTotal(), is(0L));
   }
@@ -627,7 +618,7 @@ class BillingEndpointIT extends IntegrationData {
         .when()
           .get(billingEndpoint(port) + "invoices/upcoming")
         .then()
-          .body("number", is(not(emptyOrNullString())))
+          .body("number", is(emptyOrNullString()))
           .body("currency", is("gbp"))
           .body("subtotal", is(5000))
           .body("total", is(5000))
@@ -635,14 +626,10 @@ class BillingEndpointIT extends IntegrationData {
           .body("items", hasSize(2))
           .rootPath("items.get(0)")
             .body("amount", is(0))
-            .body("description", is("First 10000"))
-            .body("operations", is(0))
-            .body("unit_amount", is(0.0f))
+            .body("description", is("0 operation × Indie (Tier 1 at £0.00 / month)"))
           .rootPath("items.get(1)")
             .body("amount", is(5000))
-            .body("description", is("Flat fee for first 10000"))
-            .body("operations", is(0))
-            .body("unit_amount", is(0.0f))
+            .body("description", is("Indie (Tier 1 at £50.00 / month)"))
           .statusCode(200)
         .extract().body().as(InvoiceResponse.class);
 
@@ -669,7 +656,7 @@ class BillingEndpointIT extends IntegrationData {
         .when()
           .get(billingEndpoint(port) + "invoices/upcoming")
         .then()
-          .body("number", is(not(emptyOrNullString())))
+          .body("number", is(emptyOrNullString()))
           .body("currency", is("gbp"))
           .body("subtotal", is(5200))
           .body("total", is(5200))
@@ -677,19 +664,13 @@ class BillingEndpointIT extends IntegrationData {
           .body("items", hasSize(3))
           .rootPath("items.get(0)")
             .body("amount", is(0))
-            .body("description", is("First 10000"))
-            .body("operations", is(10000))
-            .body("unit_amount", is(0.0f))
+            .body("description", is("10000 operation × Indie (Tier 1 at £0.00 / month)"))
           .rootPath("items.get(1)")
             .body("amount", is(5000))
-            .body("description", is("Flat fee for first 10000"))
-            .body("operations", is(0))
-            .body("unit_amount", is(0.0f))
+            .body("description", is("Indie (Tier 1 at £50.00 / month)"))
           .rootPath("items.get(2)")
             .body("amount", is(200))
-            .body("description", is("10001 and above"))
-            .body("operations", is(1000))
-            .body("unit_amount", is(0.2f))
+            .body("description", is("1000 operation × Indie (Tier 2 at £0.002 / month)"))
           .statusCode(200)
         .extract().body().as(InvoiceResponse.class);
 

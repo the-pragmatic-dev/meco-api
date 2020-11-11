@@ -5,6 +5,7 @@ import uk.thepragmaticdev.exception.ErrorCode;
 
 public enum BillingCode implements ErrorCode {
 
+  BILLING_NOT_FOUND(HttpStatus.NOT_FOUND, "Billing information not found."),
   STRIPE_CANCEL_SUBSCRIPTION_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to cancel subscription with Stripe."),
   STRIPE_CREATE_CUSTOMER_CONFLICT(HttpStatus.CONFLICT, "Account already contains a Stripe customer ID."),
   STRIPE_CREATE_CUSTOMER_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to create new customer with Stripe."),

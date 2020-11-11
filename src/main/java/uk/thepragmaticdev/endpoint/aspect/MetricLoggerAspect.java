@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
+import uk.thepragmaticdev.endpoint.controller.WebhookController;
 import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.security.key.ApiKeyAuthenticationToken;
 
@@ -44,9 +45,16 @@ public class MetricLoggerAspect {
     metric.put("class", joinPoint.getSignature().getDeclaringTypeName());
     metric.put("method", joinPoint.getSignature().getName());
     metric.put("millis", stopWatch.getTotalTimeMillis());
-    metric.put("args", getArgs(joinPoint.getArgs()));
+    metric.put("args", getArgs(joinPoint));
     metric.put("auth", getAuth(joinPoint.getArgs()));
     return metric;
+  }
+
+  private Object getArgs(ProceedingJoinPoint joinPoint) {
+    if (joinPoint.getSignature().getDeclaringTypeName().equals(WebhookController.class.getName())) {
+      return "obfuscated";
+    }
+    return getArgs(joinPoint.getArgs());
   }
 
   private Object getArgs(Object[] args) {

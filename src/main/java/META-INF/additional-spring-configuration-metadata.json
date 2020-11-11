@@ -4,6 +4,9 @@
       "name": "kms"
     },
     {
+      "name": "billing"
+    },
+    {
       "name": "async"
     },
     {
@@ -33,6 +36,11 @@
       "name": "kms.api-key-limit",
       "type": "java.lang.Integer",
       "description": "Maximum number of API keys allowed per user account."
+    },
+    {
+      "name": "billing.expire-grace-period",
+      "type": "java.lang.Integer",
+      "description": "Number of days to extend subscription to account for failed payment."
     },
     {
       "name": "async.core-pool-size",
@@ -68,6 +76,11 @@
       "name": "stripe.secret-key",
       "type": "java.lang.String",
       "description": "Key used in backend code to send any request to Stripe's API."
+    },
+    {
+      "name": "stripe.webhook-signature",
+      "type": "java.lang.String",
+      "description": "Secret used to generate the signature for Stripe's Webhooks."
     },
     {
       "name": "mailgun.url",
@@ -123,6 +136,11 @@
       "name": "geolite2.directory",
       "type": "java.lang.String",
       "description": "Directory where to download database to."
+    },
+    {
+      "name": "bucket.name",
+      "type": "java.lang.String",
+      "description": "Bucket name."
     },
     {
       "name": "bucket.capacity",

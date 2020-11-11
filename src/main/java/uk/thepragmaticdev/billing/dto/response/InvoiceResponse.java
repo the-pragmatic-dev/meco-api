@@ -11,6 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InvoiceResponse {
 
+  /**
+   * To ensure invoices are numbered sequentially and without gaps, invoices that
+   * can be deleted (upcoming invoices) are only assigned numbers when finalized.
+   */
   private String number;
 
   private String currency;
