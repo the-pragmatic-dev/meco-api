@@ -10,6 +10,7 @@ import javax.persistence.UniqueConstraint;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.endpoint.Model;
 import uk.thepragmaticdev.log.Log;
@@ -23,6 +24,7 @@ public class BillingLog extends Log implements Model {
 
   @ManyToOne
   @CsvIgnore
+  @ToString.Exclude
   private Account account;
 
   @CsvBindByName

@@ -11,6 +11,7 @@ import javax.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.security.request.RequestMetadata;
 
@@ -32,5 +33,6 @@ public class RefreshToken {
   private RequestMetadata requestMetadata;
 
   @ManyToOne
+  @ToString.Exclude
   private Account account;
 }

@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Optional;
 import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -59,6 +61,11 @@ class WebhookEndpointIT extends IntegrationData {
   @BeforeEach
   @FlywayTest
   public void initEach() {
+  }
+
+  @AfterEach
+  public void afterEach() {
+    Mockito.reset(stripeService);
   }
 
   // @endpoint:handleWebhookEvent
