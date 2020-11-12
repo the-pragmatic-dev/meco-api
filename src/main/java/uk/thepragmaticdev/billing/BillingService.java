@@ -13,6 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -24,6 +25,7 @@ import uk.thepragmaticdev.billing.dto.response.InvoiceResponse;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.BillingCode;
 
+@Log4j2
 @Service
 public class BillingService {
 
@@ -205,6 +207,10 @@ public class BillingService {
     try {
       var existingSubscription = stripeService.retrieveSubscription(account.getBilling().getSubscriptionId());
       var existingNickname = existingSubscription.getItems().getData().get(0).getPlan().getNickname();
+      log.info("[TESTING] updateSubscription.username {}", username);
+      log.info("[TESTING] updateSubscription.plan {}", plan);
+      log.info("[TESTING] updateSubscription.existingSubscription {}", existingSubscription);
+      log.info("[TESTING] updateSubscription.existingNickname {}", existingNickname);
       if (isCancelling(existingNickname, newPlan.get().getNickname())) {
         return cancelSubscription(account, existingSubscription, findPlanByNickname(PLAN_STARTER).getId());
       } else if (isUpgrading(existingNickname, newPlan.get().getNickname())) {
@@ -233,6 +239,8 @@ public class BillingService {
   }
 
   private boolean isCancelling(String existingPlanNickname, String newPlanNickname) {
+    log.info("[TESTING] isCancelling.existingPlanNickname {}", existingPlanNickname);
+    log.info("[TESTING] isCancelling.newPlanNickname {}", newPlanNickname);
     return (existingPlanNickname.equals(PLAN_PRO) && newPlanNickname.equals(PLAN_STARTER))
         || (existingPlanNickname.equals(PLAN_INDIE) && newPlanNickname.equals(PLAN_STARTER));
   }
@@ -260,6 +268,9 @@ public class BillingService {
     }
     try {
       var existingSubscription = stripeService.retrieveSubscription(account.getBilling().getSubscriptionId());
+      log.info("[TESTING] cancelSubscription.username {}", username);
+      log.info("[TESTING] cancelSubscription.existingSubscription {}", existingSubscription);
+      log.info("[TESTING] cancelSubscription.PLAN_STARTER {}", PLAN_STARTER);
       return cancelSubscription(account, existingSubscription, findPlanByNickname(PLAN_STARTER).getId());
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_ERROR);
@@ -268,6 +279,9 @@ public class BillingService {
 
   private Billing cancelSubscription(Account account, Subscription existingSubscription, String starterPlan)
       throws StripeException {
+    log.info("[TESTING] cancelSubscription.account {}", account);
+    log.info("[TESTING] cancelSubscription.existingSubscription {}", existingSubscription);
+    log.info("[TESTING] cancelSubscription.starterPlan {}", starterPlan);
     var existingNickname = existingSubscription.getItems().getData().get(0).getPlan().getNickname();
     if (existingNickname.equals(PLAN_STARTER)) {
       throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_INVALID);
