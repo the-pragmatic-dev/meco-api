@@ -161,8 +161,8 @@ public class BillingService {
     // pad extra days to give failed charges a chance to automatically retry
     billing.setSubscriptionCurrentPeriodEnd(
         toOffsetDateTime(subscription.getCurrentPeriodEnd()).plusDays(expireGracePeriod));
-    billing.setPlanId(subscription.getItems().getData().get(0).getPlan().getId());
-    billing.setPlanNickname(subscription.getItems().getData().get(0).getPlan().getNickname());
+    billing.setPlanId(subscriptionItem.getPlan().getId());
+    billing.setPlanNickname(subscriptionItem.getPlan().getNickname());
   }
 
   private void mapPaymentMethod(Billing billing, PaymentMethod paymentMethod) {
@@ -298,6 +298,9 @@ public class BillingService {
    */
   public void syncSubscription(String customerId, String subscriptionId) {
     try {
+      if (customerId == null) {
+        throw new ApiException(BillingCode.STRIPE_CUSTOMER_NOT_FOUND);
+      }
       var subscription = stripeService.retrieveSubscription(subscriptionId);
       var billing = billingRepository.findByCustomerId(customerId)
           .orElseThrow(() -> new ApiException(BillingCode.BILLING_NOT_FOUND));
@@ -309,7 +312,7 @@ public class BillingService {
       billing.setUpdatedDate(OffsetDateTime.now());
       billingRepository.save(billing);
     } catch (StripeException ex) {
-      throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_ERROR);
+      throw new ApiException(BillingCode.STRIPE_SYNC_SUBSCRIPTION_ERROR);
     }
   }
 
@@ -320,6 +323,9 @@ public class BillingService {
    * @param subscription The automatically cancelled subscription
    */
   public void handleDelinquentCustomer(Subscription subscription) {
+    if (subscription.getCustomer() == null) {
+      throw new ApiException(BillingCode.STRIPE_CUSTOMER_NOT_FOUND);
+    }
     var billing = billingRepository.findByCustomerId(subscription.getCustomer())
         .orElseThrow(() -> new ApiException(BillingCode.BILLING_NOT_FOUND));
     billing.setSubscriptionId(null);

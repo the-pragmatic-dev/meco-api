@@ -5,12 +5,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.client.RestTemplate;
+import uk.thepragmaticdev.billing.StripeService;
 import uk.thepragmaticdev.email.EmailService;
 
 @TestConfiguration
@@ -45,5 +48,13 @@ public class IntegrationConfig {
   @Primary
   public Clock mockClock() {
     return mock(Clock.class);
+  }
+
+  @Bean
+  @Primary
+  public StripeService spyStripeService(@Value("${stripe.secret-key}") String stripeSecretKey,
+      @Value("${stripe.webhook-signature}") String stripeWebhookSignature) {
+    var stripeService = new StripeService(stripeSecretKey, stripeWebhookSignature);
+    return Mockito.spy(stripeService);
   }
 }

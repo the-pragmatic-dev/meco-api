@@ -6,13 +6,12 @@ import com.stripe.model.Event;
 import com.stripe.model.Invoice;
 import com.stripe.model.StripeObject;
 import com.stripe.model.Subscription;
-import com.stripe.net.Webhook;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.thepragmaticdev.billing.BillingService;
+import uk.thepragmaticdev.billing.StripeService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.WebhookCode;
 
@@ -22,7 +21,7 @@ public class WebhookService {
 
   private final BillingService billingService;
 
-  private final String stripeWebhookSignature;
+  private final StripeService stripeService;
 
   /**
    * Service for handling webhook requests.
@@ -30,10 +29,9 @@ public class WebhookService {
    * @param billingService The service for updating billing information
    */
   @Autowired
-  public WebhookService(BillingService billingService,
-      @Value("${stripe.webhook-signature}") String stripeWebhookSignature) {
+  public WebhookService(BillingService billingService, StripeService stripeService) {
     this.billingService = billingService;
-    this.stripeWebhookSignature = stripeWebhookSignature;
+    this.stripeService = stripeService;
   }
 
   /**
@@ -78,7 +76,7 @@ public class WebhookService {
 
   private Event validateStripeSignatureAndConstructEvent(String payload, String sigHeader) {
     try {
-      return Webhook.constructEvent(payload, sigHeader, stripeWebhookSignature);
+      return stripeService.constructEvent(payload, sigHeader);
     } catch (JsonSyntaxException e) {
       throw new ApiException(WebhookCode.DESERIALIIZATION_ERROR);
     } catch (SignatureVerificationException e) {

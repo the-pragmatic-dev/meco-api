@@ -103,6 +103,10 @@ public abstract class IntegrationData {
     return String.format("http://localhost:%d/v1/text/", port);
   }
 
+  protected String webhookEndpoint(int port) {
+    return String.format("http://localhost:%d/v1/webhooks/", port);
+  }
+
   /**
    * Default headers to mock user agent and ip.
    * 

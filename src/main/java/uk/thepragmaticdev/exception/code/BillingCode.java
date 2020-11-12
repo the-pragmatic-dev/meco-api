@@ -22,9 +22,10 @@ public enum BillingCode implements ErrorCode {
   STRIPE_FIND_UPCOMING_INVOICE_NOT_FOUND(HttpStatus.NOT_FOUND, "Stripe upcoming invoice not found."),
   STRIPE_FIND_UPCOMING_INVOICE_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to find upcoming invoice with Stripe."),
   STRIPE_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Stripe plan not found."),
-  STRIPE_SUBSCRIPTION_ITEM_NOT_FOUND(HttpStatus.SERVICE_UNAVAILABLE, "Stripe subscription item not found."),
+  STRIPE_SUBSCRIPTION_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "Stripe subscription item not found."),
   STRIPE_SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Stripe subscription not found."),
-  STRIPE_USAGE_RECORD_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to update usage record with Stripe.");
+  STRIPE_USAGE_RECORD_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to update usage record with Stripe."),
+  STRIPE_SYNC_SUBSCRIPTION_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to sync subscription with Stripe.");
 
   private final String message;
   private final HttpStatus status;

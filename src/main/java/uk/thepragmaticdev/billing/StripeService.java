@@ -1,7 +1,9 @@
 package uk.thepragmaticdev.billing;
 
+import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
+import com.stripe.model.Event;
 import com.stripe.model.Invoice;
 import com.stripe.model.InvoiceCollection;
 import com.stripe.model.InvoiceItem;
@@ -13,6 +15,7 @@ import com.stripe.model.SubscriptionItem;
 import com.stripe.model.UsageRecord;
 import com.stripe.model.UsageRecordSummaryCollection;
 import com.stripe.net.RequestOptions;
+import com.stripe.net.Webhook;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.CustomerUpdateParams;
 import com.stripe.param.InvoiceItemCreateParams;
@@ -32,6 +35,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class StripeService {
 
+  private final String stripeWebhookSignature;
+
   private RequestOptions requestOptions;
 
   /**
@@ -39,8 +44,10 @@ public class StripeService {
    * 
    * @param stripeSecretKey The secret key for communicating with stripe
    */
-  public StripeService(@Value("${stripe.secret-key}") String stripeSecretKey) {
+  public StripeService(@Value("${stripe.secret-key}") String stripeSecretKey,
+      @Value("${stripe.webhook-signature}") String stripeWebhookSignature) {
     requestOptions = RequestOptions.builder().setApiKey(stripeSecretKey).build();
+    this.stripeWebhookSignature = stripeWebhookSignature;
   }
 
   /**
@@ -245,5 +252,17 @@ public class StripeService {
             InvoiceItemCreateParams.builder().setCustomer(customerId).setDescription(description).setCurrency(currency)
                 .setQuantity(quantity).setUnitAmountDecimal(BigDecimal.valueOf(unitAmountDecimal)).build(),
             requestOptions);
+  }
+
+  /**
+   * Returns an event instance using the provided json payload.
+   * 
+   * @param payload   The payload sent by Stripe
+   * @param sigHeader The contents of the signature header sent by Stripe
+   * @return An event
+   * @throws SignatureVerificationException if the signature verification fails
+   */
+  public Event constructEvent(String payload, String sigHeader) throws SignatureVerificationException {
+    return Webhook.constructEvent(payload, sigHeader, stripeWebhookSignature);
   }
 }
