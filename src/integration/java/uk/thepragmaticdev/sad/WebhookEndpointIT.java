@@ -265,7 +265,7 @@ class WebhookEndpointIT extends IntegrationData {
           .post(webhookEndpoint(port) + "stripe")
         .then()
           .body("id", is(not(emptyString())))
-          .body("status", is("INTERNAL_SERVER_ERROR"))
+          .body("status", is("NOT_FOUND"))
           .body("message", is(WebhookCode.OBJECT_MISSING_ERROR.getMessage()))
           .statusCode(404);
   }

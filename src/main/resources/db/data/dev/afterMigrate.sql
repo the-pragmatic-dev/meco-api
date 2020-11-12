@@ -7,7 +7,7 @@ INSERT INTO billing values(2, 'cus_test', null, null, null, null, null, null, nu
 SELECT setval('billing_id_seq', max(id)) FROM billing;
 -- Account
 INSERT INTO account values (1, 0, 'admin@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'Stephen Cathcart', false, 0, '2020-02-25T10:30:44.232Z', true, 1) ON CONFLICT DO NOTHING;
-INSERT INTO account values (1, 0, 'integration@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'David Lister', false, 0, '2020-02-25T10:30:44.232Z', true, 2) ON CONFLICT DO NOTHING;
+INSERT INTO account values (2, 0, 'integration@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'David Lister', false, 0, '2020-02-25T10:30:44.232Z', true, 2) ON CONFLICT DO NOTHING;
 SELECT setval('account_id_seq', max(id)) FROM account;
 -- Account Roles
 INSERT INTO account_roles (account_id, name) values (1, 'ROLE_ADMIN') ON CONFLICT DO NOTHING;
