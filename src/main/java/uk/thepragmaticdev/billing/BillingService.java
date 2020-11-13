@@ -13,7 +13,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
-import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -25,7 +24,6 @@ import uk.thepragmaticdev.billing.dto.response.InvoiceResponse;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.BillingCode;
 
-@Log4j2
 @Service
 public class BillingService {
 

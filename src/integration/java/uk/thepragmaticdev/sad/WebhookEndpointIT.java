@@ -28,6 +28,8 @@ import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -133,15 +135,14 @@ class WebhookEndpointIT extends IntegrationData {
           .statusCode(503);
   }
 
-  // @endpoint:handleWebhookEvent>invoice.payment_succeeded
-
-  @Test
-  void shouldNotReturnOkWhenHandlingInvoicePaymentSucceededEventIfObjectIsMissing() throws StripeException {
+  @ParameterizedTest
+  @ValueSource(strings = {"invoice.payment_succeeded", "invoice.payment_failed", "customer.subscription.deleted"})
+  void shouldNotReturnOkWhenHandlingEventIfObjectIsMissing(String type) throws StripeException {
     var eventDataObjectDeserializer = mock(EventDataObjectDeserializer.class);
     when(eventDataObjectDeserializer.getObject()).thenReturn(Optional.empty());
 
     var event = mock(Event.class);
-    when(event.getType()).thenReturn("invoice.payment_succeeded");
+    when(event.getType()).thenReturn(type);
     when(event.getDataObjectDeserializer()).thenReturn(eventDataObjectDeserializer);
     doReturn(event).when(stripeService).constructEvent(anyString(), anyString());
 
@@ -158,6 +159,8 @@ class WebhookEndpointIT extends IntegrationData {
           .body("message", is(WebhookCode.OBJECT_MISSING_ERROR.getMessage()))
           .statusCode(404);
   }
+
+  // @endpoint:handleWebhookEvent>invoice.payment_succeeded
 
   @Test
   void shouldNotReturnOkWhenHandlingInvoicePaymentSucceededEventIfCustomerIsMissing() throws StripeException {
@@ -254,30 +257,6 @@ class WebhookEndpointIT extends IntegrationData {
   // @endpoint:handleWebhookEvent>invoice.payment_failed
 
   @Test
-  void shouldNotReturnOkWhenHandlingInvoicePaymentFailedEventIfObjectIsMissing() throws StripeException {
-    var eventDataObjectDeserializer = mock(EventDataObjectDeserializer.class);
-    when(eventDataObjectDeserializer.getObject()).thenReturn(Optional.empty());
-
-    var event = mock(Event.class);
-    when(event.getType()).thenReturn("invoice.payment_failed");
-    when(event.getDataObjectDeserializer()).thenReturn(eventDataObjectDeserializer);
-    doReturn(event).when(stripeService).constructEvent(anyString(), anyString());
-
-    given()
-        .headers(headers())
-        .header("stripe-signature", "signature")
-        .contentType(JSON)
-        .body("{}")
-        .when()
-          .post(webhookEndpoint(port) + "stripe")
-        .then()
-          .body("id", is(not(emptyString())))
-          .body("status", is("NOT_FOUND"))
-          .body("message", is(WebhookCode.OBJECT_MISSING_ERROR.getMessage()))
-          .statusCode(404);
-  }
-
-  @Test
   void shouldNotReturnOkWhenHandlingInvoicePaymentFailedEventIfCustomerIsMissing() throws StripeException {
     var invoice = mock(Invoice.class);
     when(invoice.getCustomer()).thenReturn(null);
@@ -370,30 +349,6 @@ class WebhookEndpointIT extends IntegrationData {
   }
 
   // @endpoint:handleWebhookEvent>customer.subscription.deleted
-
-  @Test
-  void shouldNotReturnOkWhenHandlingCustomerSubscriptionDeletedEventIfObjectIsMissing() throws StripeException {
-    var eventDataObjectDeserializer = mock(EventDataObjectDeserializer.class);
-    when(eventDataObjectDeserializer.getObject()).thenReturn(Optional.empty());
-
-    var event = mock(Event.class);
-    when(event.getType()).thenReturn("customer.subscription.deleted");
-    when(event.getDataObjectDeserializer()).thenReturn(eventDataObjectDeserializer);
-    doReturn(event).when(stripeService).constructEvent(anyString(), anyString());
-
-    given()
-        .headers(headers())
-        .header("stripe-signature", "signature")
-        .contentType(JSON)
-        .body("{}")
-        .when()
-          .post(webhookEndpoint(port) + "stripe")
-        .then()
-          .body("id", is(not(emptyString())))
-          .body("status", is("NOT_FOUND"))
-          .body("message", is(WebhookCode.OBJECT_MISSING_ERROR.getMessage()))
-          .statusCode(404);
-  }
 
   @Test
   void shouldNotReturnOkWhenHandlingCustomerSubscriptionDeletedEventIfCustomerIsMissing() throws StripeException {
