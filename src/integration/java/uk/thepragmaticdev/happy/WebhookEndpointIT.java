@@ -11,6 +11,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.Invoice;
+import com.stripe.model.InvoiceLineItemCollection;
 import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
 import com.stripe.model.SubscriptionItem;
@@ -133,9 +134,15 @@ class WebhookEndpointIT extends IntegrationData {
 
   @Test
   void shouldReturnOkWhenHandlingInvoicePaymentFailedEvent() throws StripeException {
+    var invoiceLineItemCollection = mock(InvoiceLineItemCollection.class);
+    when(invoiceLineItemCollection.getData()).thenReturn(List.of());
+
     var invoice = mock(Invoice.class);
+    when(invoice.getId()).thenReturn("id");
+    when(invoice.getNumber()).thenReturn("number");
     when(invoice.getCustomer()).thenReturn("cus_test");
     when(invoice.getSubscription()).thenReturn("subscriptionId");
+    when(invoice.getLines()).thenReturn(invoiceLineItemCollection);
 
     var eventDataObjectDeserializer = mock(EventDataObjectDeserializer.class);
     when(eventDataObjectDeserializer.getObject()).thenReturn(Optional.of(invoice));
@@ -156,6 +163,7 @@ class WebhookEndpointIT extends IntegrationData {
     when(subscription.getCurrentPeriodEnd()).thenReturn(OffsetDateTime.now().plusHours(1).toEpochSecond());
     when(subscription.getItems()).thenReturn(subscriptionItemCollection);
     doReturn(subscription).when(stripeService).retrieveSubscription(anyString());
+    doReturn(invoice).when(stripeService).findInvoiceById(anyString());
 
     given()
         .headers(headers())
@@ -170,9 +178,15 @@ class WebhookEndpointIT extends IntegrationData {
 
   @Test
   void shouldReturnOkWhenHandlingInvoicePaymentFailedEventIfCurrentPeriodEndIsBeforeNow() throws StripeException {
+    var invoiceLineItemCollection = mock(InvoiceLineItemCollection.class);
+    when(invoiceLineItemCollection.getData()).thenReturn(List.of());
+
     var invoice = mock(Invoice.class);
+    when(invoice.getId()).thenReturn("id");
+    when(invoice.getNumber()).thenReturn("number");
     when(invoice.getCustomer()).thenReturn("cus_test");
     when(invoice.getSubscription()).thenReturn("subscriptionId");
+    when(invoice.getLines()).thenReturn(invoiceLineItemCollection);
 
     var eventDataObjectDeserializer = mock(EventDataObjectDeserializer.class);
     when(eventDataObjectDeserializer.getObject()).thenReturn(Optional.of(invoice));
@@ -185,6 +199,7 @@ class WebhookEndpointIT extends IntegrationData {
     var subscription = mock(Subscription.class);
     when(subscription.getCurrentPeriodEnd()).thenReturn(OffsetDateTime.now().minusHours(1).toEpochSecond());
     doReturn(subscription).when(stripeService).retrieveSubscription(anyString());
+    doReturn(invoice).when(stripeService).findInvoiceById(anyString());
 
     given()
         .headers(headers())

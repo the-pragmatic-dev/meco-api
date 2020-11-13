@@ -70,9 +70,7 @@ public class ApiKeyUsageCache {
    */
   @Scheduled(fixedRate = 30000)
   public void flush() {
-    log.info("Flushing API key usage cache");
     if (usage.isEmpty()) {
-      log.info("No API key usage records to flush");
       return;
     }
     var usageCopy = new ConcurrentHashMap<>(usage);

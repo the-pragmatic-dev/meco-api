@@ -18,6 +18,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.Invoice;
+import com.stripe.model.InvoiceLineItemCollection;
 import com.stripe.model.Subscription;
 import com.stripe.model.SubscriptionItemCollection;
 import java.time.OffsetDateTime;
@@ -313,8 +314,9 @@ class WebhookEndpointIT extends IntegrationData {
   }
 
   @Test
-  void shouldNotReturnOkWhenHandlingInvoicePaymentFailedEventIfSubscriptionItemIsMissing() throws StripeException {
+  void shouldNotReturnOkWhenHandlingInvoicePaymentFailedEventIfInvoiceNotFound() throws StripeException {
     var invoice = mock(Invoice.class);
+    when(invoice.getId()).thenReturn("id");
     when(invoice.getCustomer()).thenReturn("cus_test");
     when(invoice.getSubscription()).thenReturn("subscriptionId");
 
@@ -333,6 +335,49 @@ class WebhookEndpointIT extends IntegrationData {
     when(subscription.getCurrentPeriodEnd()).thenReturn(OffsetDateTime.now().plusHours(1).toEpochSecond());
     when(subscription.getItems()).thenReturn(subscriptionItemCollection);
     doReturn(subscription).when(stripeService).retrieveSubscription(anyString());
+
+    given()
+        .headers(headers())
+        .header("stripe-signature", "signature")
+        .contentType(JSON)
+        .body("{}")
+        .when()
+          .post(webhookEndpoint(port) + "stripe")
+        .then()
+          .body("id", is(not(emptyString())))
+          .body("status", is("NOT_FOUND"))
+          .body("message", is(BillingCode.STRIPE_FIND_INVOICE_NOT_FOUND.getMessage()))
+          .statusCode(404);
+  }
+
+  @Test
+  void shouldNotReturnOkWhenHandlingInvoicePaymentFailedEventIfSubscriptionItemIsMissing() throws StripeException {
+    var invoiceLineItemCollection = mock(InvoiceLineItemCollection.class);
+    when(invoiceLineItemCollection.getData()).thenReturn(List.of());
+
+    var invoice = mock(Invoice.class);
+    when(invoice.getId()).thenReturn("id");
+    when(invoice.getNumber()).thenReturn("number");
+    when(invoice.getCustomer()).thenReturn("cus_test");
+    when(invoice.getSubscription()).thenReturn("subscriptionId");
+    when(invoice.getLines()).thenReturn(invoiceLineItemCollection);
+
+    var eventDataObjectDeserializer = mock(EventDataObjectDeserializer.class);
+    when(eventDataObjectDeserializer.getObject()).thenReturn(Optional.of(invoice));
+
+    var event = mock(Event.class);
+    when(event.getType()).thenReturn("invoice.payment_failed");
+    when(event.getDataObjectDeserializer()).thenReturn(eventDataObjectDeserializer);
+    doReturn(event).when(stripeService).constructEvent(anyString(), anyString());
+
+    var subscriptionItemCollection = mock(SubscriptionItemCollection.class);
+    when(subscriptionItemCollection.getData()).thenReturn(List.of());
+
+    var subscription = mock(Subscription.class);
+    when(subscription.getCurrentPeriodEnd()).thenReturn(OffsetDateTime.now().plusHours(1).toEpochSecond());
+    when(subscription.getItems()).thenReturn(subscriptionItemCollection);
+    doReturn(subscription).when(stripeService).retrieveSubscription(anyString());
+    doReturn(invoice).when(stripeService).findInvoiceById(anyString());
 
     given()
         .headers(headers())

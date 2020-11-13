@@ -227,6 +227,17 @@ public class StripeService {
   }
 
   /**
+   * Find invoice by id.
+   * 
+   * @param invoiceId The identifier of the invoice you'd like to retrieve.
+   * @return An invoice.
+   * @throws StripeException On stripe related exceptions
+   */
+  public Invoice findInvoiceById(String invoiceId) throws StripeException {
+    return Invoice.retrieve(invoiceId, requestOptions);
+  }
+
+  /**
    * Creates an item to be added to a draft invoice (up to 250 items per invoice).
    * If no invoice is specified, the item will be on the next invoice created for
    * the customer specified.

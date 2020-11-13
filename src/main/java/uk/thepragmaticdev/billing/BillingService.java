@@ -23,11 +23,14 @@ import uk.thepragmaticdev.billing.dto.response.InvoiceLineItemResponse;
 import uk.thepragmaticdev.billing.dto.response.InvoiceResponse;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.BillingCode;
+import uk.thepragmaticdev.log.billing.BillingLogService;
 
 @Service
 public class BillingService {
 
   private final BillingRepository billingRepository;
+
+  private final BillingLogService billingLogService;
 
   private final AccountService accountService;
 
@@ -53,10 +56,12 @@ public class BillingService {
    */
   public BillingService(//
       BillingRepository billingRepository, //
+      BillingLogService billingLogService, //
       @Lazy AccountService accountService, //
       StripeService stripeService, //
       @Value("${billing.expire-grace-period}") int expireGracePeriod) {
     this.billingRepository = billingRepository;
+    this.billingLogService = billingLogService;
     this.accountService = accountService;
     this.stripeService = stripeService;
     this.expireGracePeriod = expireGracePeriod;
@@ -97,7 +102,9 @@ public class BillingService {
     try {
       var customerId = stripeService.createCustomer(account.getUsername(), "MECO").getId();
       account.getBilling().setCustomerId(customerId);
-      return billingRepository.save(account.getBilling());
+      var billing = billingRepository.save(account.getBilling());
+      billingLogService.createCustomer(account);
+      return billing;
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CREATE_CUSTOMER_ERROR);
     }
@@ -139,12 +146,17 @@ public class BillingService {
     }
     var billing = account.getBilling();
     try {
+      // TODO move this to new payment added method later
       var paymentMethod = stripeService.attachPaymentMethod(paymentMethodId, billing.getCustomerId());
+      billingLogService.attachPaymentMethod(account, paymentMethod.getCard().getLast4());
       stripeService.updateCustomer(billing.getCustomerId(), paymentMethod.getId());
+      billingLogService.defaultPaymentMethod(account, paymentMethod.getCard().getLast4());
       var subscription = stripeService.createSubscription(billing.getCustomerId(), plan);
       mapToBilling(billing, paymentMethod, subscription);
       billing.setCreatedDate(toOffsetDateTime(subscription.getCreated()));
-      return billingRepository.save(account.getBilling());
+      var persistedBilling = billingRepository.save(account.getBilling());
+      billingLogService.createSubscription(account, persistedBilling.getPlanNickname());
+      return persistedBilling;
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_CREATE_SUBSCRIPTION_ERROR);
     }
@@ -208,11 +220,15 @@ public class BillingService {
       if (isCancelling(existingNickname, newPlan.get().getNickname())) {
         return cancelSubscription(account, existingSubscription, findPlanByNickname(PLAN_STARTER).getId());
       } else if (isUpgrading(existingNickname, newPlan.get().getNickname())) {
-        return updateSubscription(account, existingSubscription, plan, SubscriptionUpdateParams.BillingCycleAnchor.NOW,
-            SubscriptionUpdateParams.ProrationBehavior.NONE);
+        var persistedBilling = updateSubscription(account, existingSubscription, plan,
+            SubscriptionUpdateParams.BillingCycleAnchor.NOW, SubscriptionUpdateParams.ProrationBehavior.NONE);
+        billingLogService.updateSubscription(account, PLAN_STARTER, newPlan.get().getNickname());
+        return persistedBilling;
       }
-      return updateSubscription(account, existingSubscription, plan,
+      var persistedBilling = updateSubscription(account, existingSubscription, plan,
           SubscriptionUpdateParams.BillingCycleAnchor.UNCHANGED, SubscriptionUpdateParams.ProrationBehavior.NONE);
+      billingLogService.updateSubscription(account, existingNickname, newPlan.get().getNickname());
+      return persistedBilling;
     } catch (StripeException e) {
       throw new ApiException(BillingCode.STRIPE_UPDATE_SUBSCRIPTION_ERROR);
     }
@@ -229,7 +245,8 @@ public class BillingService {
         plan);
     mapToBilling(account.getBilling(), null, subscription);
     account.getBilling().setUpdatedDate(OffsetDateTime.now());
-    return billingRepository.save(account.getBilling());
+    var billing = billingRepository.save(account.getBilling());
+    return billing;
   }
 
   private boolean isCancelling(String existingPlanNickname, String newPlanNickname) {
@@ -273,8 +290,10 @@ public class BillingService {
       throw new ApiException(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_INVALID);
     }
     refundUnusedOperations(account, existingSubscription);
-    return updateSubscription(account, existingSubscription, starterPlan,
+    var persistedBilling = updateSubscription(account, existingSubscription, starterPlan,
         SubscriptionUpdateParams.BillingCycleAnchor.NOW, SubscriptionUpdateParams.ProrationBehavior.ALWAYS_INVOICE);
+    billingLogService.updateSubscription(account, existingNickname, PLAN_STARTER);
+    return persistedBilling;
   }
 
   private void refundUnusedOperations(Account account, Subscription subscription) throws StripeException {
@@ -282,10 +301,13 @@ public class BillingService {
     var maxOperations = flatTier.getUpTo();
     var upcomingInvoice = stripeService.findUpcomingInvoice(account.getBilling().getCustomerId());
     var currentOperations = upcomingInvoice.getLines().getData().get(0).getQuantity();
+    var quantity = maxOperations - currentOperations;
 
-    if (maxOperations - currentOperations > 0) {
-      stripeService.createInvoiceItem(account.getBilling().getCustomerId(), "Unused operation(s)", "gbp",
-          maxOperations - currentOperations, -((double) flatTier.getFlatAmount() / maxOperations));
+    if (quantity > 0) {
+      var unitAmountDecimal = -((double) flatTier.getFlatAmount() / maxOperations);
+      stripeService.createInvoiceItem(account.getBilling().getCustomerId(), "Unused operation(s)", "gbp", quantity,
+          unitAmountDecimal);
+      billingLogService.refundUnusedOperations(account, quantity, unitAmountDecimal);
     }
   }
 
@@ -293,17 +315,18 @@ public class BillingService {
    * Sync subscription information within billing data to new data from stripe
    * webhook.
    * 
-   * @param customerId     The id of the customer linked to the subscription.
-   * @param subscriptionId The id of the subscription from stripe.
+   * @param eventType The received stripe event type.
+   * @param invoice   The received invoice.
    */
-  public void syncSubscription(String customerId, String subscriptionId) {
+  public void handleInvoicePayment(String eventType, Invoice invoice) {
     try {
-      if (customerId == null) {
+      if (invoice.getCustomer() == null) {
         throw new ApiException(BillingCode.STRIPE_CUSTOMER_NOT_FOUND);
       }
-      var subscription = stripeService.retrieveSubscription(subscriptionId);
-      var billing = billingRepository.findByCustomerId(customerId)
+      var subscription = stripeService.retrieveSubscription(invoice.getSubscription());
+      var billing = billingRepository.findByCustomerId(invoice.getCustomer())
           .orElseThrow(() -> new ApiException(BillingCode.BILLING_NOT_FOUND));
+      logEvent(eventType, invoice, billing);
       // period end in the past so ignore as it's an old invoice being paid.
       if (toOffsetDateTime(subscription.getCurrentPeriodEnd()).isBefore(OffsetDateTime.now())) {
         return;
@@ -313,6 +336,19 @@ public class BillingService {
       billingRepository.save(billing);
     } catch (StripeException ex) {
       throw new ApiException(BillingCode.STRIPE_SYNC_SUBSCRIPTION_ERROR);
+    }
+  }
+
+  private void logEvent(String eventType, Invoice invoice, Billing billing) {
+    switch (eventType) {
+      case "invoice.payment_succeeded":
+        billingLogService.invoicePaymentSucceeded(billing.getAccount(), invoice.getNumber(), invoice.getAmountPaid());
+        break;
+      case "invoice.payment_failed":
+        var failedInvoice = findInvoiceById(invoice.getId());
+        billingLogService.invoicePaymentFailed(billing.getAccount(), failedInvoice.getNumber());
+        break;
+      default:
     }
   }
 
@@ -328,6 +364,7 @@ public class BillingService {
     }
     var billing = billingRepository.findByCustomerId(subscription.getCustomer())
         .orElseThrow(() -> new ApiException(BillingCode.BILLING_NOT_FOUND));
+    billingLogService.delinquentCustomer(billing.getAccount(), billing.getPlanNickname());
     billing.setSubscriptionId(null);
     billing.setSubscriptionItemId(null);
     billing.setSubscriptionStatus(subscription.getStatus());
@@ -401,6 +438,20 @@ public class BillingService {
         throw new ApiException(BillingCode.STRIPE_FIND_UPCOMING_INVOICE_NOT_FOUND);
       }
       throw new ApiException(BillingCode.STRIPE_FIND_UPCOMING_INVOICE_ERROR);
+    }
+  }
+
+  /**
+   * Find invoice by id.
+   * 
+   * @param invoiceId The identifier of invoice you'd like to retrieve.
+   * @return An invoice
+   */
+  public InvoiceResponse findInvoiceById(String invoiceId) {
+    try {
+      return mapToInvoiceResponse(stripeService.findInvoiceById(invoiceId));
+    } catch (StripeException ex) {
+      throw new ApiException(BillingCode.STRIPE_FIND_INVOICE_NOT_FOUND);
     }
   }
 

@@ -250,6 +250,7 @@ public class AccountService {
     var account = findAuthenticatedAccount(username);
     account.getRefreshTokens().clear();
     accountRepository.save(account);
+    securityLogService.deleteAllActiveDevices(account);
   }
 
   /**

@@ -19,6 +19,7 @@ public enum BillingCode implements ErrorCode {
   STRIPE_FIND_ALL_USAGE_RECORDS_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to find all usage records with Stripe."),
   STRIPE_CUSTOMER_NOT_FOUND(HttpStatus.NOT_FOUND, "Stripe customer not found."),
   STRIPE_FIND_ALL_INVOICES_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to find all invoices with Stripe."),
+  STRIPE_FIND_INVOICE_NOT_FOUND(HttpStatus.NOT_FOUND, "Stripe invoice not found."),
   STRIPE_FIND_UPCOMING_INVOICE_NOT_FOUND(HttpStatus.NOT_FOUND, "Stripe upcoming invoice not found."),
   STRIPE_FIND_UPCOMING_INVOICE_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to find upcoming invoice with Stripe."),
   STRIPE_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "Stripe plan not found."),

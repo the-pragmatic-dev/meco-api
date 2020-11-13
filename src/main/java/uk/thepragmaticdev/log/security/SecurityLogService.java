@@ -171,6 +171,16 @@ public class SecurityLogService {
   }
 
   /**
+   * Log when forcing a global signout.
+   * 
+   * @param account The account signing out
+   * @return The persisted log
+   */
+  public SecurityLog deleteAllActiveDevices(Account account) {
+    return log(account, "account.signout.all_devices");
+  }
+
+  /**
    * Log when an api key has been created from the account.
    * 
    * @param account The account associated with the api key

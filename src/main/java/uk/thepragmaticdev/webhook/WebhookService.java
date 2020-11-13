@@ -46,7 +46,7 @@ public class WebhookService {
     switch (event.getType()) {
       case "invoice.payment_succeeded":
       case "invoice.payment_failed":
-        handleInvoicePayment(event.getDataObjectDeserializer().getObject());
+        handleInvoicePayment(event.getType(), event.getDataObjectDeserializer().getObject());
         break;
       case "customer.subscription.deleted":
         handleDelinquentCustomer(event.getDataObjectDeserializer().getObject());
@@ -56,13 +56,13 @@ public class WebhookService {
     }
   }
 
-  private void handleInvoicePayment(Optional<StripeObject> stripeObject) {
+  private void handleInvoicePayment(String eventType, Optional<StripeObject> stripeObject) {
     if (!stripeObject.isPresent()) {
       throw new ApiException(WebhookCode.OBJECT_MISSING_ERROR);
     }
     var invoice = (Invoice) stripeObject.get();
     log.info("Handling invoice payment: {}", invoice.getNumber());
-    billingService.syncSubscription(invoice.getCustomer(), invoice.getSubscription());
+    billingService.handleInvoicePayment(eventType, invoice);
   }
 
   private void handleDelinquentCustomer(Optional<StripeObject> stripeObject) {

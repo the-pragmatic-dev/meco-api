@@ -136,7 +136,7 @@ CREATE TABLE billing_log (
     id BIGSERIAL PRIMARY KEY,
     account_id BIGINT NOT NULL REFERENCES account (id),
     action TEXT NOT NULL,
-    amount TEXT NOT NULL,
+    amount TEXT,
     created_date TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX billing_log_account_id_idx ON billing_log (account_id);

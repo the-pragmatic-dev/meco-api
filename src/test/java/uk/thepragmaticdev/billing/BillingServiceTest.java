@@ -24,12 +24,16 @@ import uk.thepragmaticdev.account.Account;
 import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.BillingCode;
+import uk.thepragmaticdev.log.billing.BillingLogService;
 
 @SpringBootTest
 class BillingServiceTest extends UnitData {
 
   @Mock
   private BillingRepository billingRepository;
+
+  @Mock
+  private BillingLogService billingLogService;
 
   @Mock
   private AccountService accountService;
@@ -45,7 +49,7 @@ class BillingServiceTest extends UnitData {
   @BeforeEach
   public void initEach() {
     var expireGracePeriod = 3;
-    sut = new BillingService(billingRepository, accountService, stripeService, expireGracePeriod);
+    sut = new BillingService(billingRepository, billingLogService, accountService, stripeService, expireGracePeriod);
   }
 
   @Test
@@ -115,6 +119,7 @@ class BillingServiceTest extends UnitData {
 
     var paymentMethod = mock(PaymentMethod.class);
     when(paymentMethod.getId()).thenReturn("id");
+    when(paymentMethod.getCard()).thenReturn(mock(PaymentMethod.Card.class));
 
     when(planCollection.getData()).thenReturn(List.of(plan()));
     when(accountService.findAuthenticatedAccount(anyString())).thenReturn(account);
