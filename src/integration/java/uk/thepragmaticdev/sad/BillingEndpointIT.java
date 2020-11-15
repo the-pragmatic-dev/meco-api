@@ -3,8 +3,10 @@ package uk.thepragmaticdev.sad;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import com.stripe.exception.StripeException;
@@ -165,7 +167,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
       .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
     .when()
       .post(billingEndpoint(port) + "subscriptions")
     .then()
@@ -175,7 +177,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
       .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
     .when()
       .post(billingEndpoint(port) + "subscriptions")
     .then()
@@ -234,7 +236,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(username, password), port))
       .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
     .when()
       .put(billingEndpoint(port) + "subscriptions")
     .then()
@@ -250,7 +252,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
       .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
     .when()
       .put(billingEndpoint(port) + "subscriptions")
     .then()
@@ -267,7 +269,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
       .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
     .when()
       .post(billingEndpoint(port) + "subscriptions")
     .then()
@@ -277,7 +279,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
       .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, "invalid_plan"))
+      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, "invalid_plan"))
     .when()
       .put(billingEndpoint(port) + "subscriptions")
     .then()
@@ -294,7 +296,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
       .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
     .when()
       .post(billingEndpoint(port) + "subscriptions")
     .then()
@@ -304,7 +306,7 @@ class BillingEndpointIT extends IntegrationData {
       .headers(headers())
       .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
       .contentType(JSON)
-      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+      .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
     .when()
       .put(billingEndpoint(port) + "subscriptions")
     .then()
@@ -371,7 +373,7 @@ class BillingEndpointIT extends IntegrationData {
 
   @Test
   void shouldNotCancelSubscriptionIfStarterSubscriptionIsActive() {
-    billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_STARTER_PLAN);
+    billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_STARTER_PLAN);
 
     given()
       .headers(headers())
@@ -383,6 +385,84 @@ class BillingEndpointIT extends IntegrationData {
         .body("status", is("BAD_REQUEST"))
         .body("message", is(BillingCode.STRIPE_CANCEL_SUBSCRIPTION_INVALID.getMessage()))
         .statusCode(400);
+  }
+
+  // @endpoint:create-payment-method
+
+  @Test
+  void shouldNotCreatePaymentMethodWhenTokenIsInvalid() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, INVALID_TOKEN)
+      .contentType(JSON)
+      .body(billingCreatePaymentMethodRequest(TEST_PAYMENT_METHOD_MASTERCARD))
+    .when()
+      .post(billingEndpoint(port) + "cards")
+    .then()
+        .body("id", is(not(emptyString())))
+        .body("status", is("UNAUTHORIZED"))
+        .body("message", is(AuthCode.ACCESS_TOKEN_INVALID.getMessage()))
+        .statusCode(401);
+  }
+
+  @Test
+  void shouldNotCreatePaymentMethodWhenIdIsNull() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
+      .contentType(JSON)
+      .body(billingCreatePaymentMethodRequest(null))
+    .when()
+      .post(billingEndpoint(port) + "cards")
+    .then()
+        .body("id", is(not(emptyString())))
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .rootPath("sub_errors[0]")
+            .body("object", is("billingCreatePaymentMethodRequest"))
+            .body("field", is("paymentMethodId"))
+            .body("rejected_value", is(nullValue()))
+            .body("message", is("payment method id cannot be blank."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotCreatePaymentMethodWhenIdIsEmpty() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
+      .contentType(JSON)
+      .body(billingCreatePaymentMethodRequest(""))
+    .when()
+      .post(billingEndpoint(port) + "cards")
+    .then()
+        .body("id", is(not(emptyString())))
+        .body("status", is("BAD_REQUEST"))
+        .body("message", is("Validation errors"))
+        .body("sub_errors", hasSize(1))
+        .rootPath("sub_errors[0]")
+            .body("object", is("billingCreatePaymentMethodRequest"))
+            .body("field", is("paymentMethodId"))
+            .body("rejected_value", is(""))
+            .body("message", is("payment method id cannot be blank."))
+        .statusCode(400);
+  }
+
+  @Test
+  void shouldNotCreatePaymentMethodWhenIdIsInvalid() {
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
+      .contentType(JSON)
+      .body(billingCreatePaymentMethodRequest("invalid_id"))
+    .when()
+      .post(billingEndpoint(port) + "cards")
+    .then()
+        .body("id", is(not(emptyString())))
+        .body("status", is("SERVICE_UNAVAILABLE"))
+        .body("message", is(BillingCode.STRIPE_CREATE_PAYMENT_METHOD_ERROR.getMessage()))
+        .statusCode(503);
   }
 
   // @endpoint:find-upcoming-invoice

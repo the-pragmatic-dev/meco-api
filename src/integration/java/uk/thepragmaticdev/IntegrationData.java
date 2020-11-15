@@ -40,6 +40,7 @@ import uk.thepragmaticdev.auth.dto.request.AuthResetRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthSigninRequest;
 import uk.thepragmaticdev.auth.dto.request.AuthSignupRequest;
 import uk.thepragmaticdev.auth.dto.response.AuthSigninResponse;
+import uk.thepragmaticdev.billing.dto.request.BillingCreatePaymentMethodRequest;
 import uk.thepragmaticdev.billing.dto.request.BillingCreateSubscriptionRequest;
 import uk.thepragmaticdev.kms.dto.request.AccessPolicyRequest;
 import uk.thepragmaticdev.kms.dto.request.ApiKeyCreateRequest;
@@ -60,7 +61,8 @@ public abstract class IntegrationData {
   protected static final String TEST_STARTER_PLAN = "price_1HjjsyBH6611072qfHrKuJ4i";
   protected static final String TEST_INDIE_PLAN = "price_1HiI8qBH6611072qmfPxAR7T";
   protected static final String TEST_PRO_PLAN = "price_1HiI8vBH6611072qMbcphyNB";
-  protected static final String TEST_PAYMENT_METHOD = "pm_card_visa";
+  protected static final String TEST_PAYMENT_METHOD_VISA = "pm_card_visa";
+  protected static final String TEST_PAYMENT_METHOD_MASTERCARD = "pm_card_mastercard";
   protected static final String INVALID_TOKEN = "Bearer invalidToken";
   protected static final String INVALID_API_KEY = "ApiKey invalidApiKey";
 
@@ -259,6 +261,10 @@ public abstract class IntegrationData {
   protected final BillingCreateSubscriptionRequest billingCreateSubscriptionRequest(String paymentMethodId,
       String planId) {
     return new BillingCreateSubscriptionRequest(paymentMethodId, planId);
+  }
+
+  protected final BillingCreatePaymentMethodRequest billingCreatePaymentMethodRequest(String paymentMethodId) {
+    return new BillingCreatePaymentMethodRequest(paymentMethodId);
   }
 
   protected final TextRequest textRequest() {

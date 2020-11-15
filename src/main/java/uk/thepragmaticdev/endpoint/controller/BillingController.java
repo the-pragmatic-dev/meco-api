@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.thepragmaticdev.billing.BillingService;
+import uk.thepragmaticdev.billing.dto.request.BillingCreatePaymentMethodRequest;
 import uk.thepragmaticdev.billing.dto.request.BillingCreateSubscriptionRequest;
 import uk.thepragmaticdev.billing.dto.response.BillingPlanResponse;
 import uk.thepragmaticdev.billing.dto.response.BillingResponse;
@@ -113,6 +114,23 @@ public class BillingController {
   @DeleteMapping(value = "/subscriptions", produces = MediaType.APPLICATION_JSON_VALUE)
   public BillingResponse cancelSubscription(Principal principal) {
     var billing = billingService.cancelSubscription(principal.getName());
+    return modelMapper.map(billing, BillingResponse.class);
+  }
+
+  /**
+   * Create a new stripe payment method for the given customer.
+   * 
+   * @param principal The currently authenticated principal user
+   * @param request   A new payment method request
+   * @return The customer billing information
+   */
+  @PostMapping(value = "/cards", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(value = HttpStatus.CREATED)
+  public BillingResponse createPaymentMethod(Principal principal,
+      @Valid @RequestBody BillingCreatePaymentMethodRequest request) {
+    var billing = billingService.createPaymentMethod(//
+        principal.getName(), //
+        request.getPaymentMethodId());
     return modelMapper.map(billing, BillingResponse.class);
   }
 

@@ -152,7 +152,7 @@ class BillingEndpointIT extends IntegrationData {
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
         .when()
           .post(billingEndpoint(port) + "subscriptions")
         .then()
@@ -189,13 +189,13 @@ class BillingEndpointIT extends IntegrationData {
   @Test
   void shouldUpgradeSubscriptionFromStarterToIndie() {
     // account created within @BeforeEach
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_STARTER_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_STARTER_PLAN);
 
     var billingResponse = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
         .when()
           .put(billingEndpoint(port) + "subscriptions")
         .then()
@@ -230,13 +230,13 @@ class BillingEndpointIT extends IntegrationData {
   @Test
   void shouldUpgradeSubscriptionFromStarterToPro() {
     // account created within @BeforeEach
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_STARTER_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_STARTER_PLAN);
 
     var billingResponse = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_PRO_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_PRO_PLAN))
         .when()
           .put(billingEndpoint(port) + "subscriptions")
         .then()
@@ -271,13 +271,13 @@ class BillingEndpointIT extends IntegrationData {
   @Test
   void shouldUpgradeSubscriptionFromIndieToPro() {
     // account created within @BeforeEach
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_INDIE_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN);
 
     var billingResponse = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_PRO_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_PRO_PLAN))
         .when()
           .put(billingEndpoint(port) + "subscriptions")
         .then()
@@ -307,14 +307,14 @@ class BillingEndpointIT extends IntegrationData {
   void shouldUpgradeSubscriptionFromIndieToProAndPersistUsage() {
     // account created within @BeforeEach
     var operations = 200000;
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_INDIE_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN);
     billingService.createUsageRecord(TEST_USERNAME, operations);
 
     var billingResponse = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_PRO_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_PRO_PLAN))
         .when()
           .put(billingEndpoint(port) + "subscriptions")
         .then()
@@ -346,13 +346,13 @@ class BillingEndpointIT extends IntegrationData {
   @Test
   void shouldDowngradeSubscriptionFromProToIndie() {
     // account created within @BeforeEach
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_PRO_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_PRO_PLAN);
 
     var billingResponse = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
         .when()
           .put(billingEndpoint(port) + "subscriptions")
         .then()
@@ -382,14 +382,14 @@ class BillingEndpointIT extends IntegrationData {
   void shouldDowngradeSubscriptionFromProToIndieAndPersistUsage() {
     // account created within @BeforeEach
     var operations = 200000;
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_PRO_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_PRO_PLAN);
     billingService.createUsageRecord(TEST_USERNAME, operations);
 
     var billingResponse = given()
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_INDIE_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN))
         .when()
           .put(billingEndpoint(port) + "subscriptions")
         .then()
@@ -421,7 +421,7 @@ class BillingEndpointIT extends IntegrationData {
   @Test
   void shouldDowngradeSubscriptionFromIndieToStarterAndRefundUnusedOperations() {
     // account created within @BeforeEach
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_INDIE_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN);
     billingService.createUsageRecord(TEST_USERNAME, 5000);
     billingService.createUsageRecord(TEST_USERNAME, 2500);
 
@@ -429,7 +429,7 @@ class BillingEndpointIT extends IntegrationData {
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_STARTER_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_STARTER_PLAN))
         .when()
           .put(billingEndpoint(port) + "subscriptions")
         .then()
@@ -468,7 +468,7 @@ class BillingEndpointIT extends IntegrationData {
   @Test
   void shouldDowngradeSubscriptionFromProToStarterAndRefundUnusedOperations() {
     // account created within @BeforeEach
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_PRO_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_PRO_PLAN);
     billingService.createUsageRecord(TEST_USERNAME, 10000);
     billingService.createUsageRecord(TEST_USERNAME, 5000);
 
@@ -476,7 +476,7 @@ class BillingEndpointIT extends IntegrationData {
           .headers(headers())
           .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
           .contentType(JSON)
-          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD, TEST_STARTER_PLAN))
+          .body(billingCreateSubscriptionRequest(TEST_PAYMENT_METHOD_VISA, TEST_STARTER_PLAN))
         .when()
           .put(billingEndpoint(port) + "subscriptions")
         .then()
@@ -517,7 +517,7 @@ class BillingEndpointIT extends IntegrationData {
   @Test
   void shouldCancelIndieSubscriptionAndRefundUnusedOperations() {
     // account created within @BeforeEach
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_INDIE_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN);
     billingService.createUsageRecord(TEST_USERNAME, 5000);
     billingService.createUsageRecord(TEST_USERNAME, 2500);
 
@@ -562,7 +562,7 @@ class BillingEndpointIT extends IntegrationData {
   @Test
   void shouldCancelProSubscriptionAndRefundUnusedOperations() {
     // account created within @BeforeEach
-    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_PRO_PLAN);
+    var originalBilling = billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_PRO_PLAN);
     billingService.createUsageRecord(TEST_USERNAME, 10000);
     billingService.createUsageRecord(TEST_USERNAME, 5000);
 
@@ -604,12 +604,45 @@ class BillingEndpointIT extends IntegrationData {
     assertThat(invoices.get(1).getTotal(), is(0L));
   }
 
+  // @endpoint:create-payment-method
+
+  @Test
+  void shouldCreatePaymentMethod() {
+    // account created within @BeforeEach
+    var billingResponse = given()
+          .headers(headers())
+          .header(HttpHeaders.AUTHORIZATION, signin(authSigninRequest(TEST_USERNAME, TEST_PASSWORD), port))
+          .contentType(JSON)
+          .body(billingCreatePaymentMethodRequest(TEST_PAYMENT_METHOD_MASTERCARD))
+        .when()
+          .post(billingEndpoint(port) + "cards")
+        .then()
+          .body("customer_id", startsWith("cus_"))
+          .body("subscription_id", is(nullValue()))
+          .body("subscription_item_id", is(nullValue()))
+          .body("subscription_status", is(nullValue()))
+          .body("plan_id", is(nullValue()))
+          .body("plan_nickname", is(nullValue()))
+          .body("card_billing_name", is(nullValue()))
+          .body("card_brand", is("mastercard"))
+          .body("card_last4", is("4444"))
+          .body("card_exp_month", is(11))
+          .body("card_exp_year", is(2021))
+          .body("created_date", is(nullValue()))
+          .statusCode(201)
+        .extract().body().as(BillingResponse.class);
+
+    var actualUpdated = billingResponse.getUpdatedDate().withOffsetSameInstant(ZoneOffset.UTC);
+    var expectedUpdated = OffsetDateTime.now(ZoneOffset.UTC);
+    assertThat(isSameDay(actualUpdated, expectedUpdated, ChronoUnit.DAYS), is(true));
+  }
+
   // @endpoint:find-upcoming-invoice
 
   @Test
   void shouldReturnUpcomingInvoiceWithTwoLineItemsForZeroOverage() {
     // account created within @BeforeEach
-    billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_INDIE_PLAN);
+    billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN);
 
     var invoiceResponse = given()
           .headers(headers())
@@ -646,7 +679,7 @@ class BillingEndpointIT extends IntegrationData {
   void shouldReturnUpcomingInvoiceWithThreeLineItemsForOverages() {
     // account created within @BeforeEach
     var operations = 11000;
-    billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_INDIE_PLAN);
+    billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN);
     billingService.createUsageRecord(TEST_USERNAME, operations);
     
     var invoiceResponse = given()
@@ -689,7 +722,7 @@ class BillingEndpointIT extends IntegrationData {
   void shouldCreateUsageRecordForSubscription() {
     // account created within @BeforeEach
     var operations = 10000;
-    billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD, TEST_INDIE_PLAN);
+    billingService.createSubscription(TEST_USERNAME, TEST_PAYMENT_METHOD_VISA, TEST_INDIE_PLAN);
     billingService.createUsageRecord(TEST_USERNAME, operations);
     var usageRecordSummaries = billingService.findAllUsageRecords(TEST_USERNAME).getData();
     assertThat(usageRecordSummaries, hasSize(1));

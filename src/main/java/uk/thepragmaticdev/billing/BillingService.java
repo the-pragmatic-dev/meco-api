@@ -146,11 +146,7 @@ public class BillingService {
     }
     var billing = account.getBilling();
     try {
-      // TODO move this to new payment added method later
-      var paymentMethod = stripeService.attachPaymentMethod(paymentMethodId, billing.getCustomerId());
-      billingLogService.attachPaymentMethod(account, paymentMethod.getCard().getLast4());
-      stripeService.updateCustomer(billing.getCustomerId(), paymentMethod.getId());
-      billingLogService.defaultPaymentMethod(account, paymentMethod.getCard().getLast4());
+      var paymentMethod = createPaymentMethod(account, paymentMethodId);
       var subscription = stripeService.createSubscription(billing.getCustomerId(), plan);
       mapToBilling(billing, paymentMethod, subscription);
       billing.setCreatedDate(toOffsetDateTime(subscription.getCreated()));
@@ -245,8 +241,7 @@ public class BillingService {
         plan);
     mapToBilling(account.getBilling(), null, subscription);
     account.getBilling().setUpdatedDate(OffsetDateTime.now());
-    var billing = billingRepository.save(account.getBilling());
-    return billing;
+    return billingRepository.save(account.getBilling());
   }
 
   private boolean isCancelling(String existingPlanNickname, String newPlanNickname) {
@@ -309,6 +304,37 @@ public class BillingService {
           unitAmountDecimal);
       billingLogService.refundUnusedOperations(account, quantity, unitAmountDecimal);
     }
+  }
+
+  /**
+   * Create a new stripe payment method for the given customer.
+   * 
+   * @param username        The authenticated account username
+   * @param paymentMethodId The default payment method id
+   * @return
+   */
+  public Billing createPaymentMethod(String username, String paymentMethodId) {
+    var account = accountService.findAuthenticatedAccount(username);
+    var billing = account.getBilling();
+    if (StringUtils.isBlank(billing.getCustomerId())) {
+      throw new ApiException(BillingCode.STRIPE_CUSTOMER_NOT_FOUND);
+    }
+    try {
+      var paymentMethod = createPaymentMethod(account, paymentMethodId);
+      mapPaymentMethod(billing, paymentMethod);
+      billing.setUpdatedDate(OffsetDateTime.now());
+      return billingRepository.save(account.getBilling());
+    } catch (StripeException e) {
+      throw new ApiException(BillingCode.STRIPE_CREATE_PAYMENT_METHOD_ERROR);
+    }
+  }
+
+  private PaymentMethod createPaymentMethod(Account account, String paymentMethodId) throws StripeException {
+    var paymentMethod = stripeService.attachPaymentMethod(paymentMethodId, account.getBilling().getCustomerId());
+    billingLogService.attachPaymentMethod(account, paymentMethod.getCard().getLast4());
+    stripeService.updateCustomer(account.getBilling().getCustomerId(), paymentMethod.getId());
+    billingLogService.defaultPaymentMethod(account, paymentMethod.getCard().getLast4());
+    return paymentMethod;
   }
 
   /**

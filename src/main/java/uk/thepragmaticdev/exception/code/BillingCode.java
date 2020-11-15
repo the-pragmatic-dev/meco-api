@@ -9,6 +9,7 @@ public enum BillingCode implements ErrorCode {
   STRIPE_CANCEL_SUBSCRIPTION_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to cancel subscription with Stripe."),
   STRIPE_CREATE_CUSTOMER_CONFLICT(HttpStatus.CONFLICT, "Account already contains a Stripe customer ID."),
   STRIPE_CREATE_CUSTOMER_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to create new customer with Stripe."),
+  STRIPE_CREATE_PAYMENT_METHOD_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to create payment method with Stripe."),
   STRIPE_CREATE_SUBSCRIPTION_CONFLICT(HttpStatus.CONFLICT, "Subscription already exists."),
   STRIPE_CREATE_SUBSCRIPTION_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "Unable to create subscription with Stripe."),
   STRIPE_UPDATE_SUBSCRIPTION_INVALID(HttpStatus.BAD_REQUEST, "Unable to subscribe to same active subscription plan."),
