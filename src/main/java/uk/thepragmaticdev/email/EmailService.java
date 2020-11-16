@@ -85,6 +85,7 @@ public class EmailService {
     var metadata = log.getRequestMetadata();
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
     formData.add("v:time", log.getCreatedDate().toString());
+    formData.add("v:ip", metadata.getIp());
     formData.add("v:cityName", metadata.getGeoMetadata().getCityName());
     formData.add("v:countryIsoCode", metadata.getGeoMetadata().getCountryIsoCode());
     formData.add("v:subdivisionIsoCode", metadata.getGeoMetadata().getSubdivisionIsoCode());
