@@ -114,7 +114,7 @@ class EmailServiceTest {
   }
 
   @Test()
-  void shouldUnrecognizedDeviceEmail() throws InterruptedException, UnsupportedEncodingException {
+  void shouldSendUnrecognizedDeviceEmail() throws InterruptedException, UnsupportedEncodingException {
     var username = "ash@ketchum.com";
     var account = mock(Account.class);
     when(account.getUsername()).thenReturn(username);
@@ -131,6 +131,7 @@ class EmailServiceTest {
     assertQueryParams(request, username, "subject4", "account-unrecognized-device");
     assertBody(request, List.of(//
         "v:time=".concat(log.getCreatedDate().toString()), //
+        "v:ip=".concat(log.getRequestMetadata().getIp().toString()), //
         "v:cityName=".concat(log.getRequestMetadata().getGeoMetadata().getCityName()), //
         "v:countryIsoCode=".concat(log.getRequestMetadata().getGeoMetadata().getCountryIsoCode()), //
         "v:subdivisionIsoCode=".concat(log.getRequestMetadata().getGeoMetadata().getSubdivisionIsoCode()), //
@@ -196,6 +197,7 @@ class EmailServiceTest {
     var metadata = mock(RequestMetadata.class);
     var geo = mockGeoMetadata();
     var device = mockDeviceMetadata();
+    when(metadata.getIp()).thenReturn("127.0.0.1");
     when(metadata.getGeoMetadata()).thenReturn(geo);
     when(metadata.getDeviceMetadata()).thenReturn(device);
     return metadata;
