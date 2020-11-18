@@ -51,6 +51,8 @@ public class ApiKey implements Model {
 
   private OffsetDateTime deletedDate;
 
+  private Boolean frozen;
+
   private Boolean enabled;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)

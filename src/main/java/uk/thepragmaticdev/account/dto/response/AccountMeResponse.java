@@ -23,6 +23,8 @@ public class AccountMeResponse {
 
   private short billingAlertAmount;
 
+  private boolean frozen;
+
   private OffsetDateTime createdDate;
 
   private BillingResponse billing;

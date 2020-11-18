@@ -60,6 +60,8 @@ public class Account implements Model {
 
   private short billingAlertAmount;
 
+  private Boolean frozen;
+
   private OffsetDateTime createdDate; // generated
 
   @OneToOne(cascade = { CascadeType.ALL }, orphanRemoval = true)

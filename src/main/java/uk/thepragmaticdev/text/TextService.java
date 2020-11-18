@@ -55,7 +55,10 @@ public class TextService {
    * @return A detailed analysis of the given text
    */
   public AnalyseCommentResponse analyse(String text, ApiKey apiKey) {
-    if (!Boolean.TRUE.equals(apiKey.getEnabled())) {
+    if (Boolean.TRUE.equals(apiKey.getFrozen())) {
+      throw new ApiException(ApiKeyCode.API_KEY_FROZEN);
+    }
+    if (Boolean.FALSE.equals(apiKey.getEnabled())) {
       throw new ApiException(ApiKeyCode.API_KEY_DISABLED);
     }
     var usageCount = usageCount(apiKey.getScope().getTextScope());

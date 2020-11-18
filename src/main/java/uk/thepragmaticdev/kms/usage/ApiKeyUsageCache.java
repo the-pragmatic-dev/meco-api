@@ -68,7 +68,7 @@ public class ApiKeyUsageCache {
    * Scheduled batch insert of cumulative operations for each api key. The usage
    * date is set to run date.
    */
-  @Scheduled(fixedRate = 30000)
+  @Scheduled(fixedDelay = 30000)
   public void flush() {
     if (usage.isEmpty()) {
       return;

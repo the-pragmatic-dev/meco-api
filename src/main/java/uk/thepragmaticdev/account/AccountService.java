@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import uk.thepragmaticdev.log.security.SecurityLog;
 import uk.thepragmaticdev.log.security.SecurityLogService;
 import uk.thepragmaticdev.security.token.RefreshToken;
 
+@Log4j2
 @Service
 public class AccountService {
 
@@ -52,6 +54,15 @@ public class AccountService {
     this.accountRepository = accountRepository;
     this.billingLogService = billingLogService;
     this.securityLogService = securityLogService;
+  }
+
+  /**
+   * Find all accounts.
+   * 
+   * @return A list of all accounts
+   */
+  public List<Account> findAll() {
+    return accountRepository.findAll();
   }
 
   /**
@@ -104,6 +115,7 @@ public class AccountService {
     account.setEmailSubscriptionEnabled(false);
     account.setBillingAlertEnabled(false);
     account.setBillingAlertAmount((short) 0);
+    account.setFrozen(false);
     account.setCreatedDate(OffsetDateTime.now());
     account.setBilling(new Billing());
     return accountRepository.save(account);
@@ -284,5 +296,41 @@ public class AccountService {
     persistedAccount.setPasswordResetToken(null);
     persistedAccount.setPasswordResetTokenExpire(null);
     return accountRepository.save(persistedAccount);
+  }
+
+  /**
+   * Freeze all api keys associated with an account.
+   * 
+   * @param account The account to freeze.
+   */
+  public void freeze(Account account) {
+    var keys = account.getApiKeys();
+    var updated = keys.stream().filter(key -> !key.getFrozen()).findFirst().isPresent() || !account.getFrozen();
+    if (updated) {
+      log.info("Froze account: {}", account.getUsername());
+      account.setFrozen(true);
+      keys.forEach(key -> {
+        key.setFrozen(true);
+      });
+      accountRepository.save(account);
+    }
+  }
+
+  /**
+   * Unfreeze all api keys associated with an account.
+   * 
+   * @param account The account to unfreeze.
+   */
+  public void unfreeze(Account account) {
+    var keys = account.getApiKeys();
+    var updated = keys.stream().filter(key -> key.getFrozen()).findFirst().isPresent() || account.getFrozen();
+    if (updated) {
+      log.info("Unfroze account: {}", account.getUsername());
+      account.setFrozen(false);
+      keys.forEach(key -> {
+        key.setFrozen(false);
+      });
+      accountRepository.save(account);
+    }
   }
 }

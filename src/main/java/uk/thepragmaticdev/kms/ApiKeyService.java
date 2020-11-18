@@ -130,6 +130,7 @@ public class ApiKeyService {
       apiKey.setKey(apiKey.getPrefix().concat(".").concat(generateKey()));
       apiKey.setHash(hash(apiKey.getKey()));
       apiKey.setCreatedDate(OffsetDateTime.now());
+      apiKey.setFrozen(authenticatedAccount.getFrozen());
       setEnabled(apiKey);
       setScope(apiKey);
       setAccessPolicies(apiKey);
@@ -286,7 +287,6 @@ public class ApiKeyService {
     if (enabled == null) {
       return;
     }
-    // TODO if trying to enable key - check if account has an active subscription
     if (!persistedApiKey.getEnabled().equals(enabled)) {
       apiKeyLogService.enabled(persistedApiKey, enabled);
       persistedApiKey.setEnabled(enabled);

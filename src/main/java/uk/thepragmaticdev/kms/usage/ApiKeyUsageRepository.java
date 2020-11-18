@@ -10,4 +10,6 @@ public interface ApiKeyUsageRepository extends JpaRepository<ApiKeyUsage, Long> 
   Optional<ApiKeyUsage> findOneByApiKeyIdAndUsageDate(Long apiKeyId, LocalDate usageDate);
 
   List<ApiKeyUsage> findByApiKeyIdAndUsageDateBetween(Long apiKeyId, LocalDate to, LocalDate from);
+
+  List<ApiKeyUsage> findByApiKeyIdInAndUsageDateBetween(List<Long> ids, LocalDate from, LocalDate to);
 }

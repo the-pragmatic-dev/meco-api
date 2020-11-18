@@ -73,6 +73,7 @@ class AccountEndpointIT extends IntegrationData {
         .body("full_name", is("Stephen Cathcart"))
         .body("email_subscription_enabled", is(true))
         .body("billing_alert_enabled", is(false))
+        .body("frozen", is(false))
         .body("created_date", is("2020-02-25T10:30:44.232Z"))
         .body("roles", is(nullValue()))
         .body("api_keys", is(nullValue()))
@@ -103,6 +104,7 @@ class AccountEndpointIT extends IntegrationData {
         .body("full_name", is(request.getFullName()))
         .body("email_subscription_enabled", is(request.getEmailSubscriptionEnabled()))
         .body("billing_alert_enabled", is(request.getBillingAlertEnabled()))
+        .body("frozen", is(false))
         .body("created_date", is("2020-02-25T10:30:44.232Z"))
         .statusCode(200);
   }
@@ -131,6 +133,7 @@ class AccountEndpointIT extends IntegrationData {
         .body("full_name", is("Stephen Cathcart"))
         .body("email_subscription_enabled", is(true))
         .body("billing_alert_enabled", is(false))
+        .body("frozen", is(false))
         .body("created_date", is("2020-02-25T10:30:44.232Z"))
         .statusCode(200);
   }

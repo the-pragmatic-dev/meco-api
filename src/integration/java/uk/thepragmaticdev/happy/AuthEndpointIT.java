@@ -83,6 +83,8 @@ class AuthEndpointIT extends IntegrationData {
     // email and billing should be false by default on new accounts
     assertThat(account.getEmailSubscriptionEnabled(), is(false));
     assertThat(account.getBillingAlertEnabled(), is(false));
+    // new accounts should not be frozen
+    assertThat(account.getFrozen(), is(false));
     // full name will be null on new accounts
     assertThat(account.getFullName(), is(nullValue()));
   }

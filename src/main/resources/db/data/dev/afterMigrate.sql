@@ -6,8 +6,8 @@ INSERT INTO billing values(1, null, null, null, null, null, null, null, null, nu
 INSERT INTO billing values(2, 'cus_test', null, null, null, null, null, null, null, null, null, null, null, null, '2020-02-25T10:30:44.232Z', null) ON CONFLICT DO NOTHING;
 SELECT setval('billing_id_seq', max(id)) FROM billing;
 -- Account
-INSERT INTO account values (1, 0, 'admin@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'Stephen Cathcart', false, 0, '2020-02-25T10:30:44.232Z', true, 1) ON CONFLICT DO NOTHING;
-INSERT INTO account values (2, 0, 'integration@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'David Lister', false, 0, '2020-02-25T10:30:44.232Z', true, 2) ON CONFLICT DO NOTHING;
+INSERT INTO account values (1, 0, 'admin@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'Stephen Cathcart', false, 0, false, '2020-02-25T10:30:44.232Z', true, 1) ON CONFLICT DO NOTHING;
+INSERT INTO account values (2, 0, 'integration@email.com', '$2a$12$kx9DDIZWgPlg8A7M1z/GFeHQy0fFkn3it18XTNNpNnCO6MjGs/hXm', null, null, 'David Lister', false, 0, false, '2020-02-25T10:30:44.232Z', true, 2) ON CONFLICT DO NOTHING;
 SELECT setval('account_id_seq', max(id)) FROM account;
 -- Account Roles
 INSERT INTO account_roles (account_id, name) values (1, 'ROLE_ADMIN') ON CONFLICT DO NOTHING;
@@ -16,11 +16,15 @@ INSERT INTO scope values (1, false, true, true, true, true, true, true, true, fa
 INSERT INTO scope values (2, true, false, false, false, false, false, false, false, true) ON CONFLICT DO NOTHING;
 SELECT setval('scope_id_seq', max(id)) FROM scope;
 -- API Key
-INSERT INTO api_key(id, name, prefix, hash, created_date, last_used_date, modified_date, deleted_date, enabled, account_id, scope_id) values 
-(1, 'Good Coffee Shop', 'rAosN1E', '$2a$12$vEFf.RpLuHuHDL3mEbORMOyvm1/Jgbz04wOJ1qOE4IyUUA2H2Ps4O', '2020-02-25T13:38:58.232Z', null, '2020-02-25T13:40:19.111Z', null, true, 1, 1) ON CONFLICT DO NOTHING;
-INSERT INTO api_key(id, name, prefix, hash, created_date, last_used_date, modified_date, deleted_date, enabled, account_id, scope_id) values 
-(2, 'Bobs Pastry Shop', '7Cx9VYK', '$2a$12$Jl0WgfT1aGoTEDVAYeJJveOZMcR/m9bz2A5QQsbVH4/AX5fVv9P3W', '2020-02-25T15:06:41.718Z', null, null, null, true, 1, 2) ON CONFLICT DO NOTHING;
+INSERT INTO api_key(id, name, prefix, hash, created_date, last_used_date, modified_date, deleted_date, frozen, enabled, account_id, scope_id) values 
+(1, 'Good Coffee Shop', 'rAosN1E', '$2a$12$vEFf.RpLuHuHDL3mEbORMOyvm1/Jgbz04wOJ1qOE4IyUUA2H2Ps4O', '2020-02-25T13:38:58.232Z', null, '2020-02-25T13:40:19.111Z', null, false, true, 1, 1) ON CONFLICT DO NOTHING;
+INSERT INTO api_key(id, name, prefix, hash, created_date, last_used_date, modified_date, deleted_date, frozen, enabled, account_id, scope_id) values 
+(2, 'Bobs Pastry Shop', '7Cx9VYK', '$2a$12$Jl0WgfT1aGoTEDVAYeJJveOZMcR/m9bz2A5QQsbVH4/AX5fVv9P3W', '2020-02-25T15:06:41.718Z', null, null, null, false, true, 1, 2) ON CONFLICT DO NOTHING;
 SELECT setval('api_key_id_seq', max(id)) FROM api_key;
+-- API Key Usage
+INSERT INTO api_key_usage(id, usage_date, text_operations, image_operations, api_key_id) values (1, '2020-11-01', 50, 100, 1) ON CONFLICT DO NOTHING;
+INSERT INTO api_key_usage(id, usage_date, text_operations, image_operations, api_key_id) values (2, '2020-11-02', 220, 380, 1) ON CONFLICT DO NOTHING;
+SELECT setval('api_key_usage_id_seq', max(id)) FROM api_key_usage;
 -- Access Policy
 INSERT INTO access_policy(id, name, range, api_key_id) values (1, 'newcastle', '5.65.196.0/16', 1) ON CONFLICT DO NOTHING;
 INSERT INTO access_policy(id, name, range, api_key_id) values (2, 'quedgeley', '17.22.136.0/32', 1) ON CONFLICT DO NOTHING;

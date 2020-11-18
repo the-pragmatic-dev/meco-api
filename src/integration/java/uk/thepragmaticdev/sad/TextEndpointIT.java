@@ -10,15 +10,18 @@ import org.flywaydb.test.FlywayTestExecutionListener;
 import org.flywaydb.test.annotation.FlywayTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import uk.thepragmaticdev.IntegrationConfig;
 import uk.thepragmaticdev.IntegrationData;
+import uk.thepragmaticdev.account.AccountService;
 import uk.thepragmaticdev.exception.code.ApiKeyCode;
 import uk.thepragmaticdev.exception.code.AuthCode;
 import uk.thepragmaticdev.exception.code.TextCode;
@@ -26,10 +29,14 @@ import uk.thepragmaticdev.exception.code.TextCode;
 @Import(IntegrationConfig.class)
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, FlywayTestExecutionListener.class })
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@TestPropertySource(properties = { "spring.jpa.properties.hibernate.enable_lazy_load_no_trans=true" })
 class TextEndpointIT extends IntegrationData {
 
   @LocalServerPort
   private int port;
+
+  @Autowired
+  private AccountService accountService;
 
   // @formatter:off
 
@@ -58,6 +65,27 @@ class TextEndpointIT extends IntegrationData {
         .body("status", is("UNAUTHORIZED"))
         .body("message", is(AuthCode.API_KEY_INVALID.getMessage()))
         .statusCode(401);
+  }
+
+  @Test
+  void shouldNotReturnTextResponseWhenApiKeyIsFrozen() {
+    // freeze account and api keys
+    var account = accountService.findAuthenticatedAccount("admin@email.com");
+    accountService.freeze(account);
+    // perform text request
+    var textRequest = textRequest();
+    given()
+      .headers(headers())
+      .header(HttpHeaders.AUTHORIZATION, apiKey())
+      .contentType(JSON)
+      .body(textRequest)
+    .when()
+      .post(textEndpoint(port))
+    .then()
+        .body("id", is(not(emptyString())))
+        .body("status", is("PAYMENT_REQUIRED"))
+        .body("message", is(ApiKeyCode.API_KEY_FROZEN.getMessage()))
+        .statusCode(402);
   }
 
   @Test

@@ -20,5 +20,7 @@ public class AccountUpdateResponse {
 
   private short billingAlertAmount;
 
+  private boolean frozen;
+
   private OffsetDateTime createdDate;
 }

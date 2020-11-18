@@ -43,6 +43,11 @@
       "description": "Number of days to extend subscription to account for failed payment."
     },
     {
+      "name": "billing.free-plan-limit",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of operations permitted on free plan."
+    },
+    {
       "name": "async.core-pool-size",
       "type": "java.lang.Integer",
       "description": "Set the ThreadPoolExecutor's core pool size. Default is 1."

@@ -25,6 +25,8 @@ public class ApiKeyCreateResponse {
 
   private OffsetDateTime modifiedDate;
 
+  private boolean frozen;
+
   private boolean enabled;
 
   private ScopeResponse scope;

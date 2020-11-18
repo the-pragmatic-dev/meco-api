@@ -38,7 +38,7 @@ public class BillingService {
 
   private final int expireGracePeriod;
 
-  private static final String PLAN_STARTER = "starter";
+  public static final String PLAN_STARTER = "starter";
 
   private static final String PLAN_INDIE = "indie";
 
@@ -357,6 +357,7 @@ public class BillingService {
       if (toOffsetDateTime(subscription.getCurrentPeriodEnd()).isBefore(OffsetDateTime.now())) {
         return;
       }
+      accountService.unfreeze(billing.getAccount());
       mapToBilling(billing, null, subscription);
       billing.setUpdatedDate(OffsetDateTime.now());
       billingRepository.save(billing);
