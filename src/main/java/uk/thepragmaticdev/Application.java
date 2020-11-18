@@ -6,14 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.CriticalCode;
 import uk.thepragmaticdev.security.request.RequestMetadataService;
 
 @Log4j2
 @SpringBootApplication
-@EnableScheduling
 @EnableAspectJAutoProxy
 public class Application {
 
