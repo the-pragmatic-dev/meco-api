@@ -123,6 +123,7 @@ public class RequestMetadataService {
       var destination = Paths.get(databaseDirectory.concat(databaseName).concat(extension));
       FileUtils.copyURLToFile(new URL(databaseUrl), destination.toFile(), connectionTimeout, readTimeout);
       localDatabase = extractDatabase(destination);
+      destination.toFile().delete();
     }
     return localDatabase;
   }
@@ -145,7 +146,6 @@ public class RequestMetadataService {
         return Optional.of(destination.getParent().resolve(entry.getName()));
       }
     }
-    // TODO delete archive file
     stream.close();
     return Optional.empty();
   }

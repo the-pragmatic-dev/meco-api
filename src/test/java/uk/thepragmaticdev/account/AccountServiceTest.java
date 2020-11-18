@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -18,9 +19,13 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.thepragmaticdev.UnitData;
@@ -133,55 +138,28 @@ class AccountServiceTest extends UnitData {
 
   // @internal->freeze
 
-  @Test
-  void shouldFreezeAllIfAccountIsNotFrozen() {
-    var account = account();
-    account.setFrozen(false);
-    var apiKey1 = new ApiKey();
-    apiKey1.setFrozen(true);
-    var apiKey2 = new ApiKey();
-    apiKey2.setFrozen(true);
-    account.setApiKeys(List.of(apiKey1, apiKey2));
-
-    sut.freeze(account);
-
-    verify(accountRepository, times(1)).save(any());
-    assertThat(account.getFrozen(), is(true));
-    assertThat(apiKey1.getFrozen(), is(true));
-    assertThat(apiKey2.getFrozen(), is(true));
+  static Stream<Arguments> freezeData() {
+    return Stream.of(//
+        arguments(false, true, true, 1), // account not frozen
+        arguments(true, true, false, 1), // key not frozen
+        arguments(true, true, true, 0) // account and keys frozen
+    );
   }
 
-  @Test
-  void shouldFreezeAllIfAnApiKeyIsNotFrozen() {
+  @ParameterizedTest
+  @MethodSource("freezeData")
+  void shouldFreezeAccountAndKeys(boolean accountFrozen, boolean key1Frozen, boolean key2Frozen, int calls) {
     var account = account();
-    account.setFrozen(true);
+    account.setFrozen(accountFrozen);
     var apiKey1 = new ApiKey();
-    apiKey1.setFrozen(true);
+    apiKey1.setFrozen(key1Frozen);
     var apiKey2 = new ApiKey();
-    apiKey2.setFrozen(false);
+    apiKey2.setFrozen(key2Frozen);
     account.setApiKeys(List.of(apiKey1, apiKey2));
 
     sut.freeze(account);
 
-    verify(accountRepository, times(1)).save(any());
-    assertThat(account.getFrozen(), is(true));
-    assertThat(apiKey1.getFrozen(), is(true));
-    assertThat(apiKey2.getFrozen(), is(true));
-  }
-
-  @Test
-  void shouldNotFreezeAllIfAccountAndApiKeysAreNotFrozen() {
-    var account = account();
-    account.setFrozen(true);
-    var apiKey1 = new ApiKey();
-    apiKey1.setFrozen(true);
-    var apiKey2 = new ApiKey();
-    apiKey2.setFrozen(true);
-    account.setApiKeys(List.of(apiKey1, apiKey2));
-
-    sut.freeze(account);
-
-    verify(accountRepository, times(0)).save(any());
+    verify(accountRepository, times(calls)).save(any());
     assertThat(account.getFrozen(), is(true));
     assertThat(apiKey1.getFrozen(), is(true));
     assertThat(apiKey2.getFrozen(), is(true));
@@ -189,55 +167,28 @@ class AccountServiceTest extends UnitData {
 
   // @internal->unfreeze
 
-  @Test
-  void shouldUnfreezeAllIfAccountIsFrozen() {
-    var account = account();
-    account.setFrozen(true);
-    var apiKey1 = new ApiKey();
-    apiKey1.setFrozen(false);
-    var apiKey2 = new ApiKey();
-    apiKey2.setFrozen(false);
-    account.setApiKeys(List.of(apiKey1, apiKey2));
-
-    sut.unfreeze(account);
-
-    verify(accountRepository, times(1)).save(any());
-    assertThat(account.getFrozen(), is(false));
-    assertThat(apiKey1.getFrozen(), is(false));
-    assertThat(apiKey2.getFrozen(), is(false));
+  static Stream<Arguments> unfreezeData() {
+    return Stream.of(//
+        arguments(true, false, false, 1), // account frozen
+        arguments(false, true, false, 1), // key frozen
+        arguments(false, false, false, 0) // account and keys not frozen
+    );
   }
 
-  @Test
-  void shouldUnfreezeAllIfAnApiKeyIsFrozen() {
+  @ParameterizedTest
+  @MethodSource("unfreezeData")
+  void shouldUnfreezeAccountAndKeys(boolean accountFrozen, boolean key1Frozen, boolean key2Frozen, int calls) {
     var account = account();
-    account.setFrozen(false);
+    account.setFrozen(accountFrozen);
     var apiKey1 = new ApiKey();
-    apiKey1.setFrozen(true);
+    apiKey1.setFrozen(key1Frozen);
     var apiKey2 = new ApiKey();
-    apiKey2.setFrozen(false);
+    apiKey2.setFrozen(key2Frozen);
     account.setApiKeys(List.of(apiKey1, apiKey2));
 
     sut.unfreeze(account);
 
-    verify(accountRepository, times(1)).save(any());
-    assertThat(account.getFrozen(), is(false));
-    assertThat(apiKey1.getFrozen(), is(false));
-    assertThat(apiKey2.getFrozen(), is(false));
-  }
-
-  @Test
-  void shouldNotUnfreezeAllIfAccountAndApiKeyAreNotFrozen() {
-    var account = account();
-    account.setFrozen(false);
-    var apiKey1 = new ApiKey();
-    apiKey1.setFrozen(false);
-    var apiKey2 = new ApiKey();
-    apiKey2.setFrozen(false);
-    account.setApiKeys(List.of(apiKey1, apiKey2));
-
-    sut.unfreeze(account);
-
-    verify(accountRepository, times(0)).save(any());
+    verify(accountRepository, times(calls)).save(any());
     assertThat(account.getFrozen(), is(false));
     assertThat(apiKey1.getFrozen(), is(false));
     assertThat(apiKey2.getFrozen(), is(false));

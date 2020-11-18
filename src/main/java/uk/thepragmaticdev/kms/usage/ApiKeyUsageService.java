@@ -52,8 +52,6 @@ public class ApiKeyUsageService {
    * @return The total number of operations.
    */
   public long count(List<ApiKeyUsage> usages) {
-    return usages.stream().mapToLong(usage -> {
-      return usage.getImageOperations() + usage.getTextOperations();
-    }).sum();
+    return usages.stream().mapToLong(usage -> usage.getImageOperations() + usage.getTextOperations()).sum();
   }
 }

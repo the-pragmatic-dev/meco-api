@@ -305,13 +305,11 @@ public class AccountService {
    */
   public void freeze(Account account) {
     var keys = account.getApiKeys();
-    var updated = keys.stream().filter(key -> !key.getFrozen()).findFirst().isPresent() || !account.getFrozen();
+    var updated = keys.stream().anyMatch(key -> !key.getFrozen()) || !account.getFrozen();
     if (updated) {
       log.info("Froze account: {}", account.getUsername());
       account.setFrozen(true);
-      keys.forEach(key -> {
-        key.setFrozen(true);
-      });
+      keys.forEach(key -> key.setFrozen(true));
       accountRepository.save(account);
     }
   }
@@ -323,13 +321,11 @@ public class AccountService {
    */
   public void unfreeze(Account account) {
     var keys = account.getApiKeys();
-    var updated = keys.stream().filter(key -> key.getFrozen()).findFirst().isPresent() || account.getFrozen();
+    var updated = keys.stream().anyMatch(key -> key.getFrozen()) || account.getFrozen();
     if (updated) {
       log.info("Unfroze account: {}", account.getUsername());
       account.setFrozen(false);
-      keys.forEach(key -> {
-        key.setFrozen(false);
-      });
+      keys.forEach(key -> key.setFrozen(false));
       accountRepository.save(account);
     }
   }
