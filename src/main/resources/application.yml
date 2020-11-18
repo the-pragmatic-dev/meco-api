@@ -98,6 +98,7 @@ kms:
 
 billing:
     expire-grace-period: 3
+    free-plan-limit: 1000
 
 geolite2:
     name: GeoLite2-City.mmdb
