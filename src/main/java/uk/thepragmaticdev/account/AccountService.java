@@ -21,6 +21,7 @@ import uk.thepragmaticdev.exception.ApiException;
 import uk.thepragmaticdev.exception.code.AccountCode;
 import uk.thepragmaticdev.exception.code.AuthCode;
 import uk.thepragmaticdev.exception.code.CriticalCode;
+import uk.thepragmaticdev.kms.ApiKey;
 import uk.thepragmaticdev.log.billing.BillingLog;
 import uk.thepragmaticdev.log.billing.BillingLogService;
 import uk.thepragmaticdev.log.security.SecurityLog;
@@ -321,7 +322,7 @@ public class AccountService {
    */
   public void unfreeze(Account account) {
     var keys = account.getApiKeys();
-    var updated = keys.stream().anyMatch(key -> key.getFrozen()) || account.getFrozen();
+    var updated = keys.stream().anyMatch(ApiKey::getFrozen) || account.getFrozen();
     if (updated) {
       log.info("Unfroze account: {}", account.getUsername());
       account.setFrozen(false);

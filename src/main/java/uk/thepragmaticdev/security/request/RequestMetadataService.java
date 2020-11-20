@@ -123,7 +123,7 @@ public class RequestMetadataService {
       var destination = Paths.get(databaseDirectory.concat(databaseName).concat(extension));
       FileUtils.copyURLToFile(new URL(databaseUrl), destination.toFile(), connectionTimeout, readTimeout);
       localDatabase = extractDatabase(destination);
-      destination.toFile().delete();
+      Files.delete(destination);
     }
     return localDatabase;
   }
