@@ -26,7 +26,7 @@
   <properties>
     <bucket4j.version>4.10.0</bucket4j.version>
     <cactoos.version>0.44</cactoos.version>
-    <commons.io-version>2.6</commons.io-version>
+    <commons.io-version>2.7</commons.io-version>
     <commons.lang.version>3.9</commons.lang.version>
     <commons.net.version>3.6</commons.net.version>
     <flyway.test.version>6.1.0</flyway.test.version>
